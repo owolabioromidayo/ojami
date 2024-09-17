@@ -167,12 +167,6 @@ async function getCurrentUser(req: Request, res: Response) {
 }
 
 
-
-
-
-
-
-
 export default router;
 
 
