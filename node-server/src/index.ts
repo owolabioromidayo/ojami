@@ -13,7 +13,7 @@ import { __prod__ } from "./constants";
 
 require("dotenv").config();
 
-import authRoutes from './routes/authRoutes';
+import authRoutes from './routes/auth.routes';
 
 console.log(process.env.NODE_ENV);
 

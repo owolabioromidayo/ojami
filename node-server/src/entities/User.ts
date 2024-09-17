@@ -1,4 +1,6 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
+import { Entity, PrimaryKey, Property, OneToMany, Collection, ManyToOne, ManyToMany, EntityManager } from "@mikro-orm/core";
+import { Product } from "./Product";
+import { Storefront } from "./Storefront";
 
 
 @Entity()
@@ -30,6 +32,19 @@ export class User {
 
   @Property()
   profileImgUrl = "https://i.imgur.com/OQENGf1.jpeg";
+
+
+  @OneToMany(() => Storefront, storefront => storefront.user)
+  storefronts = new Collection<Storefront>(this);
+
+  // @OneToMany(() => Card, card => card.user)
+  // cards = new Collection<Card>(this);
+
+  // @OneToMany(() => Wallet, wallet => wallet.user)
+  // wallets = new Collection<Wallet>(this);
+
+  // @OneToMany(() => Transaction, transaction => transaction.sendingUser)
+  // transactions = new Collection<Transaction>(this);
 
 
   constructor(firstname: string, lastname: string, username: string, email: string, passwordHash: string) {
