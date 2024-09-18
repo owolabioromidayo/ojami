@@ -5,15 +5,17 @@ import config from '../src/mikro-orm.config'; // Import the test config
 import { faker } from '@faker-js/faker';
 
 describe('User Routes', () => {
-  let app: any;
-  let userData: {
-    firstname: string,
-    lastname: string,
-    username: string,
-    email: string,
-    password: string,
-    id: Number
-  };
+  // let app: any;
+  // let userData: {
+  //   firstname: string,
+  //   lastname: string,
+  //   username: string,
+  //   email: string,
+  //   password: string,
+  //   id: Number
+  // };
+  let app;
+  let userData; 
 
   beforeAll(async () => {
 

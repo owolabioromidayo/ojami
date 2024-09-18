@@ -14,6 +14,9 @@ import { __prod__ } from "./constants";
 require("dotenv").config();
 
 import authRoutes from './routes/auth.routes';
+import paymentRoutes from './routes/payment.routes';
+import ecommerceRoutes from './routes/ecommerce.routes';
+import webhookRoutes from './routes/webhook.routes';
 
 console.log(process.env.NODE_ENV);
 
@@ -79,6 +82,9 @@ export const createApp = async () => {
   });
   
   app.use('/api/auth', authRoutes);
+  app.use('/api/ecommerce', ecommerceRoutes);
+  app.use('/api/payments', paymentRoutes);
+  app.use('/api/webhooks', webhookRoutes);
 
   return app; 
 }

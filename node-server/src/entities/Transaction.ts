@@ -1,50 +1,102 @@
-// from which card / wallet, to which other card / wallet
+import { Entity, PrimaryKey, Property, ManyToOne } from "@mikro-orm/core";
+import { User } from "./User"; 
+import { BankTransferResponse, TransactionStatus, TransactionType } from "../types"; 
+
+//TODO: transaction type, from and to
 
 
-// @Entity()
-// export class Transaction {
+@Entity()
+export class Transaction {
 
-//     @PrimaryKey()
-//     id!: number;
+  @PrimaryKey()
+  id!: number;
 
-//     @ManyToOne(() => User)
-//     sendingUser!: User;
+  @Property()
+  _type!: TransactionType;
 
-//     @ManyToOne(() => User)
-//     receivingUser!: User;
+  @Property()
+  currency!: string;
 
-//     @ManyToOne(() => Card, { nullable: true })
-//     sendingCard?: Card; 
+  @Property()
+  amount!: number;
 
-//     @ManyToOne(() => Wallet, { nullable: true })
-//     sendingWallet?: Wallet; 
+  @Property()
+  amountPaid?: number;
 
-//     @ManyToOne(() => Card, { nullable: true })
-//     receivingCard?: Card; /
+  @Property()
+  amountExpected!: number;
 
-//     @ManyToOne(() => Wallet, { nullable: true })
-//     receivingWallet?: Wallet;
+  @Property()
+  fee!: number;
 
-//     @ManyToOne(() => Storefront, { nullable: true })
-//     storefront?: Storefront; 
+  @Property()
+  vat!: number;
 
-//     @ManyToOne(() => Order, { nullable: true })
-//     order?: Order;
+  @Property()
+  reference!: string;
 
-//     constructor(sendingUser: User, receivingUser: User,
-//         sendingCard?: Card,
-//         sendingWallet?: Wallet,
-//         receivingCard?: Card,
-//         receivingWallet?: Wallet,
-//         storefront?: Storefront,
-//         order?: Order) {
-//         this.sendingUser = sendingUser;
-//         this.receivingUser = receivingUser;
-//         this.sendingCard = sendingCard;
-//         this.sendingWallet = sendingWallet;
-//         this.receivingCard = receivingCard;
-//         this.receivingWallet = receivingWallet;
-//         this.storefront = storefront;
-//         this.order = order;
-//     }
-// }
+  @Property()
+  paymentReference!: string;
+
+  @Property()
+  status!: TransactionStatus;
+
+  @Property()
+  narration!: string;
+
+  @Property()
+  merchantBearsCost!: boolean;
+
+  @Property()
+  accountName!: string;
+
+  @Property()
+  accountNumber!: string;
+
+  @Property()
+  bankName!: string;
+
+  @Property()
+  bankCode!: string;
+
+  @Property()
+  expiryDateInUtc!: Date;
+
+  @Property()
+  customerName!: string;
+
+  @Property()
+  customerEmail!: string;
+
+  @ManyToOne(() => User) 
+  sendingUser!: User;
+
+  @ManyToOne(() => User) 
+  receivingUser?: User;
+
+  constructor(response: BankTransferResponse, user: User) {
+    const { data } = response;
+    this.currency = data.currency;
+    this.amount = data.amount;
+    this.amountExpected = data.amount_expected;
+    this.fee = data.fee;
+    this.vat = data.vat;
+    this.reference = data.reference;
+    this.paymentReference = data.payment_reference;
+    this.status = data.status as TransactionStatus;
+    this._type = TransactionType.BANK_TRANSFER;
+    this.narration = data.narration;
+    this.merchantBearsCost = data.merchant_bears_cost;
+
+    this.accountName = data.bank_account.account_name;
+    this.accountNumber = data.bank_account.account_number;
+    this.bankName = data.bank_account.bank_name;
+    this.bankCode = data.bank_account.bank_code;
+    this.expiryDateInUtc = new Date(data.bank_account.expiry_date_in_utc);
+
+    this.customerName = data.customer.name;
+    this.customerEmail = data.customer.email;
+
+    this.sendingUser = user;
+  }
+}

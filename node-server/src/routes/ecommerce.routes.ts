@@ -29,13 +29,14 @@ import { User } from "../entities/User";
 import { Cart } from "../entities/Cart"; 
 import { CartItem } from "../entities/CartItem";
 import { serialize } from "v8";
+import { isAuth } from "../middleware/isAuth";
 
 const router = express.Router();
 
 //TODO: more CRUD routes, emphasis on U and D
 
 // Storefront Routes
-router.post("/storefronts", createStorefront);
+router.post("/storefronts", isAuth,  createStorefront);
 //TODO: do we want storefronts to be indexed by id or name? 
 router.get("/storefronts/:id", getStorefront);
 router.get("/storefronts/:id/products", getAllProductsFromStorefront);
@@ -43,29 +44,27 @@ router.get("/storefronts", getAllStorefronts);
 
 
 // Product Routes
-router.post("/products", createProduct);
+router.post("/products", isAuth, createProduct);
 router.get("/products/:id", getProduct);
 router.get("/products", getAllProducts);
 
 // Order Routes
-router.post("/orders", createOrder);
-router.get("/orders/:id", getOrder);
-router.get("/orders/me/", getUserOrders);
+router.post("/orders", isAuth,  createOrder);
+router.get("/orders/:id", isAuth, getOrder);
+router.get("/orders/me/", isAuth,  getUserOrders);
 
 // Cart Routes
-router.post("/carts", createCart);
-router.get("/carts/me", getUserCart);
-router.post("/carts/add", addToCart);
-router.post("/carts/remove", removeFromCart);
+router.post("/carts", isAuth, createCart);
+router.get("/carts/me", isAuth, getUserCart);
+router.post("/carts/add", isAuth, addToCart);
+router.post("/carts/remove", isAuth, removeFromCart);
 
 //TODO: cart checkout
 
+//TODO: fix error responses
+
 
 async function createStorefront(req: Request, res: Response) {
-    if (!req.session.userid) {
-        return res.status(401).json({ errors: [{ field: 'auth', message: 'Not authenticated' }] });
-    }
-
     const { storename,  description , tags } = req.body;
 
     const em = (req as RequestWithContext).em;
@@ -118,9 +117,6 @@ async function getAllStorefronts(req: Request, res: Response) {
 }
 
 async function createProduct(req: Request, res: Response) {
-    if (!req.session.userid) {
-        return res.status(401).json({ errors: [{ field: 'auth', message: 'Not authenticated' }] });
-    }
 
     const { name, images, description, tags } = req.body;
 
@@ -215,9 +211,6 @@ async function getAllProductsFromStorefront(req: Request, res: Response) {
 }
 
 async function createOrder(req: Request, res: Response) {
-    if (!req.session.userid) {
-        return res.status(401).json({ errors: [{ field: 'auth', message: 'Not authenticated' }] });
-    }
 
     const count = Number(req.body.count);
     const productId = Number(req.body.productId);
@@ -250,10 +243,6 @@ async function createOrder(req: Request, res: Response) {
 }
 
 async function getOrder(req: Request, res: Response) {
-    // do we auth restrict this? maybe
-    if (!req.session.userid) {
-        return res.status(401).json({ errors: [{ field: 'auth', message: 'Not authorized' }] });
-    }
 
     const id  = Number(req.params.id);
 
@@ -278,9 +267,6 @@ async function getOrder(req: Request, res: Response) {
 }
 
 async function getUserOrders(req: Request, res: Response) {
-    if (!req.session.userid) {
-        return res.status(401).json({ errors: [{ field: 'auth', message: 'Not authorized' }] });
-    }
 
     const em = (req as RequestWithContext).em;
 
@@ -296,9 +282,6 @@ async function getUserOrders(req: Request, res: Response) {
 // Cart Functions
 
 async function createCart(req: Request, res: Response) {
-    if (!req.session.userid) {
-        return res.status(401).json({ errors: [{ field: 'auth', message: 'Not authorized' }] });
-    }
 
     const em = (req as RequestWithContext).em;
 
@@ -321,9 +304,6 @@ async function createCart(req: Request, res: Response) {
 }
 
 async function getUserCart(req: Request, res: Response) {
-    if (!req.session.userid) {
-        return res.status(401).json({ errors: [{ field: 'auth', message: 'Not authorized' }] });
-    }
 
     const em = (req as RequestWithContext).em;
 
@@ -347,9 +327,6 @@ async function getUserCart(req: Request, res: Response) {
 }
 
 async function addToCart(req: Request, res: Response) {
-    if (!req.session.userid) {
-        return res.status(401).json({ errors: [{ field: 'auth', message: 'Not authorized' }] });
-    }
 
     const productId = Number(req.body.productId);
     const quantity= Number(req.body.productId);
@@ -391,9 +368,6 @@ async function addToCart(req: Request, res: Response) {
 }
 
 async function removeFromCart(req: Request, res: Response) {
-    if (!req.session.userid) {
-        return res.status(401).json({ errors: [{ field: 'auth', message: 'Not authorized' }] });
-    }
 
     const productId = Number(req.body.productId);
 

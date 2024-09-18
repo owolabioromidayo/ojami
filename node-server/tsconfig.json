@@ -15,11 +15,11 @@
     },
     "include": [
         "src/**/*",
-        "tests/**/*",
         "./**/*.ts",
         "jest.setup.js"
-    ],
+, "tests/ecommerce.test.js"    ],
     "exclude": [
-        "node_modules"
+        "node_modules",
+        "tests/**/*",
     ]
 }

@@ -1,6 +1,7 @@
-import { Entity, PrimaryKey, Property, OneToMany, Collection, ManyToOne, ManyToMany, EntityManager } from "@mikro-orm/core";
-import { Product } from "./Product";
+import { Entity, PrimaryKey, Property, OneToMany, Collection, OneToOne, ManyToOne, ManyToMany, EntityManager } from "@mikro-orm/core";
 import { Storefront } from "./Storefront";
+import { VirtualAccount } from "./VirtualAccount";
+import { Transaction } from "./Transaction";
 
 
 @Entity()
@@ -37,14 +38,11 @@ export class User {
   @OneToMany(() => Storefront, storefront => storefront.user)
   storefronts = new Collection<Storefront>(this);
 
-  // @OneToMany(() => Card, card => card.user)
-  // cards = new Collection<Card>(this);
+  @OneToOne(() => VirtualAccount, virtualAccount => virtualAccount.user, {owner: true})
+  virtualAccount?: VirtualAccount;
 
-  // @OneToMany(() => Wallet, wallet => wallet.user)
-  // wallets = new Collection<Wallet>(this);
-
-  // @OneToMany(() => Transaction, transaction => transaction.sendingUser)
-  // transactions = new Collection<Transaction>(this);
+  @OneToMany(() => Transaction, transaction => transaction.sendingUser)
+  transactions = new Collection<Transaction>(this);
 
 
   constructor(firstname: string, lastname: string, username: string, email: string, passwordHash: string) {
