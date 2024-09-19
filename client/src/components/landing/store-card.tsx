@@ -1,10 +1,10 @@
-import { Flex, Image, Text, Avatar, Stack, Icon } from "@chakra-ui/react";
+import { Flex, Image, Text, Avatar, Stack, Icon, FlexProps } from "@chakra-ui/react";
 import React from "react";
 import FancyButton from "../ui/button";
 import { IoStarSharp } from "react-icons/io5";
 
 
-interface StoreCardProps {
+interface StoreCardProps extends FlexProps {
   image: string;
   avatar: string;
   store: string;
@@ -17,10 +17,11 @@ export const StoreCard: React.FC<StoreCardProps> = ({
   avatar,
   store,
   ratings,
-  reviews
+  reviews,
+  ...props
 }) => {
   return (
-    <Flex pos="relative" h="350px" w="360px">
+    <Flex pos="relative" h="350px" w="360px" {...props}>
       <Flex
         direction="column"
         overflow="hidden"

@@ -8,7 +8,7 @@ interface LandingLayoutProps {
 
 export const LandingLayout: React.FC<LandingLayoutProps> = ({ children }) => {
   return (
-    <Flex direction="column" pos="relative" px={10} gap={20} h="100vh" align="center" bg="#FFF9E5" bgImg="/assets/oja-bg.png" bgSize="contain" bgPos="top">
+    <Flex direction="column" pos="relative" px={10} gap={20} h="100vh" align="center" bg="#FFF9E5">
       <Flex
         maxW="1650px"
         w="full"
