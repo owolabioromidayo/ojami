@@ -59,11 +59,23 @@ export default function Home() {
       reviews: "12.1k",
     },
   ];
+
+  const images = [
+    "/assets/images/1.png",
+    "/assets/images/2.png",
+    "/assets/images/3.png",
+    "/assets/images/4.png",
+    "/assets/images/5.png",
+    "/assets/images/6.png",
+    "/assets/images/7.png",
+    "/assets/images/8.png",
+    "/assets/images/9.png",
+  ];
   return (
     <LandingLayout>
       <Flex direction="column" w="full" h="full" maxW="1650px" align="center">
         <Flex w="full" pos="absolute" mt={"-100px"}>
-          <Marquee direction="right">
+          <Marquee direction="right" speed={7}>
             <Image
               pointerEvents="none"
               src="/assets/oja-clouds.svg"
@@ -83,7 +95,7 @@ export default function Home() {
           overflow="hidden"
           zIndex={1}
         >
-          <Text fontSize="4rem" fontWeight={"700"}>
+          <Text fontSize={{ base: "2.1rem", md: "4rem" }} fontWeight={"700"}>
             E dey my market
           </Text>
           <FancyButton
@@ -96,7 +108,7 @@ export default function Home() {
           </FancyButton>
           <Flex align="center" gap={5} mt={20}>
             <Box
-              w="1200px"
+              w={{ base: "500px", md: "1200px" }}
               mb={-20}
               h="700px"
               rounded="30px"
@@ -104,14 +116,14 @@ export default function Home() {
               bg="gray.100"
             />
             <Box
-              w="1200px"
+              w={{ base: "500px", md: "1200px" }}
               h="700px"
               rounded="30px"
               border="2px solid #000000"
               bg="gray.100"
             />
             <Box
-              w="1200px"
+              w={{ base: "500px", md: "1200px" }}
               mb={-20}
               h="700px"
               rounded="30px"
@@ -165,9 +177,9 @@ export default function Home() {
             w="full"
             direction="column"
             align="center"
-            mt={24}
+            mt={{ base: 52, md: 24 }}
           >
-            <Marquee speed={50} pauseOnHover>
+            <Marquee speed={40} pauseOnHover>
               <Flex mt={20} p={2} w="full" overflow="hidden">
                 {fakeStores.map((item) => (
                   <StoreCard
@@ -221,15 +233,17 @@ export default function Home() {
           </Marquee>
         </Flex>
         <Flex
-          direction="row"
+          direction={{ base: "column", md: "row" }}
           w="full"
           h="460px"
           maxW="1650px"
           mt="100px"
           align="center"
           justify="space-between"
+          px={{base: 4}}
+
         >
-          <Text fontSize="4rem" fontWeight={600}>
+          <Text fontSize={{ base: "3rem", md: "4rem"}} fontWeight={600}>
             List my Products
           </Text>
           <Image
@@ -268,15 +282,17 @@ export default function Home() {
           </Marquee>
         </Flex>
         <Flex
-          direction="row"
+          direction={{ base: "column", md: "row" }}
           w="full"
           h="460px"
           maxW="1650px"
           mt="100px"
           align="center"
           justify="space-between"
+          px={{base: 4}}
+
         >
-          <Text fontSize="4rem" fontWeight={600}>
+          <Text fontSize={{ base: "3rem", md: "4rem"}} fontWeight={600}>
             Manage my Payments
           </Text>
           <Image
@@ -316,15 +332,16 @@ export default function Home() {
           </Marquee>
         </Flex>
         <Flex
-          direction="row"
+          direction={{ base: "column", md: "row" }}
           w="full"
           h="460px"
           maxW="1650px"
           mt="100px"
           align="center"
           justify="space-between"
+          px={{base: 4}}
         >
-          <Text fontSize="4rem" fontWeight={600}>
+          <Text fontSize={{ base: "3rem", md: "4rem"}} fontWeight={600}>
             Create my Marketplace
           </Text>
           <Image
@@ -364,7 +381,8 @@ export default function Home() {
           </Marquee>
         </Flex>
         <Flex
-          direction="row"
+                    direction={{ base: "column", md: "row" }}
+
           w="full"
           h="460px"
           maxW="1650px"
@@ -372,7 +390,7 @@ export default function Home() {
           align="center"
           justify="space-between"
         >
-          <Flex pos="absolute" w="100%">
+          <Flex pos={{ md: "absolute"}} w="100%">
             <Flex
               bgImg="/assets/green-area.svg"
               bgPos="center"
@@ -403,7 +421,7 @@ export default function Home() {
               <Text fontSize="26">try it</Text>
             </FancyButton>
           </Flex>
-          <Flex pos="absolute" w="50%" right={0}>
+          <Flex pos={{ md: "absolute"}} w="50%" right={0}>
             <Flex
               bgImg="/assets/orange-area.svg"
               bgPos="center"
@@ -433,6 +451,78 @@ export default function Home() {
             >
               <Text fontSize="26">try it</Text>
             </FancyButton>
+          </Flex>
+        </Flex>
+      </Flex>
+
+      {/* Section 6 */}
+
+      <Flex
+        bg="white"
+        w="full"
+        h="900px"
+        pos="absolute"
+        mt="5500px"
+        justify="center"
+      >
+        {/* <Flex w="full" pos="absolute" mt={"-100px"}>
+          <Marquee direction="right">
+            <Image
+              pointerEvents="none"
+              src="/assets/dividers/oja-white.svg"
+              w="full"
+              alt={"divider"}
+            />
+            <Image
+              pointerEvents="none"
+              src="/assets/dividers/oja-white.svg"
+              w="full"
+              alt={"divider"}
+            />
+          </Marquee>
+        </Flex> */}
+        <Flex
+          direction="column"
+          w="full"
+          h="full"
+          maxW="1650px"
+          mt="100px"
+          align="center"
+        >
+          <Text fontSize="3.5rem" fontWeight={600}>
+            Find it on ọjà mi
+          </Text>
+          <FancyButton
+            bg="/assets/buttons/oja-cloud-green.svg"
+            w="300px"
+            h="90px"
+            right={-40}
+            mt={-7}
+            transform={"rotate(-10deg)"}
+          >
+            Explore ọjà mi
+          </FancyButton>
+
+          <Flex
+            pos="absolute"
+            w="full"
+            direction="column"
+            align="center"
+            mt={24}
+          >
+            <Marquee speed={50} direction="right">
+              <Flex mt={20} p={2} w="full" overflow="hidden" align="center">
+                {images.map((item) => (
+                  <Image
+                    src={item}
+                    alt="explore oja"
+                    w="350px"
+                    mr={4}
+                    pointerEvents="none"
+                  />
+                ))}
+              </Flex>
+            </Marquee>
           </Flex>
         </Flex>
       </Flex>
