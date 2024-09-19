@@ -513,6 +513,7 @@ export default function Home() {
               <Flex mt={20} p={2} w="full" overflow="hidden" align="center">
                 {images.map((item) => (
                   <Image
+                    key={item}
                     src={item}
                     alt="explore oja"
                     w="350px"
