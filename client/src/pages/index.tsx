@@ -240,10 +240,9 @@ export default function Home() {
           mt="100px"
           align="center"
           justify="space-between"
-          px={{base: 4}}
-
+          px={{ base: 4 }}
         >
-          <Text fontSize={{ base: "3rem", md: "4rem"}} fontWeight={600}>
+          <Text fontSize={{ base: "3rem", md: "4rem" }} fontWeight={600}>
             List my Products
           </Text>
           <Image
@@ -289,10 +288,9 @@ export default function Home() {
           mt="100px"
           align="center"
           justify="space-between"
-          px={{base: 4}}
-
+          px={{ base: 4 }}
         >
-          <Text fontSize={{ base: "3rem", md: "4rem"}} fontWeight={600}>
+          <Text fontSize={{ base: "3rem", md: "4rem" }} fontWeight={600}>
             Manage my Payments
           </Text>
           <Image
@@ -339,9 +337,9 @@ export default function Home() {
           mt="100px"
           align="center"
           justify="space-between"
-          px={{base: 4}}
+          px={{ base: 4 }}
         >
-          <Text fontSize={{ base: "3rem", md: "4rem"}} fontWeight={600}>
+          <Text fontSize={{ base: "3rem", md: "4rem" }} fontWeight={600}>
             Create my Marketplace
           </Text>
           <Image
@@ -381,75 +379,76 @@ export default function Home() {
           </Marquee>
         </Flex>
         <Flex
-                    direction={{ base: "column", md: "row" }}
-
+          direction={{ base: "column", md: "row" }}
           w="full"
           h="460px"
           maxW="1650px"
-          mt="100px"
+          mt={{ base: "-50px", md: "100px"}}
           align="center"
-          justify="space-between"
+          justify={{ md: "space-between"}}
         >
-          <Flex pos={{ md: "absolute"}} w="100%">
+          <Flex pos={{ md: "absolute" }} w={{ base: "80%", md: "100%"}}>
             <Flex
               bgImg="/assets/green-area.svg"
               bgPos="center"
               bgSize="contain"
               bgRepeat="no-repeat"
-              w="800px"
-              h="600px"
+              w={{ base: "300px", md: "800px"}}
+              h={{ md: "600px"}}
               pos="relative"
               align="center"
               justify="center"
-              px={28}
+              px={{ base: 2, md: 28}}
             >
-              <Image src="/assets/oja-watashi.svg" alt="star" mr={6} />
-              <Text lineHeight={1} fontSize={"4rem"} fontWeight={600}>
+              <Image src="/assets/oja-watashi.svg" alt="star" mr={6} w={{ base: "50px", md: "full"}} />
+              <Text lineHeight={1} fontSize={{ base:"2rem", md: "4rem"}} fontWeight={600}>
                 3D/AR Something sha
               </Text>
             </Flex>
             <FancyButton
               bg="/assets/buttons/oja-ellipse-purple.svg"
-              w="200px"
-              h="80px"
+              w={{ base:"220px", md: "200px"}}
+              h={{ base: "200px", md: "80px"}}
               zIndex={1}
               pos="relative"
-              right={"280px"}
-              top={"470px"}
+              right={{base:"80px", md: "280px"}}
+              top={{ base:"270px", md: "470px"}}
               transform="rotate(-12deg)"
             >
-              <Text fontSize="26">try it</Text>
+              <Text fontSize={{md: "26"}}>try it</Text>
             </FancyButton>
           </Flex>
-          <Flex pos={{ md: "absolute"}} w="50%" right={0}>
+
+          <Flex pos={{ md: "absolute" }} w={{ base: "80%", md: "50%"}} right={0}>
             <Flex
               bgImg="/assets/orange-area.svg"
               bgPos="center"
               bgSize="contain"
               bgRepeat="no-repeat"
-              w="800px"
+              w={{ base: "300px", md: "800px"}}
+              zIndex={1}
               h="600px"
               pos="relative"
               align="center"
               justify="center"
-              px={40}
+              px={{ base: 12, md: 40}}
             >
-              <Image src="/assets/oja-watashi.svg" alt="star" mr={6} />
-              <Text lineHeight={1} fontSize={"4rem"} fontWeight={600}>
+              <Image src="/assets/oja-watashi.svg" alt="star" mr={6} w={{ base: "50px", md: "full"}} />
+              <Text lineHeight={1} fontSize={{ base:"2rem", md: "4rem"}}  fontWeight={600}>
                 AI Shopping Assistant
               </Text>
             </Flex>
             <FancyButton
               bg="/assets/buttons/oja-ellipse-blue.svg"
-              w="200px"
-              h="80px"
+              w={{ base:"220px", md: "200px"}}
+              h={{ base: "200px", md: "80px"}}
               zIndex={1}
               pos="relative"
-              right={"280px"}
-              top={"470px"}
+              right={{base:"80px", md: "280px"}}
+              top={{ base:"270px", md: "470px"}}
               transform="rotate(-12deg)"
             >
-              <Text fontSize="26">try it</Text>
+              <Text fontSize={{md: "26"}}>try it</Text>
             </FancyButton>
           </Flex>
         </Flex>
