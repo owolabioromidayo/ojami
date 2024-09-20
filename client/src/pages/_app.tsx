@@ -3,6 +3,8 @@ import type { AppProps } from "next/app";
 import { ChakraProvider } from "@chakra-ui/react";
 import Head from "next/head";
 import localFont from "next/font/local";
+import { Analytics } from "@vercel/analytics/react"
+
 
 const general = localFont({
   src: "./fonts/GeneralSans-Variable.woff2",
@@ -28,6 +30,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <link rel="icon" href="/icons/oja.svg" />
       </Head>
       <main className={`${general.className}`}>
+        <Analytics />
         <Component {...pageProps} />
       </main>
     </ChakraProvider>

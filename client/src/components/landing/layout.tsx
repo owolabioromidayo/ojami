@@ -1,12 +1,14 @@
-import { Flex, Image, keyframes } from "@chakra-ui/react";
+import { Flex, Image, keyframes, useDisclosure } from "@chakra-ui/react";
 import React from "react";
 import FancyButton from "../ui/button";
+import { SignInModal } from "../utils/signin-modal";
 
 interface LandingLayoutProps {
   children: React.ReactNode;
 }
 
 export const LandingLayout: React.FC<LandingLayoutProps> = ({ children }) => {
+    const { onOpen, isOpen, onClose } = useDisclosure()
 
 const rotateAnimation = keyframes`
 0% { transform: rotate(0deg); }
@@ -45,9 +47,11 @@ const rotateAnimation = keyframes`
           bg="/assets/buttons/small-flower.svg"
           w={{ base:"70px", md: "100px"}}
           h={{ base: "120px", md: "200px"}}
+          onClick={onOpen}
         >
           my cart
         </FancyButton>
+        <SignInModal isOpen={isOpen} onClose={onClose} />
       </Flex>
       {children}
       <Flex
