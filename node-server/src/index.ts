@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from "express";
 import session from 'express-session';
 import helmet from 'helmet';
 import RedisStore from "connect-redis";
@@ -18,6 +18,9 @@ import identityRoutes from './routes/identity.routes';
 import paymentRoutes from './routes/payment.routes';
 import ecommerceRoutes from './routes/ecommerce.routes';
 import webhookRoutes from './routes/webhook.routes';
+import { isAuth } from './middleware/isAuth';
+import { ProductLink } from "./entities/ProductLink";
+import { RequestWithContext } from "./types";
 
 console.log(process.env.NODE_ENV);
 
@@ -31,6 +34,14 @@ declare module 'express-session' {
     userid: number;
   }
 } ``
+
+async function resolvePaymentLink(req: Request, res: Response){
+    const em = (req as RequestWithContext).em;
+    
+    const productLink = await em.fork({}).findOneOrFail(ProductLink, { linkId: req.params.id  }, {populate: ["product.id"]});
+
+    res.redirect(`/api/ecommerce/products/${productLink.product.id}`);
+}
 
 export const createApp = async () => {
   const orm = await MikroORM.init(microConfig);
@@ -81,12 +92,15 @@ export const createApp = async () => {
   app.get('/', (req, res) => {
     res.send('Welcome to the Storefront Marketplace API');
   });
+
   
   app.use('/api/auth', authRoutes);
   app.use('/api/identity', identityRoutes);
   app.use('/api/ecommerce', ecommerceRoutes);
   app.use('/api/payments', paymentRoutes);
   app.use('/api/webhooks', webhookRoutes);
+  app.get('/p/:id', isAuth, resolvePaymentLink);
+
 
   return app; 
 }

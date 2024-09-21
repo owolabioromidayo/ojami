@@ -1,6 +1,7 @@
-import { Entity, PrimaryKey, Property, OneToMany, Collection, ManyToOne, EntityManager, ManyToMany } from "@mikro-orm/core";
+import { Entity, PrimaryKey, Property, OneToMany, Collection, ManyToOne, EntityManager, ManyToMany, OneToOne } from "@mikro-orm/core";
 import { Storefront } from "./Storefront";
 import { Tag } from "./Tag";
+import { ProductLink } from "./ProductLink";
 
 //TODO : handle product variations?
 
@@ -29,6 +30,9 @@ export class Product {
 
   @ManyToOne(() => Storefront)
   storefront!: Storefront;
+
+  @OneToOne(() => ProductLink, productLink => productLink.product)
+ link?: ProductLink 
 
   @ManyToMany(() => Tag, tag => tag.products)
   tags = new Collection<Tag>(this);

@@ -1,17 +1,23 @@
 import express, { Request, Response } from "express";
 import { v4 as uuidv4 } from 'uuid';
 
+import QRCode from 'qrcode';
+
 
 import { CreateVirtualAccountResponse, RequestWithContext, BankTransferResponse } from "../types";
 import { User } from "../entities/User";
+import { Product } from "../entities/Product";
 import { isAuth } from "../middleware/isAuth";
 
 import fetch from 'node-fetch';
 import { VirtualAccount } from "../entities/VirtualAccount";
 import { Transaction } from "../entities/Transaction";
 import { ACCOUNT_NAME, ACCOUNT_REF, BANK_TRANSFER_NOTIFICATION_URL, KORAPAY_TOKEN } from "../constants";
+import { ProductLink } from "../entities/ProductLink";
 
 const router = express.Router();
+
+const URL_PREFIX = `${process.env.DOMAIN_URL}/p/`
 
 
 
@@ -22,6 +28,10 @@ router.post("/virtual_accounts/new", isAuth, createNewVirtualBankAccount);
 router.post("/pay_in/bank_transfer", isAuth, receiveBankTransferFromCustomer);
 
 // router.post("/pay_in/card_transfer", isAuth, receiveBankTransferFromCustomer);
+
+
+router.post("/generate_payment_link", isAuth, generatePaymentLink);
+
 
 
 //create sandbox virtual account
@@ -149,6 +159,55 @@ async function receiveBankTransferFromCustomer (req: Request, res: Response) {
         return res.status(500).json({ errors: [{ status: 'Virtual account create request failed', message: 'None', error: err }] });
     }
 }
+
+async function generatePaymentLink(req:Request, res: Response) {
+    //right now its just product link
+
+    const {productId} = req.body; 
+
+    if ( !productId ||  isNaN(Number(productId) )) {
+        return res.status(400).json({ errors: [{ field: 'productId', message: 'productId is not a number' }] });
+    }
+
+    const em = (req as RequestWithContext).em;
+
+    try {
+    
+        const product = await em.fork({}).findOneOrFail(Product, { id: Number(productId) },  {populate: ['link.shortLink', 'link.qrCode']});
+
+        if (product.link){
+            //already exists, return
+            return res.status(201).json({ shortLink: product.link.shortLink, qrCode: product.link.qrCode  });
+        }
+
+        //generate new link and QR code
+
+        
+        const linkId: string = uuidv4(); 
+        const shortLink: string = `${URL_PREFIX}${linkId}`; 
+
+        QRCode.toDataURL(shortLink, async (err, url) => {
+            if (err) {
+            return res.status(500).json({ errors: [{ message: "Could not generate QR code." }] });
+            } else {
+                const qrCode = url;
+                const productLink = new ProductLink(linkId, shortLink, qrCode, product); 
+                await em.fork({}).persistAndFlush(productLink);
+            return res.status(201).json({ shortLink, qrCode  });
+
+            }
+        }  )
+
+
+
+    } catch (err) {
+        return res.status(500).json({ errors: [{ message: `Could not fetch product with ID ${productId}.` }] });
+    }
+
+
+}
+
+
 
 
 export default router;
