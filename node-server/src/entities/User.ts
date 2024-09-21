@@ -2,6 +2,8 @@ import { Entity, PrimaryKey, Property, OneToMany, Collection, OneToOne, ManyToOn
 import { Storefront } from "./Storefront";
 import { VirtualAccount } from "./VirtualAccount";
 import { Transaction } from "./Transaction";
+import { KYC } from "./KYC";
+import { KYB } from "./KYB";
 
 
 @Entity()
@@ -40,6 +42,12 @@ export class User {
 
   @OneToOne(() => VirtualAccount, virtualAccount => virtualAccount.user, {owner: true})
   virtualAccount?: VirtualAccount;
+
+  @OneToOne(() => KYC, kyc => kyc.user, {owner: true})
+  KYC?: KYC;
+
+  @OneToOne(() => KYB, kyb => kyb.user, {owner: true})
+  KYB?: KYB;
 
   @OneToMany(() => Transaction, transaction => transaction.sendingUser)
   transactions = new Collection<Transaction>(this);
