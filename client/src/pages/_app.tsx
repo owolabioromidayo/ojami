@@ -29,7 +29,7 @@ export default function App({ Component, pageProps }: AppProps) {
             <meta property="og:image" content="/assets/thumbnail.png" />
         <link rel="icon" href="/icons/oja.svg" />
       </Head>
-      <main className={`${general.className}`}>
+      <main className={`${general.className}`} style={{ background: "#FFF9E5"}}>
         <Analytics />
         <Component {...pageProps} />
       </main>

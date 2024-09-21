@@ -15,7 +15,7 @@ import {
 import React from "react";
 import FancyButton from "../ui/fancy-button";
 import { SignInModal } from "../utils/signin-modal";
-import { IoSearch, IoSparkles, IoSparklesOutline } from "react-icons/io5";
+import { IoCamera, IoSearch, IoSparkles, IoSparklesOutline } from "react-icons/io5";
 
 interface MarketLayoutProps {
   children: React.ReactNode;
@@ -46,12 +46,14 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
   return (
     <Flex
       direction="column"
-      px={{ lg: 10 }}
       gap={20}
-      h="100vh"
+      minH="100vh"
       align="center"
       bg="#FFF9E5"
+      w="full"
     >
+      <Flex w="full" justify="center" direction="row" px={{ lg: 10 }}>
+
       <Flex
         maxW="1650px"
         w="full"
@@ -94,11 +96,23 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
               />
             </InputGroup>
             <IconButton
+              // onClick={() => onToggle()}
+              colorScheme="orange"
+              _hover={{ bg: "orange.100"}}
+              variant="ghost"
+              icon={<IoCamera />}
+              fontSize={32}
+              aria-label="image search"
+              py={8}
+              px={6}
+            />
+            <IconButton
               onClick={() => onToggle()}
+              _hover={{ bg: "orange.100"}}
               colorScheme="orange"
               variant="ghost"
               icon={<IoSparkles />}
-              fontSize={24}
+              fontSize={30}
               aria-label="shop assistant"
               py={8}
               px={6}
@@ -106,6 +120,7 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
           </Flex>
           <Collapse in={isMOpen} animateOpacity>
             <Box
+            w="630px"
             zIndex={10}
             pos="absolute"
             left={0}
@@ -175,10 +190,11 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
         </FancyButton>
         <SignInModal isOpen={isOpen} onClose={onClose} />
       </Flex>
+      </Flex>
 
 
       <Flex
-      mt="180px"
+        mt="180px"
         maxW="1650px"
         w="full"
         direction="column"
@@ -187,12 +203,13 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
 
       {children}
         </Flex>
+
       <Flex
         w="full"
-        mt="6300px"
         bg="#FFF9E5"
         pt="14"
-        pos="absolute"
+        bottom={0}
+        pos="relative"
         direction="column"
         // justify="center"
         align="center"
