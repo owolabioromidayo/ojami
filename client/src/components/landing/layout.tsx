@@ -1,6 +1,6 @@
 import { Flex, Image, keyframes, useDisclosure } from "@chakra-ui/react";
 import React from "react";
-import FancyButton from "../ui/button";
+import FancyButton from "../ui/fancy-button";
 import { SignInModal } from "../utils/signin-modal";
 
 interface LandingLayoutProps {

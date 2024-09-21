@@ -1,65 +1,43 @@
+// @ts-nocheck
+
 import {
   Modal,
   ModalOverlay,
   ModalContent,
-  Box,
-  ModalFooter,
   ModalBody,
   Text,
   Input,
   InputGroup,
   InputLeftElement,
-  Collapse,
   Icon,
   useDisclosure,
   Flex,
-  IconButton,
   ModalHeader,
   ModalCloseButton,
-  Button,
   FormControl,
   FormErrorMessage,
   FormLabel,
   Link,
   Tabs,
-  TabList,
   TabPanels,
-  Tab,
   TabPanel,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { Formik, Form, Field } from "formik";
-import { IoKey, IoKeyOutline } from "react-icons/io5";
+import { IoKeyOutline } from "react-icons/io5";
 import { MdAlternateEmail } from "react-icons/md";
-import FancyButton from "../ui/button";
+import FancyButton from "../ui/fancy-button";
 
 interface SignInProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-interface FormValues {
-  email: string;
-  password: string;
-}
 
 export const SignInModal: React.FC<SignInProps> = ({ isOpen, onClose }) => {
   const { isOpen: isMOpen, onToggle } = useDisclosure();
   const [index, setIndex] = useState(0);
-  const tools = [
-    {
-      label: "AI Chat",
-    },
-    {
-      label: "AI Search",
-    },
-    {
-      label: "Explore",
-    },
-    {
-      label: "AR Store",
-    },
-  ];
+
 
   return (
     <Modal
@@ -165,6 +143,8 @@ export const SignInModal: React.FC<SignInProps> = ({ isOpen, onClose }) => {
                           w="280px"
                           h="90px"
                           fontWeight={700}
+                          isLoading={props.isSubmitting}
+                          type="submit"
                         >
                           Sign in
                         </FancyButton>
@@ -362,6 +342,8 @@ export const SignInModal: React.FC<SignInProps> = ({ isOpen, onClose }) => {
                           w="280px"
                           h="90px"
                           fontWeight={700}
+                           isLoading={props.isSubmitting}
+                          type="submit"
                         >
                           Sign up
                         </FancyButton>

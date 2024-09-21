@@ -1,6 +1,6 @@
 import { LandingLayout } from "@/components/landing/layout";
 import { StoreCard } from "@/components/landing/store-card";
-import FancyButton from "@/components/ui/button";
+import FancyButton from "@/components/ui/fancy-button";
 import { Box, Flex, Image, Text, useDisclosure } from "@chakra-ui/react";
 import Marquee from "react-fast-marquee";
 import { fakeStores, images } from "../../fakedata";
