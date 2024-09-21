@@ -15,7 +15,7 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import React from "react";
-import { IoSearch, IoSparkles, IoSparklesOutline } from "react-icons/io5";
+import { IoCamera, IoSearch, IoSparkles, IoSparklesOutline } from "react-icons/io5";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -69,11 +69,23 @@ export const SearchModal: React.FC<SearchModalProps> = ({
               />
             </InputGroup>
             <IconButton
+              // onClick={() => onToggle()}
+              colorScheme="orange"
+              _hover={{ bg: "orange.100"}}
+              variant="ghost"
+              icon={<IoCamera />}
+              fontSize={32}
+              aria-label="image search"
+              py={8}
+              px={6}
+            />
+            <IconButton
               onClick={() => onToggle()}
+              _hover={{ bg: "orange.100"}}
               colorScheme="orange"
               variant="ghost"
               icon={<IoSparkles />}
-              fontSize={24}
+              fontSize={30}
               aria-label="shop assistant"
               py={8}
               px={6}
