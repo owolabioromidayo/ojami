@@ -7,10 +7,10 @@ import { KYB } from "../entities/KYB";
 import { isAuth } from "../middleware/isAuth";
 
 
-const identityRouter = express.Router();
+const router = express.Router();
 
-identityRouter.post("/kyc", isAuth, submitKYC);
-identityRouter.post("/kyb", isAuth, submitKYB);
+router.post("/kyc", isAuth, submitKYC);
+router.post("/kyb", isAuth, submitKYB);
 
 async function submitKYC(req: Request, res: Response) {
     const { NIN, BVN } = req.body;
@@ -74,4 +74,4 @@ async function submitKYB(req: Request, res: Response) {
 }
 
 
-export default identityRouter;
+export default router;
