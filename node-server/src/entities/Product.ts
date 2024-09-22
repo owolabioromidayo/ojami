@@ -23,10 +23,10 @@ export class Product {
   description!: string;
 
   @Property()
-  quantity!: Number;
+  quantity!: number;
 
   @Property()
-  price!: Number;
+  price!: number;
 
   @ManyToOne(() => Storefront)
   storefront!: Storefront;
@@ -37,7 +37,7 @@ export class Product {
   @ManyToMany(() => Tag, tag => tag.products)
   tags = new Collection<Tag>(this);
 
-  constructor(storefront: Storefront, name: string, price: Number, images: string[], description: string, quantity: Number, tagNames: string[], em: EntityManager) {
+  constructor(storefront: Storefront, name: string, price: number, images: string[], description: string, quantity: number, tagNames: string[], em: EntityManager) {
     this.storefront = storefront;
     this.name = name;
     this.description = description;
