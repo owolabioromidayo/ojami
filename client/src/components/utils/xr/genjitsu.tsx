@@ -9,6 +9,8 @@ import { Suspense, useEffect, useState } from 'react'
 
 export default function Genjitsu() {
     const [store, setStore] = useState<XRStore | null>(null);
+    const [scale, setScale] = useState(1); // State for model scale
+
 
     useEffect(() => {
       // Create the XR store only in the client
@@ -43,17 +45,18 @@ export default function Genjitsu() {
       >
         Enter AR
       </button>
-      <Canvas shadows camera={{ position: [4, 0, 6], fov: 35 }}>
+
+      <Canvas shadows camera={{ position: [4, 0, 6], fov: 100 }} >
         <XR store={store}>
           <group position={[0, -0.75, 0]}>
             <Suspense>
               <Center top>
-                <Model />
+                <Model/>
               </Center>
             </Suspense>
             <directionalLight position={[1, 8, 1]} castShadow />
             <ambientLight />
-            <mesh receiveShadow rotation-x={-Math.PI / 2} scale={100}>
+            <mesh receiveShadow rotation-x={-Math.PI / 2} scale={10}>
               <shadowMaterial opacity={0.7} />
               <planeGeometry />
             </mesh>
