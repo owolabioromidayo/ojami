@@ -44,7 +44,7 @@ export class User {
   // @OneToOne(() => VirtualAccount, virtualAccount => virtualAccount.user, { owner: true })
   // virtualAccount?: VirtualAccount;
 
-  @OneToOne(() => VirtualAccount, virtualAccount => virtualAccount.user, { owner: true })
+  @OneToOne(() => VirtualWallet, virtualWallet => virtualWallet.user, { owner: true })
   virtualWallet = new VirtualWallet(this);
 
   @OneToOne(() => KYC, kyc => kyc.user, { owner: true })

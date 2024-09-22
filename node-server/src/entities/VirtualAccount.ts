@@ -41,8 +41,8 @@ export class VirtualAccount {
   @Property()
   customerName!: string;
 
-  @OneToOne(() => User, user => user.virtualAccount)
-  user!: User;
+  // @OneToOne(() => User, user => user.virtualAccount)
+  // user!: User;
 
 
 
@@ -59,7 +59,7 @@ export class VirtualAccount {
   this.currency = data.currency;
   this.customerName = data.customer.name;
 
-  this.user = user;
+  // this.user = user;
 
 }
 }
