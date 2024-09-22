@@ -4,6 +4,7 @@ import { VirtualAccount } from "./VirtualAccount";
 import { Transaction } from "./Transaction";
 import { KYC } from "./KYC";
 import { KYB } from "./KYB";
+import { VirtualWallet } from "./VirtualWallet";
 
 
 @Entity()
@@ -40,13 +41,16 @@ export class User {
   @OneToMany(() => Storefront, storefront => storefront.user)
   storefronts = new Collection<Storefront>(this);
 
-  @OneToOne(() => VirtualAccount, virtualAccount => virtualAccount.user, {owner: true})
-  virtualAccount?: VirtualAccount;
+  // @OneToOne(() => VirtualAccount, virtualAccount => virtualAccount.user, { owner: true })
+  // virtualAccount?: VirtualAccount;
 
-  @OneToOne(() => KYC, kyc => kyc.user, {owner: true})
+  @OneToOne(() => VirtualAccount, virtualAccount => virtualAccount.user, { owner: true })
+  virtualWallet = new VirtualWallet(this);
+
+  @OneToOne(() => KYC, kyc => kyc.user, { owner: true })
   KYC?: KYC;
 
-  @OneToOne(() => KYB, kyb => kyb.user, {owner: true})
+  @OneToOne(() => KYB, kyb => kyb.user, { owner: true })
   KYB?: KYB;
 
   @OneToMany(() => Transaction, transaction => transaction.sendingUser)
