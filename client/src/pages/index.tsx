@@ -139,6 +139,7 @@ export default function Home() {
               w="300px"
               h="90px"
               mt={20}
+              onClick={() => window.location.assign('/market')}
             >
               Explore ọjà mi
             </FancyButton>
@@ -354,6 +355,8 @@ export default function Home() {
               right={{base:"80px", md: "280px"}}
               top={{ base:"270px", md: "470px"}}
               transform="rotate(-12deg)"
+              onClick={() => window.location.assign('/market')}
+
             >
               <Text fontSize={{md: "26"}}>try it</Text>
             </FancyButton>
@@ -387,6 +390,8 @@ export default function Home() {
               right={{base:"80px", md: "280px"}}
               top={{ base:"270px", md: "470px"}}
               transform="rotate(-12deg)"
+              onClick={() => window.location.assign('/market')}
+
             >
               <Text fontSize={{md: "26"}}>try it</Text>
             </FancyButton>
@@ -438,6 +443,8 @@ export default function Home() {
             right={-40}
             mt={-7}
             transform={"rotate(-10deg)"}
+            onClick={() => window.location.assign('/market')}
+
           >
             Explore ọjà mi
           </FancyButton>

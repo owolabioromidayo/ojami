@@ -1,7 +1,7 @@
 export const fakeStores = [
     {
       image:
-        "https://www.lefez.co.uk/media/xkcdxowd/drinks-home-page-banner-image-and-drinks-page-image.jpg?center=0.46226074395088479,0.5033333333333333&mode=crop&width=1920&height=1246&rnd=132700553814770000",
+        "https://www.lefez.co.uk/media/xkcdxowd/drinks-home-page-banner-image-and-drinks-page-image.jpg",
       avatar:
         "https://i.pinimg.com/originals/df/aa/9d/dfaa9df694a648d64592ad67c837fd3a.jpg",
       store: "Top Shelf Wine & Liquor",
@@ -11,7 +11,7 @@ export const fakeStores = [
     {
       image:
         "https://www.stylerave.com/wp-content/uploads/2021/12/IMG-20211213-WA0014.jpg",
-      avatar: "https://encrypted-tbn2.gstatic.com/faviconV2",
+      avatar: "https://logowik.com/content/uploads/images/rave5932.jpg",
       store: "Style Rave Fashion",
       ratings: 4.4,
       reviews: "26.7k",
@@ -28,28 +28,28 @@ export const fakeStores = [
     {
       image: "https://cdn.legit.ng/images/1120/b88411a0846952ef.jpeg?v=1",
       avatar:
-        "https://media.istockphoto.com/id/1485377454/vector/clothing-hanger-clothes-fashion-wardrobe-store-black-elegant-handwriting-font-vector-design.jpg",
+        "https://marketplace.canva.com/EAFX7rWJisY/1/0/1600w/canva-black-white-minimalist-clothes-store-logo-pRfkmnSCS2I.jpg",
       store: "The Cloth Store",
       ratings: 4.2,
       reviews: "2.5k",
     },
     {
       image:
-        "https://www.lefez.co.uk/media/xkcdxowd/drinks-home-page-banner-image-and-drinks-page-image.jpg?center=0.46226074395088479,0.5033333333333333&mode=crop&width=1920&height=1246&rnd=132700553814770000",
+        "https://ew.com/thmb/hXbgwW6F74BK-oMQ_sx8yzFXgJ8=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/ew-gaming-gear-deals-tout-092723-bb628514531444a99bf898f19088e5ed.jpg",
       avatar:
-        "https://i.pinimg.com/originals/df/aa/9d/dfaa9df694a648d64592ad67c837fd3a.jpg",
-      store: "Top Shelf Wine & Liquor",
-      ratings: 4.7,
-      reviews: "12.1k",
+        "https://static.vecteezy.com/system/resources/previews/043/211/206/original/sleek-and-sophisticated-blue-and-white-logo-design-for-a-gaming-company-design-a-sleek-and-sophisticated-logo-for-an-event-marketing-agency-free-vector.jpg",
+      store: "Vector Gaming",
+      ratings: 4.9,
+      reviews: "120k",
     },
     {
       image:
-        "https://www.lefez.co.uk/media/xkcdxowd/drinks-home-page-banner-image-and-drinks-page-image.jpg?center=0.46226074395088479,0.5033333333333333&mode=crop&width=1920&height=1246&rnd=132700553814770000",
+        "https://carmart.africa/motoring/wp-content/uploads/2024/04/jBY4QFNk-Brand-New-Car-Dealers-in-Nigeria--1024x576.jpg",
       avatar:
-        "https://i.pinimg.com/originals/df/aa/9d/dfaa9df694a648d64592ad67c837fd3a.jpg",
-      store: "Top Shelf Wine & Liquor",
-      ratings: 4.7,
-      reviews: "12.1k",
+        "https://cdn3.vectorstock.com/i/1000x1000/25/82/car-icon-speeding-racecar-on-white-background-vector-37232582.jpg",
+      store: "Chike Customs",
+      ratings: 4.5,
+      reviews: "9.2k",
     },
   ];
 
