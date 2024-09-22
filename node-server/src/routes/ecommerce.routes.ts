@@ -59,6 +59,9 @@ router.get("/carts/me", isAuth, getUserCart);
 router.post("/carts/add", isAuth, addToCart);
 router.post("/carts/remove", isAuth, removeFromCart);
 
+
+//dispute order, refund, and the like
+
 //TODO: cart checkout
 
 //TODO: fix error responses

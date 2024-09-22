@@ -1,8 +1,8 @@
 import { Entity, PrimaryKey, Property, OneToOne, Cascade } from '@mikro-orm/core';
-import { Product } from './Product'; 
+import { InstantOrder } from './InstantOrder';
 
 @Entity()
-export class ProductLink {
+export class InstantOrderLink{
   @PrimaryKey()
   id!: number;
 
@@ -15,13 +15,13 @@ export class ProductLink {
   @Property({ type: 'text' })
   qrCode!: string;
 
-  @OneToOne(() => Product, product => product.link, { cascade: [Cascade.PERSIST] })
-  product!: Product;
+  @OneToOne(() => InstantOrder, order => order.link, { cascade: [Cascade.PERSIST] })
+  order!: InstantOrder;
 
-  constructor(linkId:string, shortLink: string, qrCode: string, product: Product) {
+  constructor(linkId:string, shortLink: string, qrCode: string, order: InstantOrder) {
     this.linkId = linkId;
     this.shortLink = shortLink;
     this.qrCode = qrCode;
-    this.product = product;
+    this.order = order;
   }
 }

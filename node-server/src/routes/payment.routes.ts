@@ -17,6 +17,9 @@ import { ProductLink } from "../entities/ProductLink";
 import { VirtualTransaction } from "../entities/VirtualTransaction";
 import { VirtualWallet } from "../entities/VirtualWallet";
 import { PendingBalance } from "../entities/PendingBalance";
+import { InstantOrder } from "../entities/InstantOrder";
+import { InstantOrderItem } from "../entities/InstantOrderItem";
+import { InstantOrderLink } from "../entities/InstantOrderLink";
 
 const router = express.Router();
 
@@ -41,7 +44,8 @@ router.post("/make_virtual_payment", isAuth, makeVirtualPayment);
 // router.post("/pay_in/card_transfer", isAuth, receiveBankTransferFromCustomer);
 
 
-router.post("/generate_payment_link", isAuth, generatePaymentLink);
+router.post("/generate_payment_link_from_product", isAuth, generatePaymentLinkFromProduct);
+router.post("/generate_payment_link_from_instant_order", isAuth, generatePaymentLinkFromInstantOrder);
 
 router.get("/pending_balances/calculate", isAuth, calculatePendingBalance);
 router.get("/pending_balances", isAuth, getPendingBalances);
@@ -176,15 +180,15 @@ async function receiveBankTransferFromCustomer(req: Request, res: Response) {
 }
 
 async function makeVirtualPayment(req: Request, res: Response) {
-    const { receivingUserId, amount, orderId, isInstantPurchase } = req.body;
+    const { receivingUserId, orderId, isInstantPurchase } = req.body;
 
     if (!(typeof isInstantPurchase === 'boolean')) {
         return res.status(400).json({ errors: [{ field: 'isInstantPurchase', message: 'isInstantPurchase is not boolean' }] });
     }
 
-    if (!amount || isNaN(Number(amount))) {
-        return res.status(400).json({ errors: [{ field: 'amount', message: 'amount is not a number' }] });
-    }
+    // if (!amount || isNaN(Number(amount))) {
+    //     return res.status(400).json({ errors: [{ field: 'amount', message: 'amount is not a number' }] });
+    // }
 
     if (!receivingUserId || isNaN(Number(receivingUserId))) {
         return res.status(400).json({ errors: [{ field: 'receivingUserId', message: 'sendingUserId is not a number' }] });
@@ -199,6 +203,11 @@ async function makeVirtualPayment(req: Request, res: Response) {
     const em = (req as RequestWithContext).em;
 
     try {
+
+        //calculate amount from order
+
+        const amount = (await em.fork({}).findOneOrFail(InstantOrder, { id: req.session.userid }, { populate: ['items', 'items.product.price'] })).items
+            .getItems().reduce((x: number, curr: InstantOrderItem) => x + (curr.product.price * curr.quantity), 0);
 
 
         const sendingUser = await em.fork({}).findOneOrFail(User, { id: req.session.userid }, { populate: ['virtualWallet', 'virtualWallet.balance'] });
@@ -252,7 +261,7 @@ async function calculatePendingBalance(req: Request, res: Response) {
         const user = await em.fork({}).findOneOrFail(User, { id: req.session.userid }, { populate: ['virtualWallet.pendingBalances', 'virtualWallet.balance'] });
         const pendingBalances = user.virtualWallet.pendingBalances.getItems().filter(x => x.status === PendingBalanceStatus.PENDING);
 
-        let _pendingBalance: number = pendingBalances.reduce((x: number, curr: PendingBalance) => x += curr.amount, 0);
+        let _pendingBalance: number = pendingBalances.reduce((x: number, curr: PendingBalance) => x + curr.amount, 0);
 
 
         return res.status(200).json({ pendingBalance: _pendingBalance });
@@ -278,19 +287,19 @@ async function updatePendingBalances(req: Request, res: Response) {
             status: PendingBalanceStatus.PENDING,
             resolvesAt: { $lte: currDate },
 
-        }, {populate: ['receivingWallet']});
+        }, { populate: ['receivingWallet'] });
 
 
         for (let pendingBalance of pendingBalances) {
-                pendingBalance.status = PendingBalanceStatus.COMPLETED;
-                const receivingUser_wallet = await em.fork({}).findOneOrFail(VirtualWallet, {id: pendingBalance.receivingWallet.id}); 
-                receivingUser_wallet.balance += pendingBalance.amount;
+            pendingBalance.status = PendingBalanceStatus.COMPLETED;
+            const receivingUser_wallet = await em.fork({}).findOneOrFail(VirtualWallet, { id: pendingBalance.receivingWallet.id });
+            receivingUser_wallet.balance += pendingBalance.amount;
 
-                await em.fork({}).persistAndFlush([pendingBalance, receivingUser_wallet]);
+            await em.fork({}).persistAndFlush([pendingBalance, receivingUser_wallet]);
 
-            }
+        }
 
-        return res.status(200).json({ message : "Äll pending balances updated successfully!" });
+        return res.status(200).json({ message: "Äll pending balances updated successfully!" });
 
     } catch (err) {
         return res.status(500).json({ errors: [{ message: `Could not update pending balances.` }] });
@@ -304,7 +313,7 @@ async function getPendingBalances(req: Request, res: Response) {
 
     try {
 
-        const user = await em.fork({}).findOneOrFail(User, { id: req.session.userid }, { populate: ['virtualWallet.pendingBalances' ] });
+        const user = await em.fork({}).findOneOrFail(User, { id: req.session.userid }, { populate: ['virtualWallet.pendingBalances'] });
         const pendingBalances = user.virtualWallet.pendingBalances.getItems();
         return res.status(200).json({ pendingBalances: pendingBalances });
 
@@ -316,7 +325,7 @@ async function getPendingBalances(req: Request, res: Response) {
 }
 
 
-async function generatePaymentLink(req: Request, res: Response) {
+async function generatePaymentLinkFromProduct(req: Request, res: Response) {
     //right now its just product link
 
     const { productId } = req.body;
@@ -358,6 +367,53 @@ async function generatePaymentLink(req: Request, res: Response) {
 
     } catch (err) {
         return res.status(500).json({ errors: [{ message: `Could not fetch product with ID ${productId}.` }] });
+    }
+
+
+}
+
+async function generatePaymentLinkFromInstantOrder(req: Request, res: Response) {
+    //right now its just product link
+
+    const { instantOrderId } = req.body;
+
+    if (!instantOrderId || isNaN(Number(instantOrderId))) {
+        return res.status(400).json({ errors: [{ field: 'instantOrderid', message: 'instantOrderId is not valid' }] });
+    }
+
+    const em = (req as RequestWithContext).em;
+
+    try {
+
+        const order = await em.fork({}).findOneOrFail(InstantOrder, { id: Number(instantOrderId) }, { populate: ['link.shortLink', 'link.qrCode'] });
+
+        if (order.link) {
+            //already exists, return
+            return res.status(201).json({ shortLink: order.link.shortLink, qrCode: order.link.qrCode });
+        }
+
+        //generate new link and QR code
+
+
+        const linkId: string = uuidv4();
+        const shortLink: string = `${URL_PREFIX}${linkId}`;
+
+        QRCode.toDataURL(shortLink, async (err, url) => {
+            if (err) {
+                return res.status(500).json({ errors: [{ message: "Could not generate QR code." }] });
+            } else {
+                const qrCode = url;
+                const orderLink = new InstantOrderLink(linkId, shortLink, qrCode, order);
+                await em.fork({}).persistAndFlush(orderLink);
+                return res.status(201).json({ shortLink, qrCode });
+
+            }
+        })
+
+
+
+    } catch (err) {
+        return res.status(500).json({ errors: [{ message: `Could not fetch product with ID ${instantOrderId}.` }] });
     }
 
 
