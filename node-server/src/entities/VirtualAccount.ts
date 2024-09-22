@@ -8,6 +8,9 @@ import { CreateVirtualAccountResponse } from "../types";
 @Entity()
 export class VirtualAccount {
 
+  @PrimaryKey()
+  id!: number;
+
   @Property()
   accountName!: string;
 
