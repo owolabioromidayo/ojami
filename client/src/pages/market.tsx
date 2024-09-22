@@ -29,6 +29,7 @@ import {
 } from "react-icons/tb";
 import FancyButton from "@/components/ui/fancy-button";
 import React, { useEffect, useState } from "react";
+import ChairViewer from "@/components/utils/viewpoint";
 
 const Market = () => {
   const plugin = React.useRef(Autoplay({ delay: 2000 }));
@@ -369,11 +370,7 @@ const Market = () => {
         rounded="15px"
         border="2px solid #000"
       >
-          <iframe
-        src="https://fcor.github.io/arjs-gestures/index.html"
-        title="External Web Page"
-        style={{ width: '100%', height: '100%', border: 'none' }}
-      />
+        <ChairViewer />
       </Flex>
     </MarketLayout>
   );
