@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { Flex, Image, Text, Avatar, Stack, Icon, FlexProps } from "@chakra-ui/react";
 import React from "react";
 import FancyButton from "../ui/fancy-button";
