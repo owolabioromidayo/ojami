@@ -9,7 +9,7 @@ import { Suspense, useEffect, useState } from 'react'
 
 export default function Genjitsu() {
     const [store, setStore] = useState<XRStore | null>(null);
-    const [scale, setScale] = useState(1); // State for model scale
+    const [scale, setScale] = useState(0.4); // State for model scale
 
 
     useEffect(() => {
@@ -51,12 +51,12 @@ export default function Genjitsu() {
           <group position={[0, -0.75, 0]}>
             <Suspense>
               <Center top>
-                <Model/>
+                <Model scale={[scale, scale, scale]}/>
               </Center>
             </Suspense>
             <directionalLight position={[1, 8, 1]} castShadow />
             <ambientLight />
-            <mesh receiveShadow rotation-x={-Math.PI / 2} scale={10}>
+            <mesh receiveShadow rotation-x={-Math.PI / 2} scale={1}>
               <shadowMaterial opacity={0.7} />
               <planeGeometry />
             </mesh>
