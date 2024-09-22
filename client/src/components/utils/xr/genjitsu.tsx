@@ -61,7 +61,7 @@ export default function Genjitsu() {
               <planeGeometry />
             </mesh>
             <group position={[0, 0, 2.6]}>
-              <XROrigin scale={0.3} />
+              <XROrigin scale={0.08} />
             </group>
           </group>
           <OrbitControls />
