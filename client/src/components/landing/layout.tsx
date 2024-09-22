@@ -67,7 +67,7 @@ const rotateAnimation = keyframes`
       >
         <Image pointerEvents="none" src="/assets/star.svg" alt="star" pos="absolute" right={-14} top={-14} animation={`${rotateAnimation} 40s linear infinite`} />
         <Image pointerEvents="none" src="/icons/oja-foot.png" w="500px" alt="footer" />
-        <Image pointerEvents="none" src="/assets/dividers/oja-orange.svg" w="full" mt={20} />
+        <Image pointerEvents="none" src="/assets/dividers/oja-orange.svg" w="full" mt={20} alt=""/>
         <Flex bg="#EF8421" w="full" h="40px" zIndex={2}  mt={-10} />
       </Flex>
     </Flex>

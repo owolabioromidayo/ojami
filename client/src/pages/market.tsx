@@ -30,6 +30,7 @@ import {
 import FancyButton from "@/components/ui/fancy-button";
 import React, { useEffect, useState } from "react";
 import ChairViewer from "@/components/utils/viewpoint";
+import Genjitsu from "@/components/utils/xr/genjitsu";
 
 const Market = () => {
   const plugin = React.useRef(Autoplay({ delay: 2000 }));
@@ -371,6 +372,18 @@ const Market = () => {
         border="2px solid #000"
       >
         <ChairViewer />
+      </Flex>
+
+      <Flex
+        direction="column"
+        p={5}
+        bg="white"
+        // w="445px"
+        h="1000px"
+        rounded="15px"
+        border="2px solid #000"
+      >
+        <Genjitsu />
       </Flex>
     </MarketLayout>
   );

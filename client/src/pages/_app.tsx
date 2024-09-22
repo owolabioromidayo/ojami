@@ -30,8 +30,8 @@ export default function App({ Component, pageProps }: AppProps) {
         <link rel="icon" href="/icons/oja.svg" />
       </Head>
       <main className={`${general.className}`} style={{ background: "#FFF9E5"}}>
-        <Analytics />
         <Component {...pageProps} />
+        <Analytics />
       </main>
     </ChakraProvider>
   );
