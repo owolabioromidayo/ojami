@@ -29,8 +29,11 @@ import {
 } from "react-icons/tb";
 import FancyButton from "@/components/ui/fancy-button";
 import React, { useEffect, useState } from "react";
-import ChairViewer from "@/components/utils/viewpoint";
-import Genjitsu from "@/components/utils/xr/genjitsu";
+import { Genjitsu } from "@/components/utils/xr/genjitsu";
+import { Model as Sofa } from "@/components/utils/xr/Sofa";
+import { Model as Chair } from "@/components/utils/xr/Office-chair";
+import { Datsun } from "@/components/utils/xr/Datsun-transformed";
+import { Cobra } from "@/components/utils/xr/Cobra-transformed";
 
 const Market = () => {
   const plugin = React.useRef(Autoplay({ delay: 2000 }));
@@ -51,6 +54,40 @@ const Market = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  const models = [
+    // eslint-disable-next-line react/jsx-key
+    {
+      model: <Sofa scale={[0.4, 0.4, 0.4]} />,
+      store: "Furnished by Kiki",
+      caption:
+        "Three-seat comfortable sofa for living room, apartment, simple and modern style",
+      price: "₦255,000",
+      avatar: "https://img.freepik.com/free-vector/creative-furniture-store-logo_23-2148455884.jpg",
+      ratings: 4.8,
+      review: "15.2k",
+    },
+    {
+      model: <Chair scale={[0.8, 0.8, 0.8]} />,
+      store: "Dundler Miffin",
+      caption: "Emperor 5-Wheeler ergonomic office chair",
+      price: "₦180,000",
+      avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2UWzuJKyjupOxC6H5eIa5_Zkse2UQrB1V-Q&s",
+      ratings: 4.1,
+      review: "1.1k",
+    },
+    {
+      model: <Datsun scale={[2,2,2]} />,
+      store: "Chike Customs",
+      caption:
+        "Datsun 240K-GT Inline 6 Engine, 47hp with 187Nm torque 0-60 in 5s",
+      price: "₦129,500,000",
+      avatar: "https://cdn3.vectorstock.com/i/1000x1000/25/82/car-icon-speeding-racecar-on-white-background-vector-37232582.jpg",
+      ratings: 4.7,
+      review: "16.7k",
+    },
+  ];
+
   const categories = [
     {
       category: "Fashion",
@@ -164,7 +201,7 @@ const Market = () => {
         justify="space-between"
         gap={3}
         align="start"
-        direction={{ base: "column", md: "row"}}
+        direction={{ base: "column", md: "row" }}
       >
         {/** Top Items */}
         <Stack h="full">
@@ -175,7 +212,7 @@ const Market = () => {
             direction="column"
             p={5}
             bg="white"
-            w={{ base: "300px", md: "445px"}}
+            w={{ base: "350px", md: "445px" }}
             rounded="15px"
             border="2px solid #000"
           >
@@ -183,7 +220,7 @@ const Market = () => {
               <CarouselContent>
                 {faketrends.map((item) => (
                   <CarouselItem key={item.label}>
-                    <Flex direction="column" w="450px">
+                    <Flex direction="column" w={{ base: "full", md: "450px"}}>
                       <Text fontWeight={600} fontSize={18} mb={1}>
                         Most Popular
                       </Text>
@@ -192,7 +229,7 @@ const Market = () => {
                         src={item.image}
                         border="2px solid #000"
                         alt={item.label}
-                        w={{ base:"280px", md: "400px"}}
+                        w={{ base: "280px", md: "400px" }}
                         h="420px"
                         objectFit="cover"
                         rounded="15px"
@@ -370,28 +407,26 @@ const Market = () => {
           </Flex>
         </Stack>
       </Flex>
-      <Flex
-        direction="column"
-        p={5}
-        bg="white"
-        rounded="15px"
-        mb={10}
-        border="2px solid #000"
-      >
-        <ChairViewer />
-      </Flex>
 
-      <Flex
-        id="genjitsu"
-        direction="column"
-        p={5}
-        bg="white"
-        h="1000px"
-        rounded="15px"
-        border="2px solid #000"
-      >
-        <Genjitsu />
-      </Flex>
+      <Stack>
+        <Text mb={4} fontWeight={600} fontSize={22}>
+          See products in Augmented Reality
+        </Text>
+        <Flex gap={14} direction={{ base: "column", md: "row"}} w="full" align="center">
+          {models.map((item) => (
+            <Genjitsu
+              model={item.model}
+              avatar={item.avatar}
+              ratings={item.ratings}
+              review={item.review}
+              caption={item.caption}
+              price={item.price}
+              vendor={item.store}
+              key={item.model}
+            />
+          ))}
+        </Flex>
+      </Stack>
     </MarketLayout>
   );
 };

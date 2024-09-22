@@ -52,7 +52,7 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
       bg="#FFF9E5"
       w="full"
     >
-      <Flex w="full" justify="center" direction="row" px={{ lg: 10 }}>
+      <Flex w="full" justify="center" direction="row" px={{ lg: 10 }} zIndex={15} bg="#FFF9E5" h="135px" pos="fixed" >
 
       <Flex
         maxW="1650px"
