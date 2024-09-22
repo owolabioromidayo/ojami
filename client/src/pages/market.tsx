@@ -34,6 +34,12 @@ import Genjitsu from "@/components/utils/xr/genjitsu";
 
 const Market = () => {
   const plugin = React.useRef(Autoplay({ delay: 2000 }));
+  const scrollToAnchor = () => {
+    const anchorDiv = document.getElementById("genjitsu");
+    if (anchorDiv) {
+      anchorDiv.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   const [activeIndex, setActiveIndex] = useState(0);
   const totalDots = 5; // Total number of carousel dots
@@ -375,6 +381,7 @@ const Market = () => {
       </Flex>
 
       <Flex
+        id="genjitsu"
         direction="column"
         p={5}
         bg="white"
