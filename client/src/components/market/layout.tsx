@@ -194,6 +194,7 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
 
 
       <Flex
+      px={4}
         mt="180px"
         maxW="1650px"
         w="full"

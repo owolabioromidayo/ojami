@@ -164,6 +164,7 @@ const Market = () => {
         justify="space-between"
         gap={3}
         align="start"
+        direction={{ base: "column", md: "row"}}
       >
         {/** Top Items */}
         <Stack h="full">
@@ -174,7 +175,7 @@ const Market = () => {
             direction="column"
             p={5}
             bg="white"
-            w="445px"
+            w={{ base: "300px", md: "445px"}}
             rounded="15px"
             border="2px solid #000"
           >
@@ -191,7 +192,7 @@ const Market = () => {
                         src={item.image}
                         border="2px solid #000"
                         alt={item.label}
-                        w="400px"
+                        w={{ base:"280px", md: "400px"}}
                         h="420px"
                         objectFit="cover"
                         rounded="15px"
@@ -373,8 +374,8 @@ const Market = () => {
         direction="column"
         p={5}
         bg="white"
-        // w="445px"
         rounded="15px"
+        mb={10}
         border="2px solid #000"
       >
         <ChairViewer />
@@ -385,7 +386,6 @@ const Market = () => {
         direction="column"
         p={5}
         bg="white"
-        // w="445px"
         h="1000px"
         rounded="15px"
         border="2px solid #000"
