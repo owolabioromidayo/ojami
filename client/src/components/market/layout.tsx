@@ -24,6 +24,8 @@ interface MarketLayoutProps {
 export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
   const { onOpen, isOpen, onClose } = useDisclosure();
   const { isOpen: isMOpen, onToggle } = useDisclosure();
+  const { isOpen: isAOpen, onToggle: onAToggle } = useDisclosure();
+
   const tools = [
     {
       label: "AI Chat",
@@ -70,18 +72,18 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
             pointerEvents="none"
             src="/icons/ojami-logo.svg"
             alt="ojami logo"
-            w={{ base: "50px", md: "80px" }}
+            w={{ base: "50px", lg: "80px" }}
           />
           <Image
             pointerEvents="none"
             src="/assets/oja-kora.svg"
             alt="oja kora"
-            w={{ base: "50px", md: "120px" }}
+            w={{ base: "50px", lg: "120px" }}
             transform="rotate(-15deg)"
           />
         </Flex>
 
-        <Flex direction="column" h="full"  align="center"  mt={8} pos="relative">
+        <Flex display={{ base: "none", lg: "flex"}} direction="column" h="full"  align="center"  mt={8} pos="relative">
           <Flex align="center" gap={1}>
             <InputGroup>
               <InputLeftElement pointerEvents="none" py={"34px"}>
@@ -128,7 +130,7 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
               mt="4"
               bg="white"
               border="2px solid #000"
-              rounded="md"
+              rounded="10px"
             >
               <Text color="black" mb={2} fontWeight={600}>
                 Quick Tools
@@ -179,15 +181,66 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
             </Box>
           </Collapse>
         </Flex>
+
+        <Flex gap={4} align="center">
+          <FancyButton
+            bg="/assets/buttons/small-flower.svg"
+            w={{ base: "70px", lg: "100px" }}
+            h={{ base: "120px", lg: "100px" }}
+            onClick={onOpen}
+          >
+            my cart
+          </FancyButton>
+          <FancyButton
+            bg="/assets/buttons/oja-ellipse-orange.svg"
+            w={{ base: "82px", lg: "120px" }}
+            h={{ base: "120px", lg: "100px" }}
+            onClick={onAToggle}
+          >
+            account
+          </FancyButton>
+          <Collapse in={isAOpen} animateOpacity>
+            <Box
+            w="400px"
+            zIndex={10}
+            pos="absolute"
+            right={0}
+            top={28}
+              p="20px"
+              mt="4"
+              bg="white"
+              border="2px solid #000"
+              rounded="10px"
+            >
+              <Box w="full" p={5} h="170px" bgImg="/assets/oja-wallet-bg.png" alignContent="center"  bgRepeat="no-repeat" bgSize="cover" bgPos="bottom" rounded="10px" border="2px solid #000">
+                <Text fontWeight={600} fontSize={34} >NGN 720,000</Text>
+              </Box>
+              <Flex align="center" gap={2} mt={10} mb={2} fontWeight={600}>
+                <Icon as={IoSparklesOutline} />
+                <Text>Suggested searches</Text>
+              </Flex>
+              <Flex
+                align="center"
+                gap={2}
+                p={2}
+                _hover={{ bg: "#f0f0f0" }}
+                rounded="lg"
+                cursor="pointer"
+              >
+                <Icon
+                  as={IoSearch}
+                  fontSize={36}
+                  p={2}
+                  border="1px solid #e2e2e2"
+                  rounded="4"
+                />
+                <Text>PlayStation 5 Pro</Text>
+              </Flex>
+            </Box>
+          </Collapse>
+
+        </Flex>
         
-        <FancyButton
-          bg="/assets/buttons/small-flower.svg"
-          w={{ base: "70px", md: "100px" }}
-          h={{ base: "120px", md: "100px" }}
-          onClick={onOpen}
-        >
-          my cart
-        </FancyButton>
         <SignInModal isOpen={isOpen} onClose={onClose} />
       </Flex>
       </Flex>
