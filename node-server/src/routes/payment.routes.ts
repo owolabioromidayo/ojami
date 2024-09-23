@@ -9,7 +9,11 @@ import { User } from "../entities/User";
 import { Product } from "../entities/Product";
 import { isAuth } from "../middleware/isAuth";
 
-import fetch from 'node-fetch';
+// Use dynamic import
+// (async () => {
+//     const fetch = await import('node-fetch');
+//     // Now you can use fetch as needed
+// })();
 import { VirtualAccount } from "../entities/VirtualAccount";
 import { Transaction } from "../entities/Transaction";
 import { ACCOUNT_NAME, ACCOUNT_REF, BANK_TRANSFER_NOTIFICATION_URL, KORAPAY_TOKEN } from "../constants";

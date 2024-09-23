@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Box,
   Collapse,
@@ -12,10 +14,12 @@ import {
   useDisclosure,
   Text
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useContext } from "react";
 import FancyButton from "../ui/fancy-button";
 import { SignInModal } from "../utils/signin-modal";
 import { IoCamera, IoSearch, IoSparkles, IoSparklesOutline } from "react-icons/io5";
+import { OjaContext } from "../provider";
+import { useRouter } from "next/router";
 
 interface MarketLayoutProps {
   children: React.ReactNode;
@@ -25,6 +29,8 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
   const { onOpen, isOpen, onClose } = useDisclosure();
   const { isOpen: isMOpen, onToggle } = useDisclosure();
   const { isOpen: isAOpen, onToggle: onAToggle } = useDisclosure();
+  const { user, loading } = useContext(OjaContext)
+  const router = useRouter()
 
   const tools = [
     {
@@ -45,6 +51,8 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
 0% { transform: rotate(0deg); }
 100% { transform: rotate(360deg); }
 `;
+
+
   return (
     <Flex
       direction="column"

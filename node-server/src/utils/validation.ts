@@ -1,16 +1,11 @@
 
 interface RegisterInput {
-  username: string;
   email: string;
   password: string;
 }
 
 export function validateRegister(options: RegisterInput) {
   const errors: { field: string; message: string }[] = [];
-  
-  if (!options.username || options.username.length < 6) {
-    errors.push({ field: "username", message: "Username must be at least 6 characters long." });
-  }
   
   //TODO: real email validation
   if (!options.email.includes('@')) {

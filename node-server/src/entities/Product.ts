@@ -31,7 +31,7 @@ export class Product {
   @ManyToOne(() => Storefront)
   storefront!: Storefront;
 
-  @OneToOne(() => ProductLink, productLink => productLink.product)
+  @OneToOne(() => ProductLink, productLink => productLink.product, { owner: true })
  link?: ProductLink 
 
   @ManyToMany(() => Tag, tag => tag.products)

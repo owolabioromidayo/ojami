@@ -5,6 +5,7 @@ import { Box, Flex, Image, Text, useDisclosure } from "@chakra-ui/react";
 import Marquee from "react-fast-marquee";
 import { fakeStores, images } from "../../fakedata";
 import { SearchModal } from "@/components/utils/search-modal";
+import React from "react";
 
 export default function Home() {
   const { isOpen, onOpen, onClose } = useDisclosure()

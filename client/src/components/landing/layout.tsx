@@ -1,7 +1,9 @@
 import { Flex, Image, keyframes, useDisclosure } from "@chakra-ui/react";
-import React from "react";
+import React, { useContext } from "react";
 import FancyButton from "../ui/fancy-button";
 import { SignInModal } from "../utils/signin-modal";
+import { OjaContext } from "../provider";
+import { CartDrawer } from "../utils/cart-drawer";
 
 interface LandingLayoutProps {
   children: React.ReactNode;
@@ -9,6 +11,9 @@ interface LandingLayoutProps {
 
 export const LandingLayout: React.FC<LandingLayoutProps> = ({ children }) => {
     const { onOpen, isOpen, onClose } = useDisclosure()
+    const { onOpen: onCartOpen, isOpen: isCartOpen, onClose: onCartClose } = useDisclosure()
+
+    const { user } = useContext(OjaContext)
 
 const rotateAnimation = keyframes`
 0% { transform: rotate(0deg); }
@@ -47,10 +52,11 @@ const rotateAnimation = keyframes`
           bg="/assets/buttons/small-flower.svg"
           w={{ base:"70px", md: "100px"}}
           h={{ base: "120px", md: "200px"}}
-          onClick={onOpen}
+          onClick={!user ? onOpen : onCartOpen}
         >
           my cart
         </FancyButton>
+        <CartDrawer isOpen={isCartOpen} onClose={onCartClose} />
         <SignInModal isOpen={isOpen} onClose={onClose} />
       </Flex>
       {children}

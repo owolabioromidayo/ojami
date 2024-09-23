@@ -21,6 +21,7 @@ import {
   Tabs,
   TabPanels,
   TabPanel,
+  useToast,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { Formik, Form, Field } from "formik";
@@ -37,6 +38,7 @@ interface SignInProps {
 export const SignInModal: React.FC<SignInProps> = ({ isOpen, onClose }) => {
   const { isOpen: isMOpen, onToggle } = useDisclosure();
   const [index, setIndex] = useState(0);
+  const toast = useToast()
 
 
   return (
@@ -67,11 +69,36 @@ export const SignInModal: React.FC<SignInProps> = ({ isOpen, onClose }) => {
                 </ModalHeader>
                 <Formik
                   initialValues={{ email: "", password: "" }}
-                  onSubmit={(values, actions) => {
-                    setTimeout(() => {
-                      alert(JSON.stringify(values, null, 2));
-                      actions.setSubmitting(false);
-                    }, 1000);
+                  onSubmit={async (values, actions) => {
+                    const response = await fetch("http://localhost:4000/api/auth/users/login", {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json'},
+                      body: JSON.stringify({phoneOrEmail: values.email, password: values.password}),
+                      credentials: 'include'
+                    })
+                    const data = await response.json()
+                    if(!response.ok){
+                      toast({
+                        title: 'Login Error',
+                        description: `${data.errors[0].message}`,
+                        status: 'error',
+                        duration: 5000,
+                        position: 'top',
+                        containerStyle: { border: "2px solid #000", rounded: "md"},
+                      })
+                    }else{
+                      toast({
+                        title: 'Login Successful',
+                        description: "Welcome back to your account",
+                        status: 'success',
+                        duration: 5000,
+                        position: 'top',
+                        containerStyle: { border: "2px solid #000", rounded: "md" }
+                      })
+                      setTimeout(() => {
+                        window.location.reload()
+                      }, 700)
+                    }
                   }}
                 >
                   {(props) => (
@@ -172,12 +199,38 @@ export const SignInModal: React.FC<SignInProps> = ({ isOpen, onClose }) => {
                   </Text>
                 </ModalHeader>
                 <Formik
-                  initialValues={{ email: "", password: "" }}
-                  onSubmit={(values, actions) => {
-                    setTimeout(() => {
-                      alert(JSON.stringify(values, null, 2));
-                      actions.setSubmitting(false);
-                    }, 1000);
+                  initialValues={{ firstName: "", lastName: "", phoneNumber: "", birthDate: "", email: "", password: "" }}
+                  onSubmit={async (values, actions) => {
+                    const response = await fetch("http://localhost:4000/api/auth/users/signup", {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json'},
+                      body: JSON.stringify({firstname: values.firstName, lastname: values.lastName, email: values.email, phoneNumber: values.phoneNumber, birthDate: values.birthDate,  password: values.password}),
+                      credentials: 'include'
+
+                    })
+                    const data = await response.json()
+                    if(!response.ok){
+                      toast({
+                        title: 'Login Error',
+                        description: `${data.errors[0].message}`,
+                        status: 'error',
+                        duration: 5000,
+                        position: 'top',
+                        containerStyle: { border: "2px solid #000", rounded: "md"},
+                      })
+                    }else{
+                      toast({
+                        title: 'Sign up Successful',
+                        description: "Welcome to Ojà mi 🫶",
+                        status: 'success',
+                        duration: 5000,
+                        position: 'top',
+                        containerStyle: { border: "2px solid #000", rounded: "md" }
+                      })
+                      setTimeout(() => {
+                        window.location.reload()
+                      }, 700)
+                    }
                   }}
                 >
                   {(props) => (

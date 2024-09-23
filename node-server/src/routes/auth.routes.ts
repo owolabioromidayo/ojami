@@ -12,19 +12,20 @@ router.post("/users/signup", registerUser);
 router.post("/users/login", loginUser);
 router.post("/users/change_password", changePassword);
 router.post("/users/forgot_password", forgotPassword);
-router.get("/users/:id", getUser);
 router.get("/users/me", getCurrentUser);
+router.get("/users/:id", getUser);
 
 
 
 async function registerUser(req: Request, res: Response) {
-    const { firstname, lastname, username, email, password } = req.body;
+    const { firstname, lastname, birthDate, phoneNumber, email, password } = req.body;
+
 
     const redis = (req as RequestWithContext).redis;
     const em = (req as RequestWithContext).em;
 
     // Validate user input
-    const errors = validateRegister({ username, email, password });
+    const errors = validateRegister({ email, password });
     if (errors) {
         return res.status(400).json({ errors });
     }
@@ -32,13 +33,29 @@ async function registerUser(req: Request, res: Response) {
     try {
         const hashedPassword = await argon2.hash(password);
 
-        const user = new User(firstname, lastname, username, email, hashedPassword);
+        const user = new User(firstname, lastname, phoneNumber, email, hashedPassword);
+        user.birthDate = birthDate;
         await em.fork({}).persistAndFlush(user);
 
         // Set the session and return the user
         req.session.userid = user.id;
         return res.status(201).json({ user });
-    } catch (err) {
+    } catch (err: any) {
+        if(err.code === "42P01"){
+            return res.status(400).json({
+                errors: [{
+                    field: "incomplete form",
+                    message: "Fill in the form before you submit 🙁"
+                }]
+            })
+        }else if(err.code === "23505"){
+            return res.status(400).json({
+                errors: [{
+                    field: "duplicate contraint",
+                    message: "Oops, a user already exists with some details here."
+                }]
+            })
+        }
         // Handle errors
         return res.status(500).json({ errors: [{ field: 'Could not create user', message: err }] });
     }
@@ -46,16 +63,26 @@ async function registerUser(req: Request, res: Response) {
 
 
 async function loginUser(req: Request, res: Response) {
-    const { usernameOrEmail, password } = req.body;
+    const { phoneOrEmail, password } = req.body;
 
     const em = (req as RequestWithContext).em;
+    if(!phoneOrEmail){
+        return res.status(400).json({
+            errors: [
+                {
+                    field: "phoneOrEmail",
+                    message: "Fill in the form before you submit"
+                }
+            ]
+        })
+    }
 
     try {
         const user = await em.fork({}).findOneOrFail(
             User,
-            usernameOrEmail.includes("@")
-                ? { email: usernameOrEmail }
-                : { username: usernameOrEmail }
+            phoneOrEmail.includes("@")
+                ? { email: phoneOrEmail }
+                : { phoneNumber: phoneOrEmail }
         );
 
         const valid = await argon2.verify(user.passwordHash, password);
@@ -76,8 +103,8 @@ async function loginUser(req: Request, res: Response) {
         return res.status(400).json({
             errors: [
                 {
-                    field: "usernameOrEmail",
-                    message: "Username or Email does not exist",
+                    field: "phoneOrEmail",
+                    message: "Account does not exist",
                 },
             ],
         });
@@ -127,6 +154,8 @@ async function getUser(req: Request, res: Response) {
     const { id } = req.params;
 
     const userId = Number(id);
+    console.log("UserID:", req.session.userid)
+
 
     // Check if the conversion resulted in a valid number
     if (isNaN(userId)) {
@@ -155,6 +184,7 @@ async function getCurrentUser(req: Request, res: Response) {
             ],
         });
     }
+    console.log("UserID:", req.session.userid)
 
     const em = (req as RequestWithContext).em;
 

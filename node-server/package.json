@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "nodemon --exec ts-node src/index.ts",
     "build": "tsc",
     "serve": "node dist/index.js",
     "test": "jest --detectOpenHandles"
@@ -30,6 +30,7 @@
     "ioredis": "^5.4.1",
     "jwks-rsa": "^3.1.0",
     "node-fetch": "^3.3.2",
+    "nodemon": "^3.1.7",
     "qrcode": "^1.5.4",
     "uuid": "^10.0.0"
   },

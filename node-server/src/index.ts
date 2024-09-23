@@ -76,7 +76,7 @@ export const createApp = async () => {
     session({
       store: redisStore,
       name: process.env.COOKIE_NAME,
-      sameSite: "Strict",
+      sameSite: "None",
       secret: process.env.SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
@@ -110,7 +110,7 @@ export const createApp = async () => {
 const startServer = async () => {
   const app = await createApp();
   
-  const PORT = process.env.PORT || 3000;
+  const PORT = process.env.PORT || 4000;
   
   app.listen(PORT, () => {
     console.log(`Server ready on http://localhost:${PORT}`);

@@ -10,7 +10,7 @@ export class KYC {
     @OneToOne(() => User, user => user.KYC)
     user!: User;
 
-    @Property()
+    @Property({ unique: true })
     phoneNumber: string;
 
     @Property()
