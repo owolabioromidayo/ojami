@@ -18,7 +18,7 @@ import {
   FormErrorMessage,
 } from "@chakra-ui/react";
 import { useViewportHeight } from "@/utils/hooks/useViewportHeight";
-import FancyButton from "@/components/ui/button";
+import FancyButton from "@/components/ui/fancy-button";
 import Link from "next/link";
 import { HiOutlineCamera } from "react-icons/hi2";
 

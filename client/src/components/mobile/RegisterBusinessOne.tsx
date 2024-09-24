@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 import { Flex, Text, Input, Box, Heading, Select } from "@chakra-ui/react";
 import { useViewportHeight } from "@/utils/hooks/useViewportHeight";
-import FancyButton from "@/components/ui/button";
+import FancyButton from "@/components/ui/fancy-button";
 import { states, countries } from "@/utils/states";
 import Link from "next/link";
 

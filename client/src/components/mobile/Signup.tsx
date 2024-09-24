@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 import { Flex, Text, Input, Box, Heading } from "@chakra-ui/react";
 import { useViewportHeight } from "@/utils/hooks/useViewportHeight";
-import FancyButton from "@/components/ui/button";
+import FancyButton from "@/components/ui/fancy-button";
 import Link from "next/link";
 
 interface SignupMobileProps {}
