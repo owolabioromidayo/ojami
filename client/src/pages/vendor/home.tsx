@@ -4,7 +4,7 @@ import VendorLayout from "@/components/mobile/layout/VendorLayout";
 import type { NextPageWithLayout } from "../_app";
 import Image from "next/image";
 
-const VendorHome: NextPageWithLayout = ({}) => {
+const VendorHome: NextPageWithLayout<{}> = () => {
   const quickLinks = [
     {
       image: "/images/mobile/vendorHome/create-link.svg",
@@ -79,6 +79,13 @@ const VendorHome: NextPageWithLayout = ({}) => {
   return (
     <Box
       p={"0.2rem"}
+      css={{
+        "&::-webkit-scrollbar": {
+          display: "none",
+        },
+        "scrollbar-width": "none",
+        "-webkit-overflow-scrolling": "touch",
+      }}
     >
       <Stack>
         <Box

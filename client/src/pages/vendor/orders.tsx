@@ -19,7 +19,7 @@ import { useViewportHeight } from "@/utils/hooks/useViewportHeight";
 import VendorLayout from "@/components/mobile/layout/VendorLayout";
 import type { NextPageWithLayout } from "../_app";
 
-const Orders: NextPageWithLayout = ({}) => {
+const Orders: NextPageWithLayout<{}> = () => {
   useViewportHeight();
   const tabs = ["new", "delivering", "completed", "cancelled"];
   const newItems = [

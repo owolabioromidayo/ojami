@@ -65,7 +65,7 @@ const ProductItem: React.FC<{ product: Product }> = ({ product }) => {
   );
 };
 
-const Products: NextPageWithLayout = ({}) => {
+const Products: NextPageWithLayout<{}> = () => {
   useViewportHeight();
   const hotProducts = [
     {

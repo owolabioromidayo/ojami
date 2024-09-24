@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Box, Text, Input, Stack, Flex, keyframes } from "@chakra-ui/react";
-import FancyButton from "@/components/ui/button";
+import FancyButton from "@/components/ui/fancy-button";
 import Link from "next/link";
 import Image from "next/image";
 import { useViewportHeight } from "@/utils/hooks/useViewportHeight";

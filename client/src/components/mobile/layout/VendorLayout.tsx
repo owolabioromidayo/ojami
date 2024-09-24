@@ -66,7 +66,7 @@ const VendorLayout: FC<VendorLayoutProps> = ({ children }) => {
   const router = useRouter();
 
   return (
-    <Box>
+    <Box backgroundColor={'#FFFFFF'}>
       <Box
         height="calc(var(--vh, 1vh) * 100 - 60px)"
         overflowY={"auto"}

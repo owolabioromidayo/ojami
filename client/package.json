@@ -22,11 +22,8 @@
     "@vercel/analytics": "^1.3.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-<<<<<<< HEAD
-=======
     "embla-carousel-autoplay": "^8.3.0",
     "embla-carousel-react": "^8.3.0",
->>>>>>> b4000e9420b1c31e93c527d7805abdfb67bd6de6
     "formik": "^2.4.6",
     "framer-motion": "^11.5.4",
     "gltfjsx": "^6.5.2",

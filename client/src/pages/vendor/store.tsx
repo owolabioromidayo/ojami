@@ -4,7 +4,7 @@ import { useViewportHeight } from "@/utils/hooks/useViewportHeight";
 import VendorLayout from "@/components/mobile/layout/VendorLayout";
 import type { NextPageWithLayout } from "../_app";
 
-const Store: NextPageWithLayout = ({}) => {
+const Store: NextPageWithLayout<{}> = () => {
   useViewportHeight();
 
   return <Box height="calc(var(--vh, 1vh) * 100)" w="100vw">

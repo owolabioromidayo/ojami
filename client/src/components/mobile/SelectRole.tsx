@@ -2,11 +2,13 @@ import { FC } from "react";
 import { Box, Text, Stack, Flex } from "@chakra-ui/react";
 import Image from "next/image";
 import { useViewportHeight } from "@/utils/hooks/useViewportHeight";
+import { useRouter } from "next/navigation";
 
 interface SelectRoleMobileProps {}
 
 const SelectRoleMobile: FC<SelectRoleMobileProps> = () => {
   useViewportHeight();
+  const router = useRouter();
 
   return (
     <Box
@@ -42,6 +44,7 @@ const SelectRoleMobile: FC<SelectRoleMobileProps> = () => {
           backgroundPosition={"center"}
           backgroundRepeat={"no-repeat"}
           backgroundSize={"cover"}
+          onClick={() => router.push("/signup")}
         >
           <Box
             position={"relative"}
@@ -69,6 +72,7 @@ const SelectRoleMobile: FC<SelectRoleMobileProps> = () => {
           backgroundPosition={"center"}
           backgroundRepeat={"no-repeat"}
           backgroundSize={"cover"}
+          onClick={() => router.push("/signup")}
         >
           <Box
             position={"relative"}
