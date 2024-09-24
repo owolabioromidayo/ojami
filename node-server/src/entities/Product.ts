@@ -1,6 +1,7 @@
-import { Entity, PrimaryKey, Property, OneToMany, Collection, ManyToOne, EntityManager, ManyToMany } from "@mikro-orm/core";
+import { Entity, PrimaryKey, Property, OneToMany, Collection, ManyToOne, EntityManager, ManyToMany, OneToOne } from "@mikro-orm/core";
 import { Storefront } from "./Storefront";
 import { Tag } from "./Tag";
+import { ProductLink } from "./ProductLink";
 
 //TODO : handle product variations?
 
@@ -22,18 +23,21 @@ export class Product {
   description!: string;
 
   @Property()
-  quantity!: Number;
+  quantity!: number;
 
   @Property()
-  price!: Number;
+  price!: number;
 
   @ManyToOne(() => Storefront)
   storefront!: Storefront;
 
+  @OneToOne(() => ProductLink, productLink => productLink.product, { owner: true })
+ link?: ProductLink 
+
   @ManyToMany(() => Tag, tag => tag.products)
   tags = new Collection<Tag>(this);
 
-  constructor(storefront: Storefront, name: string, price: Number, images: string[], description: string, quantity: Number, tagNames: string[], em: EntityManager) {
+  constructor(storefront: Storefront, name: string, price: number, images: string[], description: string, quantity: number, tagNames: string[], em: EntityManager) {
     this.storefront = storefront;
     this.name = name;
     this.description = description;

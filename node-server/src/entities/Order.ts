@@ -27,6 +27,7 @@ export class Order {
     toUser!: User;
 
     // Order status can be an enum or a simple string
+    // Why didn't you just use a simple string. Dyk how long i battled with the postgres driver issue cos TransactionStatus wasn't a defined type!!!
     @Property()
     status!: 'pending' | 'completed' | 'canceled';
 

@@ -62,10 +62,23 @@ export enum TransactionStatus {
   COMPLETED = 'completed',
   FAILED = 'failed',
 }
+//TODO: alter this
+export enum VirtualTransactionStatus {
+  PENDING = 'pending',
+  PROCESSING = 'processing',
+  COMPLETED = 'completed',
+  FAILED = 'failed',
+}
 
+export enum PendingBalanceStatus{
+  PENDING = 'pending',
+  COMPLETED = 'completed',
+  FAILED = 'failed',
+}
 
 export enum TransactionType{
   BANK_TRANSFER = 'bank_transfer',
+  VIRTUAL_TRANSACTION = 'virtual_transaction',
  //virtual bank account to virtual bank account
 }
 
