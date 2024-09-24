@@ -1,4 +1,6 @@
 import "@/styles/globals.css";
+import type { ReactElement, ReactNode } from "react";
+import type { NextPage } from "next";
 import type { AppProps } from "next/app";
 import { ChakraProvider } from "@chakra-ui/react";
 import Head from "next/head";
@@ -9,7 +11,16 @@ const general = localFont({
   weight: "100 900",
   variable: "--font-general-sans",
 });
-export default function App({ Component, pageProps }: AppProps) {
+
+export type NextPageWithLayout<P = NonNullable<unknown>, IP = P> = NextPage<P, IP> & {
+  getLayout?: (page: ReactElement) => ReactNode;
+};
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
+export default function App({ Component, pageProps }: AppPropsWithLayout) {
+  const getLayout = Component.getLayout ?? ((page) => page);
   return (
     <ChakraProvider>
       <Head>
@@ -19,7 +30,8 @@ export default function App({ Component, pageProps }: AppProps) {
         <link rel="icon" href="/icons/oja.svg" />
       </Head>
       <main className={`${general.className}`}>
-        <Component {...pageProps} />
+        {getLayout(
+        <Component {...pageProps} />)}
       </main>
     </ChakraProvider>
   );

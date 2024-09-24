@@ -11,8 +11,6 @@ const FancyButton: React.FC<FancyButtonProps> = ({ children, bg, ...props }) => 
       {...props}
       bg="none"
       border="none"
-    //   width="200px"  
-    //   height="100px" 
       backgroundImage={bg}
       backgroundRepeat="no-repeat"
       backgroundPosition="center"
