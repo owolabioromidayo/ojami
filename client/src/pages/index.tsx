@@ -1,14 +1,16 @@
 import { LandingLayout } from "@/components/landing/layout";
-import { StoreCard } from "@/components/landing/store-card";
+import { StoreCard } from "@/components/utils/store-card";
 import FancyButton from "@/components/ui/fancy-button";
 import { Box, Flex, Image, Text, useDisclosure } from "@chakra-ui/react";
 import Marquee from "react-fast-marquee";
 import { fakeStores, images } from "../../fakedata";
 import { SearchModal } from "@/components/utils/search-modal";
-import React from "react";
+import React, { useContext } from "react";
+import { OjaContext } from "@/components/provider";
 
 export default function Home() {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const { stores } = useContext(OjaContext)
 
   return (
     <LandingLayout>
@@ -122,15 +124,14 @@ export default function Home() {
           >
             <Marquee speed={40} pauseOnHover>
               <Flex mt={20} p={2} w="full" overflow="hidden">
-                {fakeStores.map((item) => (
+                {stores.map((item) => (
                   <StoreCard
                     mr={14}
-                    key={item.store}
-                    image={item.image}
-                    store={item.store}
-                    avatar={item.avatar}
+                    key={item.storename}
+                    image={item.bannerImageUrl!}
+                    store={item.storename}
+                    avatar={item.profileImageUrl!}
                     ratings={item.ratings}
-                    reviews={item.reviews}
                   />
                 ))}
               </Flex>

@@ -20,6 +20,7 @@ import { SignInModal } from "../utils/signin-modal";
 import { IoCamera, IoSearch, IoSparkles, IoSparklesOutline } from "react-icons/io5";
 import { OjaContext } from "../provider";
 import { useRouter } from "next/router";
+import { CartDrawer } from "../utils/cart-drawer";
 
 interface MarketLayoutProps {
   children: React.ReactNode;
@@ -29,6 +30,8 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
   const { onOpen, isOpen, onClose } = useDisclosure();
   const { isOpen: isMOpen, onToggle } = useDisclosure();
   const { isOpen: isAOpen, onToggle: onAToggle } = useDisclosure();
+  const { onOpen: onCartOpen, isOpen: isCartOpen, onClose: onCartClose } = useDisclosure()
+
   const { user, loading } = useContext(OjaContext)
   const router = useRouter()
 
@@ -62,7 +65,7 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
       bg="#FFF9E5"
       w="full"
     >
-      <Flex w="full" justify="center" direction="row" px={{ lg: 10 }} zIndex={15} bg="#FFF9E5" h="135px" pos="fixed" >
+      <Flex w="full" justify="center" direction="row" px={{ lg: 10 }} zIndex={15} bg="#FFF9E5" h={{ base: "80px", lg:"135px"}} pos="fixed" >
 
       <Flex
         maxW="1650px"
@@ -71,7 +74,7 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
         justify="space-between"
         p={2}
         align="center"
-        h="135px"
+        h={{ base: "80px", lg:"135px"}}
         zIndex={15}
         pos="fixed"
       >
@@ -80,15 +83,17 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
             pointerEvents="none"
             src="/icons/ojami-logo.svg"
             alt="ojami logo"
-            w={{ base: "50px", lg: "80px" }}
+            w={{ base: "40px", lg: "80px" }}
           />
-          <Image
-            pointerEvents="none"
-            src="/assets/oja-kora.svg"
-            alt="oja kora"
-            w={{ base: "50px", lg: "120px" }}
-            transform="rotate(-15deg)"
-          />
+          <FancyButton
+            bg="/assets/buttons/oja-ellipse-orange.svg"
+            w={{ base: "82px", lg: "120px" }}
+            h={{ base: "120px", lg: "100px" }}
+            onClick={() => window.location.assign('/market')}
+            transform="rotate(-14deg)"
+          >
+            home
+          </FancyButton>
         </Flex>
 
         <Flex display={{ base: "none", lg: "flex"}} direction="column" h="full"  align="center"  mt={8} pos="relative">
@@ -190,12 +195,12 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
           </Collapse>
         </Flex>
 
-        <Flex gap={4} align="center">
+        <Flex gap={4} align="center" display={{ base: "none", md: "flex"}}>
           <FancyButton
             bg="/assets/buttons/small-flower.svg"
             w={{ base: "70px", lg: "100px" }}
             h={{ base: "120px", lg: "100px" }}
-            onClick={onOpen}
+            onClick={!user ? onOpen : onCartOpen}
           >
             my cart
           </FancyButton>
@@ -249,6 +254,9 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
 
         </Flex>
         
+        {user && (
+          <CartDrawer isOpen={isCartOpen} onClose={onCartClose} />
+        )}
         <SignInModal isOpen={isOpen} onClose={onClose} />
       </Flex>
       </Flex>
@@ -280,6 +288,7 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
         <Image
           pointerEvents="none"
           src="/assets/star.svg"
+          w={{ base: "150px", md: "300px"}}
           alt="star"
           pos="absolute"
           right={-14}
@@ -289,7 +298,8 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
         <Image
           pointerEvents="none"
           src="/icons/oja-foot.png"
-          w="500px"
+          w={{ base: "250px", md: "500px"}}
+
           alt="footer"
         />
         <Image

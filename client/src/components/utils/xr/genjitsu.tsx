@@ -140,7 +140,7 @@ export const Genjitsu: React.FC<GenjitsuProps> = ({model, avatar, review, rating
                     <Button colorScheme='orange' border="2px solid #000" color="black" mr={3} onClick={onClose}>
                 Close
                 </Button>
-                <Button variant='ghost'>View in AR</Button>
+                <Button variant='ghost' onClick={() => store.enterAR()}>View in AR</Button>
                 </Flex>
             </Flex>
             </ModalHeader>
@@ -199,7 +199,6 @@ export const Genjitsu: React.FC<GenjitsuProps> = ({model, avatar, review, rating
         bg="/assets/buttons/oja-sweet-green.svg"
         w="200px"
         h="100px"
-        onClick={() => store.enterAR()}
       >
         <Flex gap={2} align="center">
           <Icon as={TbShoppingCart} />

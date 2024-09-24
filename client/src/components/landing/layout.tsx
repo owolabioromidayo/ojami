@@ -56,7 +56,9 @@ const rotateAnimation = keyframes`
         >
           my cart
         </FancyButton>
-        <CartDrawer isOpen={isCartOpen} onClose={onCartClose} />
+        {user && (
+          <CartDrawer isOpen={isCartOpen} onClose={onCartClose} />
+        )}
         <SignInModal isOpen={isOpen} onClose={onClose} />
       </Flex>
       {children}
