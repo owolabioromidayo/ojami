@@ -1,0 +1,107 @@
+import { Cart, Product, Storefront, User, VirtualWallet } from "@/utils/types";
+import React, { createContext, ReactNode, useEffect, useState } from "react";
+
+interface OjaProviderProps{
+    children: ReactNode;
+}
+
+interface OjaContextType {
+    user: User | null;
+    stores: Array<Storefront>;
+    cart: Cart | null;
+    loading: boolean;
+    products: [Product] | [];
+}
+
+export const OjaContext = createContext<OjaContextType>({
+    user: null,
+    stores: [],
+    cart: null,
+    loading: false,
+    products: []
+})
+
+export const OjaProvider: React.FC<OjaProviderProps> = ({ children }) => {
+    const [user, setUser] = useState<User | null>(null); 
+    const [loading, setLoading] = useState(true); 
+    const [error, setError] = useState(null);
+
+    const fetchUserData = async () => {
+        const url = 'http://localhost:4000/api/auth/users/me';
+        try {
+            const response = await fetch(url, { credentials: 'include' });
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            const userData = await response.json(); // Parse the JSON from the response
+            setUser(userData); // Update the user state with fetched data
+        } catch (error: any) {
+            setError(error.message); // Update error state if there's an error
+        } finally {
+            setLoading(false); // Set loading to false after fetching
+        }
+    };
+    useEffect(() => {
+        if(!user){
+            fetchUserData();
+        }
+    }, [user]);
+
+    const [cart, setCart] = useState<Cart | null>(null); 
+
+    const fetchcartData = async () => {
+        const url = 'http://localhost:4000/api/ecommerce/carts/me';
+        try {
+            const response = await fetch(url, { credentials: 'include' });
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            const cartData = await response.json(); // Parse the JSON from the response
+            setCart(cartData); // Update the cart state with fetched data
+        } catch (error: any) {
+            setError(error.message); // Update error state if there's an error
+        } finally {
+            setLoading(false); // Set loading to false after fetching
+        }
+    };
+    useEffect(() => {
+        if(!cart && user){
+            fetchcartData();
+        }
+    }, [cart, user]);
+
+    const [store, setStore] = useState<Array<Storefront>>([]); 
+
+    const fetchStoreData = async () => {
+        const url = 'http://localhost:4000/api/ecommerce/storefronts';
+        try {
+            const response = await fetch(url, { credentials: 'include' });
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            const storeData = await response.json(); // Parse the JSON from the response
+            if(storeData && Array.isArray(storeData.storefronts)){
+                setStore(storeData.storefronts); // Update the cart state with fetched data
+            }else{
+                console.log("store is not array")
+            }
+        } catch (error: any) {
+            setError(error.message); // Update error state if there's an error
+        } finally {
+            setLoading(false); // Set loading to false after fetching
+        }
+    };
+    useEffect(() => {
+        if(store.length < 1){
+            fetchStoreData();
+        }
+    }, [store]);
+
+    return(
+        <OjaContext.Provider value={{ user: user, stores: store, cart: cart, loading: loading, products: [] }}>
+            {children}
+        </OjaContext.Provider>
+    )
+
+
+}
