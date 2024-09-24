@@ -45,13 +45,13 @@ router.get("/storefronts", getAllStorefronts);
 
 // Product Routes
 router.post("/products", isAuth, createProduct);
-router.get("/products/:id", getProduct);
 router.get("/products", getAllProducts);
+router.get("/products/:id", getProduct);
 
 // Order Routes
 router.post("/orders", isAuth,  createOrder);
-router.get("/orders/:id", isAuth, getOrder);
 router.get("/orders/me/", isAuth,  getUserOrders);
+router.get("/orders/:id", isAuth, getOrder);
 
 // Cart Routes
 router.post("/carts", isAuth, createCart);
