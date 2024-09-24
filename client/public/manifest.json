@@ -1,0 +1,52 @@
+{
+    "name": "ọjà mi - A new shopping experience",
+    "short_name": "ọjà mi",
+    "icons": [
+      {
+        "src": "/icons/oja-800.png",
+        "sizes": "800x800",
+        "type": "image/png"
+      },
+      {
+        "src": "/icons/oja-246.png",
+        "sizes": "246x246",
+        "type": "image/png"
+      },
+  
+      {
+        "src": "/icons/oja-512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ],
+    "screenshots": [
+      {
+        "src": "/pwa/thumbnail.png",
+        "sizes": "1920x1080",
+        "type": "image/jpeg",
+        "purpose": "any",
+        "platform": "desktop",
+        "form_factor": "wide"
+      },
+      {
+        "src": "/pwa/oja-banner.png",
+        "sizes": "1920x1080",
+        "type": "image/jpeg",
+        "purpose": "any",
+        "platform": "desktop",
+        "form_factor": "wide"
+      },
+      {
+        "src": "/pwa/splash-screen.png",
+        "sizes": "430x932",
+        "type": "image/jpeg",
+        "purpose": "any",
+        "platform": "mobile"
+      }
+    ],
+    "theme_color": "#FFFFFF",
+    "background_color": "#FFFFFF",
+    "start_url": "https://ojami.shop",
+    "display": "standalone",
+    "orientation": "portrait"
+  }
