@@ -4,18 +4,18 @@
     "icons": [
       {
         "src": "/icons/oja-800.png",
-        "sizes": "800x800",
+        "sizes": "840x840",
         "type": "image/png"
       },
       {
         "src": "/icons/oja-246.png",
-        "sizes": "246x246",
+        "sizes": "296x296",
         "type": "image/png"
       },
   
       {
         "src": "/icons/oja-512.png",
-        "sizes": "512x512",
+        "sizes": "552x552",
         "type": "image/png"
       }
     ],
@@ -46,7 +46,7 @@
     ],
     "theme_color": "#FFFFFF",
     "background_color": "#FFFFFF",
-    "start_url": "https://ojami.shop",
+    "start_url": "https://www.ojami.shop",
     "display": "standalone",
     "orientation": "portrait"
   }
