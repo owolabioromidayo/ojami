@@ -29,9 +29,14 @@ import FancyButton from "../ui/fancy-button";
 import { SignInModal } from "../utils/signin-modal";
 import {
   IoCamera,
+  IoFileTrayOutline,
+  IoPerson,
+  IoPersonOutline,
   IoSearch,
   IoSparkles,
   IoSparklesOutline,
+  IoTicket,
+  IoTicketOutline,
 } from "react-icons/io5";
 import { OjaContext } from "../provider";
 import { useRouter } from "next/router";
@@ -274,9 +279,30 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
                     NGN 720,000
                   </Text>
                 </Box>
-                <Flex align="center" gap={2} mt={10} mb={2} fontWeight={600}>
-                  <Icon as={IoSparklesOutline} />
-                  <Text>Suggested searches</Text>
+                <Flex gap={2} mt={2} align="center" p={2}>
+                  <Icon as={IoPersonOutline} fontSize={36}
+                    p={2}
+                    border="1px solid #e2e2e2"
+                    rounded="4" />
+                <Text fontWeight={600}>Hello, {user?.firstname!} { user?.lastname!} 👋</Text>
+                </Flex>
+                
+                <Flex
+                  align="center"
+                  gap={2}
+                  p={2}
+                  _hover={{ bg: "#f0f0f0" }}
+                  rounded="lg"
+                  cursor="pointer"
+                >
+                  <Icon
+                    as={IoTicketOutline}
+                    fontSize={36}
+                    p={2}
+                    border="1px solid #e2e2e2"
+                    rounded="4"
+                  />
+                  <Text fontWeight={500}>Collectibles</Text>
                 </Flex>
                 <Flex
                   align="center"
@@ -287,19 +313,20 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
                   cursor="pointer"
                 >
                   <Icon
-                    as={IoSearch}
+                    as={IoFileTrayOutline}
                     fontSize={36}
                     p={2}
                     border="1px solid #e2e2e2"
                     rounded="4"
                   />
-                  <Text>PlayStation 5 Pro</Text>
+                  <Text fontWeight={500}>Orders</Text>
                 </Flex>
               </Box>
             </Collapse>
           </Flex>
 
           {user && <CartDrawer isOpen={isCartOpen} onClose={onCartClose} />}
+
           <SignInModal isOpen={isOpen} onClose={onClose} />
         </Flex>
       </Flex>

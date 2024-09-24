@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 
 import {
   Modal,
@@ -9,6 +9,7 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
+  InputLeftAddon,
   Icon,
   useDisclosure,
   Flex,
@@ -22,10 +23,12 @@ import {
   TabPanels,
   TabPanel,
   useToast,
+  Collapse,
+  Box,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Formik, Form, Field } from "formik";
-import { IoKeyOutline } from "react-icons/io5";
+import { IoKeyOutline, IoPhonePortraitOutline } from "react-icons/io5";
 import { MdAlternateEmail } from "react-icons/md";
 import FancyButton from "../ui/fancy-button";
 
@@ -34,12 +37,27 @@ interface SignInProps {
   onClose: () => void;
 }
 
-
 export const SignInModal: React.FC<SignInProps> = ({ isOpen, onClose }) => {
   const { isOpen: isMOpen, onToggle } = useDisclosure();
+  const { isOpen: isAOpen, onToggle: onAToggle } = useDisclosure();
+  const [signUpData, setSignUpData] = useState({
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
+    birthDate: "",
+    email: "",
+  });
+  const handleChange = (e: { target: { name: any; value: any; }; }) => {
+    const { name, value } = e.target;
+    setSignUpData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
   const [index, setIndex] = useState(0);
-  const toast = useToast()
-
+  const toast = useToast();
+  const baseUrl = process.env.NEXT_PUBLIC_BASE!;
+  const bearer = process.env.NEXT_PUBLIC_API!;
 
   return (
     <Modal
@@ -70,34 +88,46 @@ export const SignInModal: React.FC<SignInProps> = ({ isOpen, onClose }) => {
                 <Formik
                   initialValues={{ email: "", password: "" }}
                   onSubmit={async (values, actions) => {
-                    const response = await fetch("http://localhost:4000/api/auth/users/login", {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json'},
-                      body: JSON.stringify({phoneOrEmail: values.email, password: values.password}),
-                      credentials: 'include'
-                    })
-                    const data = await response.json()
-                    if(!response.ok){
+                    const response = await fetch(
+                      "http://localhost:4000/api/auth/users/login",
+                      {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          phoneOrEmail: values.email,
+                          password: values.password,
+                        }),
+                        credentials: "include",
+                      }
+                    );
+                    const data = await response.json();
+                    if (!response.ok) {
                       toast({
-                        title: 'Login Error',
+                        title: "Login Error",
                         description: `${data.errors[0].message}`,
-                        status: 'error',
+                        status: "error",
                         duration: 5000,
-                        position: 'top',
-                        containerStyle: { border: "2px solid #000", rounded: "md"},
-                      })
-                    }else{
+                        position: "top",
+                        containerStyle: {
+                          border: "2px solid #000",
+                          rounded: "md",
+                        },
+                      });
+                    } else {
                       toast({
-                        title: 'Login Successful',
+                        title: "Login Successful",
                         description: "Welcome back to your account",
-                        status: 'success',
+                        status: "success",
                         duration: 5000,
-                        position: 'top',
-                        containerStyle: { border: "2px solid #000", rounded: "md" }
-                      })
+                        position: "top",
+                        containerStyle: {
+                          border: "2px solid #000",
+                          rounded: "md",
+                        },
+                      });
                       setTimeout(() => {
-                        window.location.reload()
-                      }, 700)
+                        window.location.reload();
+                      }, 700);
                     }
                   }}
                 >
@@ -198,38 +228,222 @@ export const SignInModal: React.FC<SignInProps> = ({ isOpen, onClose }) => {
                     Start your new shopping experience
                   </Text>
                 </ModalHeader>
-                <Formik
-                  initialValues={{ firstName: "", lastName: "", phoneNumber: "", birthDate: "", email: "", password: "" }}
-                  onSubmit={async (values, actions) => {
-                    const response = await fetch("http://localhost:4000/api/auth/users/signup", {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json'},
-                      body: JSON.stringify({firstname: values.firstName, lastname: values.lastName, email: values.email, phoneNumber: values.phoneNumber, birthDate: values.birthDate,  password: values.password}),
-                      credentials: 'include'
+                <Flex direction="column" gap={2}></Flex>
+                <Flex
+                  w="full"
+                  gap={4}
+                  align="center"
+                  direction={{ base: "column", md: "row" }}
+                >
+                  <FancyButton
+                    bg="/assets/buttons/oja-sweet-orange.svg"
+                    w={{ base: "60%", lg: "45%" }}
+                    h={{ base: "120px", lg: "100px" }}
+                    onClick={() => setIndex(index + 1)}
+                  >
+                    sign up with email
+                  </FancyButton>
+                  <FancyButton
+                    bg="/assets/buttons/oja-sweet-purple.svg"
+                    w={{ base: "60%", lg: "45%" }}
+                    h={{ base: "120px", lg: "100px" }}
+                    onClick={onAToggle}
+                  >
+                    sign up with phone
+                  </FancyButton>
+                </Flex>
+                <Collapse in={isAOpen} animateOpacity>
+                  <Box
+                    w="full"
+                    p="20px"
+                    mt="4"
+                    bg="white"
+                    border="2px solid #000"
+                    rounded="10px"
+                  >
+                    <Formik
+                      initialValues={{ phoneNumber: "" }}
+                      onSubmit={async (values, actions) => {
+                        const response = await fetch(
+                          `${baseUrl}/api/v1/identities/ng/nin-phone`,
+                          {
+                            method: "POST",
+                            headers: {
+                              "Content-Type": "application/json",
+                              Authorization:
+                                `Bearer ${bearer}`,
+                            },
+                            body: JSON.stringify({
+                              id: values.phoneNumber,
+                              verification_consent: true,
+                            }),
+                          }
+                        );
+                        const data = await response.json();
+                        if (data.status === false) {
+                          toast({
+                            title: "Verification Error",
+                            description: `${data.message}`,
+                            status: "error",
+                            duration: 5000,
+                            position: "top",
+                            containerStyle: {
+                              border: "2px solid #000",
+                              rounded: "md",
+                            },
+                          });
+                        } else {
+                          toast({
+                            title: "Identity Verified Successful",
+                            description: "Your identity has been verified",
+                            status: "success",
+                            duration: 5000,
+                            position: "top",
+                            containerStyle: {
+                              border: "2px solid #000",
+                              rounded: "md",
+                            },
+                          });
+                          setSignUpData(prevState => ({
+                            ...prevState,
+                           firstName: data.data.first_name,
+                           lastName: data.data.last_name,
+                           phoneNumber: data.data.phone_number,
+                           birthDate: data.data.date_of_birth,
+                           email: data.data.email,
+                        }));
+                          setTimeout(() => {
+                            setIndex(index + 1);
+                          }, 400);
+                        }
+                      }}
+                    >
+                      {(props) => (
+                        <Form>
+                          <Field name="phoneNumber">
+                            {({ field, form }: any) => (
+                              <FormControl>
+                                <FormLabel>Phone Number (NG only)</FormLabel>
+                                <InputGroup>
+                                  <InputLeftAddon
+                                    border="2px solid #000"
+                                    py={8}
+                                  >
+                                    +234
+                                  </InputLeftAddon>
+                                  <Input
+                                    {...field}
+                                    type="text"
+                                    border="solid #000"
+                                    borderWidth="2px 2px 2px 0"
+                                    rounded="12px"
+                                    py={8}
+                                    focusBorderColor="#EF8421"
+                                  />
+                                </InputGroup>
+                                <FormErrorMessage>
+                                  {form.errors.email}
+                                </FormErrorMessage>
+                              </FormControl>
+                            )}
+                          </Field>
 
-                    })
-                    const data = await response.json()
-                    if(!response.ok){
+                          <Flex
+                            align="center"
+                            direction="column"
+                            gap={3}
+                            w="full"
+                            mt={5}
+                          >
+                            <FancyButton
+                              bg="/assets/buttons/oja-cloud-purple.svg"
+                              w="280px"
+                              h="90px"
+                              fontWeight={700}
+                              isLoading={props.isSubmitting}
+                              type="submit"
+                            >
+                              Continue
+                            </FancyButton>
+                            <Text fontWeight={600} color="#747474">
+                              Already have an Account?{" "}
+                              <Link
+                                color="#EF8421"
+                                onClick={() => setIndex(index - 1)}
+                              >
+                                Sign In
+                              </Link>
+                            </Text>
+                          </Flex>
+                        </Form>
+                      )}
+                    </Formik>
+                  </Box>
+                </Collapse>
+              </TabPanel>
+              <TabPanel>
+                <ModalHeader textAlign="center">
+                  <Text fontSize={24} mb={2}>
+                    Sign Up
+                  </Text>
+                  <Text fontWeight={400} fontSize={15}>
+                    Start your new shopping experience
+                  </Text>
+                </ModalHeader>
+                <Formik
+                  initialValues={{
+                    firstName: "",
+                    lastName: "",
+                    phoneNumber: "",
+                    birthDate: "",
+                    email: "",
+                    password: "",
+                  }}
+                  onSubmit={async (values, actions) => {
+                    const response = await fetch(
+                      "http://localhost:4000/api/auth/users/signup",
+                      {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          firstname: signUpData.firstName,
+                          lastname: signUpData.lastName,
+                          email: signUpData.email,
+                          phoneNumber: signUpData.phoneNumber,
+                          birthDate: signUpData.birthDate,
+                          password: values.password,
+                        }),
+                        credentials: "include",
+                      }
+                    );
+                    const data = await response.json();
+                    if (!response.ok) {
                       toast({
-                        title: 'Login Error',
+                        title: "Login Error",
                         description: `${data.errors[0].message}`,
-                        status: 'error',
+                        status: "error",
                         duration: 5000,
-                        position: 'top',
-                        containerStyle: { border: "2px solid #000", rounded: "md"},
-                      })
-                    }else{
+                        position: "top",
+                        containerStyle: {
+                          border: "2px solid #000",
+                          rounded: "md",
+                        },
+                      });
+                    } else {
                       toast({
-                        title: 'Sign up Successful',
+                        title: "Sign up Successful",
                         description: "Welcome to Ojà mi 🫶",
-                        status: 'success',
+                        status: "success",
                         duration: 5000,
-                        position: 'top',
-                        containerStyle: { border: "2px solid #000", rounded: "md" }
-                      })
+                        position: "top",
+                        containerStyle: {
+                          border: "2px solid #000",
+                          rounded: "md",
+                        },
+                      });
                       setTimeout(() => {
-                        window.location.reload()
-                      }, 700)
+                        window.location.reload();
+                      }, 700);
                     }
                   }}
                 >
@@ -250,6 +464,9 @@ export const SignInModal: React.FC<SignInProps> = ({ isOpen, onClose }) => {
                               placeholder="First Name"
                               border="2px solid #000"
                               rounded="12px 12px 0 0"
+                              name="firstName"
+                              value={signUpData.firstName}
+                              onChange={handleChange}
                               py={8}
                               focusBorderColor="#EF8421"
                             />
@@ -270,6 +487,9 @@ export const SignInModal: React.FC<SignInProps> = ({ isOpen, onClose }) => {
                             <Input
                               {...field}
                               type="text"
+                              name="lastName"
+                              value={signUpData.lastName}
+                              onChange={handleChange}
                               placeholder="Last Name"
                               border="solid #000"
                               borderWidth="0px 2px 2px 2px"
@@ -291,15 +511,18 @@ export const SignInModal: React.FC<SignInProps> = ({ isOpen, onClose }) => {
                             isInvalid={form.errors.email && form.touched.email}
                           >
                             <FormLabel>Email</FormLabel>
-                              <Input
-                                {...field}
-                                type="email"
-                                placeholder="example@gmail.com"
-                                border="2px solid #000"
-                                rounded="12px"
-                                py={8}
-                                focusBorderColor="#EF8421"
-                              />
+                            <Input
+                              {...field}
+                              type="email"
+                              name="email"
+                              value={signUpData.email}
+                              onChange={handleChange}
+                              placeholder="example@gmail.com"
+                              border="2px solid #000"
+                              rounded="12px"
+                              py={8}
+                              focusBorderColor="#EF8421"
+                            />
                             <FormErrorMessage>
                               {form.errors.email}
                             </FormErrorMessage>
@@ -309,74 +532,77 @@ export const SignInModal: React.FC<SignInProps> = ({ isOpen, onClose }) => {
 
                       <Flex align="center" gap={4}>
                         <Field name="phoneNumber">
-                            {({ field, form }: any) => (
+                          {({ field, form }: any) => (
                             <FormControl
-                                mt={5}
-                                isInvalid={
+                              mt={5}
+                              isInvalid={
                                 form.errors.phoneNumber &&
                                 form.touched.phoneNumber
-                                }
+                              }
                             >
-                                <FormLabel>Phone Number</FormLabel>
+                              <FormLabel>Phone Number</FormLabel>
 
-                                <Input
+                              <Input
                                 {...field}
                                 type="number"
+                                name="phoneNumber"
+                                value={signUpData.phoneNumber}
+                                onChange={handleChange}
                                 border="2px solid #000"
                                 rounded="12px"
                                 placeholder="08001234567"
                                 py={8}
                                 focusBorderColor="#EF8421"
-                                />
-                                <FormErrorMessage>
+                              />
+                              <FormErrorMessage>
                                 {form.errors.email}
-                                </FormErrorMessage>
+                              </FormErrorMessage>
                             </FormControl>
-                            )}
+                          )}
                         </Field>
 
                         <Field name="birthdate">
-                            {({ field, form }: any) => (
+                          {({ field, form }: any) => (
                             <FormControl
-                                mt={5}
-                                isInvalid={
-                                form.errors.birthdate &&
-                                form.touched.birthdate
-                                }
+                              mt={5}
+                              isInvalid={
+                                form.errors.birthdate && form.touched.birthdate
+                              }
                             >
-                                <FormLabel>Date of birth</FormLabel>
+                              <FormLabel>Date of birth</FormLabel>
 
-                                <Input
-                                {...field}
-                                type="date"
-                                border="2px solid #000"
-                                rounded="12px"
-                                py={8}
-                                focusBorderColor="#EF8421"
-                                />
-                                <FormErrorMessage>
-                                {form.errors.birthdate}
-                                </FormErrorMessage>
-                            </FormControl>
-                            )}
-                        </Field>
-
-                      </Flex>
-
-
-                      <Field name="password">
-                        {({ field, form }: any) => (
-                          <FormControl mt={5}>
-                            <FormLabel>Password</FormLabel>
                               <Input
                                 {...field}
-                                type="password"
-                                placeholder="•••••••••••"
+                                type="date"
+                                name="birthData"
+                                value={signUpData.birthDate}
+                                onChange={handleChange}
                                 border="2px solid #000"
                                 rounded="12px"
                                 py={8}
                                 focusBorderColor="#EF8421"
                               />
+                              <FormErrorMessage>
+                                {form.errors.birthdate}
+                              </FormErrorMessage>
+                            </FormControl>
+                          )}
+                        </Field>
+                      </Flex>
+
+                      <Field name="password">
+                        {({ field, form }: any) => (
+                          <FormControl mt={5}>
+                            <FormLabel>Password</FormLabel>
+                            <Input
+                              {...field}
+                              type="password"
+                              placeholder="•••••••••••"
+                              border="2px solid #000"
+                              rounded="12px"
+                              py={8}
+                              focusBorderColor="#EF8421"
+                            />
                             <FormErrorMessage>
                               {form.errors.password}
                             </FormErrorMessage>
@@ -395,7 +621,7 @@ export const SignInModal: React.FC<SignInProps> = ({ isOpen, onClose }) => {
                           w="280px"
                           h="90px"
                           fontWeight={700}
-                           isLoading={props.isSubmitting}
+                          isLoading={props.isSubmitting}
                           type="submit"
                         >
                           Sign up

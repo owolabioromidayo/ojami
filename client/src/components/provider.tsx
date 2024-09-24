@@ -34,7 +34,7 @@ export const OjaProvider: React.FC<OjaProviderProps> = ({ children }) => {
                 throw new Error(`Network response was not ok: ${response.statusText}`);
             }
             const userData = await response.json(); // Parse the JSON from the response
-            setUser(userData); // Update the user state with fetched data
+            setUser(userData.user); // Update the user state with fetched data
         } catch (error: any) {
             setError(error.message); // Update error state if there's an error
         } finally {

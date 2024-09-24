@@ -15,11 +15,11 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <ChakraProvider>
       <Head>
-        <title>ojà mi | a new shopping experience powered by Kora </title>
+        <title>ọjà mi | a new shopping experience powered by Kora </title>
         <meta name="description" content="Powered by Kora Payments" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/icons/oja.svg" />
-        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="shortcut icon" href="/icons/oja.svg" />
         <link rel="mask-icon" href="/icons/oja.svg" color="#FFFFFF" />
         <link
           rel="apple-touch-startup-image"
@@ -36,7 +36,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <link
           rel="apple-touch-icon"
           sizes="512x512"
-          href="/icons/oja-512"
+          href="/icons/oja-512.png"
         />
         <link rel="manifest" href="/manifest.json" />
         <meta property="og:type" content="website" />
@@ -47,7 +47,7 @@ export default function App({ Component, pageProps }: AppProps) {
         />
         <meta property="og:site_name" content="oja mi" />
         <meta property="og:url" content="https://ojami.shop" />
-        <meta property="og:image" content="/assets/thumbnail.png" />
+        <meta property="og:image" content="/pwa/thumbnail.png" />
       </Head>
       <main
         className={`${general.className}`}

@@ -17,7 +17,13 @@ import { Avatar, Flex,Button, Icon, IconButton, Stack, Text, useDisclosure, Moda
     ModalHeader,
     ModalFooter,
     ModalBody,
-    ModalCloseButton, } from "@chakra-ui/react";
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogContent,
+    AlertDialogOverlay,
+    AlertDialogCloseButton, useMediaQuery } from "@chakra-ui/react";
 import { TbCube3dSphere, TbShoppingCart } from "react-icons/tb";
 import FancyButton from "@/components/ui/fancy-button";
 import { RiFullscreenFill } from "react-icons/ri";
@@ -38,6 +44,9 @@ export const Genjitsu: React.FC<GenjitsuProps> = ({model, avatar, review, rating
   const [scale, setScale] = useState(0.7); // State for model scale
   const [show, setShow] = useState(false)
   const { onOpen, isOpen, onClose } = useDisclosure()
+  const { isOpen: isAOpen, onOpen: onAOpen, onClose: onAClose } = useDisclosure()
+  const cancelRef = React.useRef(null)
+  const [mobile] = useMediaQuery('(max-width: 600px)')
 
   useEffect(() => {
     // Create the XR store only in the client
@@ -46,7 +55,7 @@ export const Genjitsu: React.FC<GenjitsuProps> = ({model, avatar, review, rating
   }, []);
 
   if (!store) {
-    return <div>Loading...</div>; // Optionally show a loading state while the store is being created
+    return <div>Loading...</div>; // show a loading state while the store is being created
   }
 
   return (
@@ -213,6 +222,36 @@ export const Genjitsu: React.FC<GenjitsuProps> = ({model, avatar, review, rating
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+
+
+      {/** AR VIEWER ALERT IS NOT MOBILE */}
+      <AlertDialog
+        motionPreset='slideInBottom'
+        leastDestructiveRef={cancelRef}
+        onClose={onAClose}
+        isOpen={isAOpen}
+        isCentered
+      >
+        <AlertDialogOverlay />
+
+        <AlertDialogContent>
+          <AlertDialogHeader>Discard Changes?</AlertDialogHeader>
+          <AlertDialogCloseButton />
+          <AlertDialogBody>
+            Are you sure you want to discard all of your notes? 44 words will be
+            deleted.
+          </AlertDialogBody>
+          <AlertDialogFooter>
+            <Button ref={cancelRef} onClick={onClose}>
+              No
+            </Button>
+            <Button colorScheme='red' ml={3}>
+              Yes
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Flex>
   );
 }
