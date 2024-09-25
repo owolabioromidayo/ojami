@@ -1,0 +1,1 @@
+(()=>{"use strict";self.fallback=async e=>{switch(e.destination){case"document":return caches.match("/~offline",{ignoreSearch:!0});case"image":0;case"audio":0;case"video":0;case"font":0;case"":if(e.url.match(/\/_next\/data\/.+\/.+\.json$/i))return caches.match("/_next/data/D0Pfi7x2_b8oOM8H1UE6A/fallback.json",{ignoreSearch:!0});default:return Response.error()}}})();

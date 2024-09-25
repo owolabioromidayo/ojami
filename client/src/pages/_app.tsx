@@ -48,8 +48,8 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         <meta property="og:image" content="/pwa/thumbnail.png" />
       </Head>
       <main className={`${general.className}`} style={{ background: "#FFF9E5" }}>
-        {getLayout(<Component {...pageProps} />)}
         <OjaProvider>
+        {getLayout(<Component {...pageProps} />)}
           <Analytics />
         </OjaProvider>
       </main>
