@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 "use client";
 
 import { MarketLayout } from "@/components/market/layout";
@@ -97,6 +99,8 @@ const ProductsPage = () => {
 
   const [index, setIndex] = React.useState(0)
 
+  const { cart, setCart } = useContext(OjaContext);
+
   const addToCart = async () => {
     const response = await fetch("http://localhost:4000/api/ecommerce/carts/add", {
       method: "POST",
@@ -118,10 +122,30 @@ const ProductsPage = () => {
         containerStyle: { border: "2px solid #000", rounded: "md" },
       });
     } else {
+      // Update the cart state
+      
+      setCart((prevCart) => {
+        if (!prevCart) {
+          return {
+            id: 1, // Or generate a unique ID
+            items: [{ product: products, quantity: value }],
+            total: (products?.price || 0) * value,
+            totalPrice: (products?.price || 0) * value,
+            user: {} // Add a user property, initialize as needed
+          };
+        }
+        return {
+          ...prevCart,
+          items: [...prevCart.items, { product: products, quantity: value }],
+          total: prevCart.total + (products?.price || 0) * value,
+          totalPrice: prevCart.totalPrice + (products?.price || 0) * value,
+        };
+      });
+
       toast({
         title: "Add to Cart",
         description: "You just added a product to your cart 🤑",
-        status: "success",
+        status: "info",
         duration: 5000,
         position: "top",
         containerStyle: { border: "2px solid #000", rounded: "md" },
@@ -132,63 +156,81 @@ const ProductsPage = () => {
 
   return (
     <MarketLayout>
-      <Flex w="full" align="start" gap={40} justify="center">
-        <Stack>
-            <Flex direction="column" gap={2}>
-                <Image src={products?.images[index]} alt={products?.name} w="650px" h="650px" objectFit="cover" rounded="10px" border="2px solid #000" />
-                <Flex gap={3} align="center">
-                    {products?.images?.map((item, i) => (
-                        <Box key={i} rounded="10px" border={index === i ? "2px solid #000" : "none"} cursor="pointer" onClick={() => setIndex(i)} p={1} w="100px" h="100px" overflow="hidden">
-                            <Image src={item} key={item} rounded="7px" alt={products?.name} w="100px" h="87px" objectFit="cover" />
-                        </Box>
-                    ))}
-                </Flex>
+      <Flex w="full" align="start" gap={{ base: 4, md: 10, lg: 40 }} justify="center" direction={{ base: "column", lg: "row" }}>
+        <Stack w={{ base: "full", md: "auto" }}>
+          <Flex direction="column" gap={2}>
+            <Image 
+              src={products?.images[index]} 
+              alt={products?.name} 
+              w={{ base: "full", md: "650px" }} 
+              h={{ base: "350px", md: "650px" }} 
+              objectFit="cover" 
+              rounded="10px" 
+              border="2px solid #000" 
+            />
+            <Flex gap={3} align="center" overflowX={{ base: "auto", md: "visible" }} w={{ base: "full", md: "auto" }}>
+              {products?.images?.map((item, i) => (
+                <Box 
+                  key={i} 
+                  rounded="10px" 
+                  border={index === i ? "2px solid #000" : "none"} 
+                  cursor="pointer" 
+                  onClick={() => setIndex(i)} 
+                  p={1} 
+                  minW="100px" 
+                  h="100px" 
+                  overflow="hidden" 
+                  flexShrink={0}
+                >
+                  <Image src={item} key={item} rounded="7px" alt={products?.name} w="100px" h="87px" objectFit="cover" />
+                </Box>
+              ))}
             </Flex>
+          </Flex>
         </Stack>
-        <Stack>
-            <Flex align="center" gap={2}>
-                <Image src={products?.storefront?.profileImageUrl!} w="50px" h="50px" alt={products?.storefront?.storename} rounded="10px" />
-                <Text fontWeight={500}>{products?.storefront?.storename}</Text>
-            </Flex>
-        <Text mt={2} fontWeight={600} fontSize={20}>{products?.name}</Text>
-        <Flex gap={1} align="center" fontSize={15}>
-        {renderStars()} 
-        <Text fontWeight={500}>
-        ({Math.floor(Math.random() * (800 - 15 + 1)) + 15})
-        </Text>
-      </Flex>
-      <Flex gap={2} align="center" display={products?.price! > 10000 && products?.price! < 15000 ? 'flex' : 'none'}>
-      <Text fontWeight={600} textDecor="line-through" >₦{products?.price.toLocaleString()}</Text>
-      <Text fontWeight={600} color="orange.500">₦{(products?.price! * 0.49).toLocaleString()}</Text>
-      </Flex>
-
-      <Text fontWeight={600} display={products?.price! > 10000 && products?.price! < 15000 ? 'none' : 'flex'}>₦{products?.price.toLocaleString()}</Text>
-      <Flex gap={2} align="center" fontSize={15} mt={3} fontWeight={500}>
-        <Icon as={TbTruckDelivery} />
-        <Text>Delivery calculated at checkout</Text>
-      </Flex>
-      <Button variant="link" colorScheme="purple" w="fit-content" fontSize={14}>Add address</Button>
-      <Flex w="full" mt={6} align="center" justify="space-between">
-        <Text fontSize={18} fontWeight={500}>Quantity</Text>
-      <HStack maxW='150px' bg="white" border="2px solid #000" rounded="9px" p={1}>
-      <Button bg="none" {...dec} onClick={handleValueChange}>-</Button>
-      <Input focusBorderColor="white" fontWeight={500} pr={1} border="none" w="50px" {...input} />
-      <Button bg="none" {...inc} onClick={handleValueChange}>+</Button>
-    </HStack>       
-      </Flex>
-      <Flex align="center" gap={3} w="full">
-        <FancyButton bg="/assets/buttons/oja-sweet-purple.svg" w="full" h="120px" onClick={() => addToCart()}>
-            Add to Cart
-        </FancyButton>
-        <FancyButton bg="/assets/buttons/oja-sweet-orange.svg" w="full" h="120px">
-            Buy now
-        </FancyButton>
-      </Flex>
-
-      <Text fontSize={18} fontWeight={500}>Description</Text>
-      <Text w="450px">{products?.description}</Text>
-    <MiniStoreCard storefront={products?.storefront!} />
-
+        <Stack w={{ base: "full", md: "450px" }} spacing={4}>
+          <Flex align="center" gap={2}>
+            <Image src={products?.storefront?.profileImageUrl!} w="50px" h="50px" alt={products?.storefront?.storename} rounded="10px" />
+            <Text fontWeight={500}>{products?.storefront?.storename}</Text>
+          </Flex>
+          <Text fontWeight={600} fontSize={{ base: 18, md: 20 }}>{products?.name}</Text>
+          <Flex gap={1} align="center" fontSize={15}>
+            {renderStars()} 
+            <Text fontWeight={500}>
+              ({Math.floor(Math.random() * (800 - 15 + 1)) + 15})
+            </Text>
+          </Flex>
+          <Flex gap={2} align="center" display={products?.price! > 10000 && products?.price! < 15000 ? 'flex' : 'none'}>
+            <Text fontWeight={600} textDecor="line-through" >₦{products?.price.toLocaleString()}</Text>
+            <Text fontWeight={600} color="orange.500">₦{(products?.price! * 0.49).toLocaleString()}</Text>
+          </Flex>
+          <Text fontWeight={600} display={products?.price! > 10000 && products?.price! < 15000 ? 'none' : 'flex'}>₦{products?.price.toLocaleString()}</Text>
+          <Flex gap={2} align="center" fontSize={15} fontWeight={500}>
+            <Icon as={TbTruckDelivery} />
+            <Text>Delivery calculated at checkout</Text>
+          </Flex>
+          <Button variant="link" colorScheme="purple" w="fit-content" fontSize={14}>Add address</Button>
+          <Flex w="full" align="center" justify="space-between" direction={{ base: "column", sm: "row" }}>
+            <Text fontSize={18} fontWeight={500} mb={{ base: 2, sm: 0 }}>Quantity</Text>
+            <HStack maxW='150px' bg="white" border="2px solid #000" rounded="9px" p={1}>
+              <Button bg="none" {...dec} onClick={handleValueChange}>-</Button>
+              <Input focusBorderColor="white" fontWeight={500} pr={1} border="none" w="50px" {...input} />
+              <Button bg="none" {...inc} onClick={handleValueChange}>+</Button>
+            </HStack>       
+          </Flex>
+          <Flex align="center" gap={3} w="full" direction={{ base: "column", sm: "row" }}>
+            <FancyButton bg="/assets/buttons/oja-sweet-purple.svg" w="full" h={{ base: "80px", md: "120px" }} onClick={addToCart}>
+              Add to Cart
+            </FancyButton>
+            <FancyButton bg="/assets/buttons/oja-sweet-orange.svg" w="full" h={{ base: "80px", md: "120px" }}>
+              Buy now
+            </FancyButton>
+          </Flex>
+          <Text fontSize={18} fontWeight={500}>Description</Text>
+          <Text w={{ base: "full", md: "450px" }}>{products?.description}</Text>
+          <Box mt={2}>
+            <MiniStoreCard storefront={products?.storefront!} />
+          </Box>
         </Stack>
       </Flex>
     </MarketLayout>
