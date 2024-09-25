@@ -16,6 +16,9 @@ export class Product {
   @Property({ type: 'json' })
   images!: string[];
 
+  @Property({ type: 'json', nullable: true })
+  ratings?: number[];
+
   @Property({ type: 'blob' })
   threeDModel?: Buffer;
 

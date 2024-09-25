@@ -191,7 +191,7 @@ async function getProduct(req: Request, res: Response) {
 
     try {
         //TODO: what do we need to populate?
-        const product = await em.fork({}).findOneOrFail(Product, { id });
+        const product = await em.fork({}).findOneOrFail(Product, { id }, { populate: ["storefront"]});
         return res.status(200).json({ product });
     } catch (err) {
         return res.status(404).json({ errors: [{ field: 'product', message: 'Product not found' }] });
@@ -333,7 +333,7 @@ async function getUserCart(req: Request, res: Response) {
 
     try {
         const user = await em.fork({}).findOneOrFail(User, { id: Number(req.session.userid) });
-        const cart = await em.fork({}).findOneOrFail(Cart, { user }, {populate: ["items"]});
+        const cart = await em.fork({}).findOneOrFail(Cart, { user }, {populate: ["items", "user", "items.product", "items.product.storefront"]});
 
         let totalPrice = cart.items.getItems().reduce((total, item: CartItem) => {
             if (item.product && typeof item.product.price == 'number') { 
@@ -353,7 +353,7 @@ async function getUserCart(req: Request, res: Response) {
 async function addToCart(req: Request, res: Response) {
 
     const productId = Number(req.body.productId);
-    const quantity= Number(req.body.productId);
+    const quantity= Number(req.body.quantity);
     
     if (isNaN(productId)) {
         return res.status(400).json({ errors: [{ field: 'productId', message: 'Invalid product ID' }] });
@@ -369,7 +369,7 @@ async function addToCart(req: Request, res: Response) {
 
         const user = await em.fork({}).findOneOrFail(User, { id: Number(req.session.userid) });
         const product = await em.fork({}).findOneOrFail(Product, { id: productId });
-        let cart = await em.fork({}).findOneOrFail(Cart, { user  });
+        let cart = await em.fork({}).findOneOrFail(Cart, { user  }, { populate: ["items"]});
 
         let existingItem = cart.items.find(item => item.product.id === productId);  
 
@@ -384,9 +384,9 @@ async function addToCart(req: Request, res: Response) {
 
 
         return res.status(200).json({ cart });
-    } catch (err) {
+    } catch (err: any) {
         return res.status(500).json({
-            errors: [{ field: "cart", message: "Could not add item to cart", error: err }],
+            errors: [{ field: "cart", message: err.message, error: err }],
         });
     }
 }
@@ -399,7 +399,7 @@ async function removeFromCart(req: Request, res: Response) {
 
     try {
         const user = await em.fork({}).findOneOrFail(User, { id: Number(req.session.userid) });
-        let cart = await em.fork({}).findOneOrFail(Cart, { user});
+        let cart = await em.fork({}).findOneOrFail(Cart, { user}, { populate: ["items"]});
         let itemToRemove = cart.items.find(item => item.product.id === productId);
 
         if (!itemToRemove) {
@@ -407,16 +407,14 @@ async function removeFromCart(req: Request, res: Response) {
                 errors: [{ field: "cart", message: "Item not found in cart" }],
             })
         }
-
-        cart.items.remove(itemToRemove); // Remove item from collection
-
-        await em.fork({}).persistAndFlush(cart);
+        await em.fork({}).nativeDelete(CartItem, { id: itemToRemove.id })
+       
 
         return res.status(200).json({ cart });
     }
-    catch (err) {
+    catch (err: any) {
         return res.status(500).json({
-            errors: [{ field: "cart", message: "Could not remove item from cart", error: err }],
+            errors: [{ field: "cart", message: err.message, error: err }],
         })
     }
 }
