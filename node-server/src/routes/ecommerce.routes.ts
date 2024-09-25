@@ -63,7 +63,7 @@ router.post("/carts/remove", isAuth, removeFromCart);
 
 //dispute order, refund, and the like
 
-//TODO: cart checkout
+//TODO: cart checkout (update product stock count, push to payin/checkout links)
 
 //TODO: fix error responses
 
@@ -257,8 +257,12 @@ async function createOrder(req: Request, res: Response) {
         const storefront = await em.fork({}).findOneOrFail(Storefront, { id: product.storefront.id } );
         const fromUser = await em.fork({}).findOneOrFail(User, { id: fromUserId });
         const toUser = await em.fork({}).findOneOrFail(User, { id: Number(req.session.id)});
+        
+        if (product.quantity < count) {
+            return res.status(400).json({ errors: [{ field: 'quantity', message: 'Not enough stock' }] });
+        }
 
-        const order = new Order(product, count, storefront, fromUser, toUser, 'pending'); // Assuming the Order constructor takes these parameters
+        const order = new Order(product, count, storefront, fromUser, toUser, 'pending');
         await em.fork({}).persistAndFlush(order);
         return res.status(201).json({ order });
     } catch (err) {
@@ -375,6 +379,9 @@ async function addToCart(req: Request, res: Response) {
 
         if (existingItem) {
             existingItem.quantity += quantity; 
+            if (existingItem.quantity > product.quantity) {
+                return res.status(400).json({ errors: [{ field: 'quantity', message: 'Not enough stock' }] });
+            }
             await em.fork({}).persistAndFlush(existingItem);
         } else {
             let newCartItem = new CartItem(cart, product, quantity); 
@@ -418,5 +425,7 @@ async function removeFromCart(req: Request, res: Response) {
         })
     }
 }
+
+
 
 export default router;

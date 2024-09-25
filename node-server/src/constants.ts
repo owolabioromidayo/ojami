@@ -9,3 +9,4 @@ export const ACCOUNT_NAME: string = process.env.ACCOUNT_NAME || "XXXXX";
 export const ACCOUNT_REF: string = process.env.ACCOUNT_REF || "XXXXX";
 export const KORAPAY_TOKEN: string = process.env.KORAPAY_API_TOKEN || "XXXXX";
 export const BANK_TRANSFER_NOTIFICATION_URL: string = `${process.env.DOMAIN_URL}/api/webhooks/bank_transfer`;
+export const CHECKOUT_NOTIFICATION_URL: string = `${process.env.DOMAIN_URL}/api/webhooks/checkout`;
