@@ -42,10 +42,10 @@ async function registerUser(req: Request, res: Response) {
         return res.status(201).json({ user });
     } catch (err: any) {
         if(err.code === "42P01"){
-            return res.status(400).json({
+            return res.status(500).json({
                 errors: [{
-                    field: "incomplete form",
-                    message: "Fill in the form before you submit 🙁"
+                    field: "missing tables",
+                    message: "Relax, our servers will be back soon"
                 }]
             })
         }else if(err.code === "23505"){
@@ -154,8 +154,7 @@ async function getUser(req: Request, res: Response) {
     const { id } = req.params;
 
     const userId = Number(id);
-    console.log("UserID:", req.session.userid)
-
+    console.log("getUser:", req.session.userid)
 
     // Check if the conversion resulted in a valid number
     if (isNaN(userId)) {

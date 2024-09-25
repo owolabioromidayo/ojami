@@ -15,7 +15,7 @@ export class InstantOrderLink{
   @Property({ type: 'text' })
   qrCode!: string;
 
-  @OneToOne(() => InstantOrder, order => order.link, { cascade: [Cascade.PERSIST] })
+  @OneToOne(() => InstantOrder, order => order.link, { cascade: [Cascade.PERSIST], owner: true })
   order!: InstantOrder;
 
   constructor(linkId:string, shortLink: string, qrCode: string, order: InstantOrder) {

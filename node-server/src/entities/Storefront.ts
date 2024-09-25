@@ -20,6 +20,9 @@ export class Storefront {
   @Property()
   description!: string;
 
+  @Property()
+  ratings = []
+
   @ManyToOne(() => User)
   user!: User;
 

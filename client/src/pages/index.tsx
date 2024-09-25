@@ -1,14 +1,16 @@
 import { LandingLayout } from "@/components/landing/layout";
-import { StoreCard } from "@/components/landing/store-card";
+import { StoreCard } from "@/components/utils/store-card";
 import FancyButton from "@/components/ui/fancy-button";
 import { Box, Flex, Image, Text, useDisclosure } from "@chakra-ui/react";
 import Marquee from "react-fast-marquee";
 import { fakeStores, images } from "../../fakedata";
 import { SearchModal } from "@/components/utils/search-modal";
-import React from "react";
+import React, { useContext } from "react";
+import { OjaContext } from "@/components/provider";
 
 export default function Home() {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const { stores } = useContext(OjaContext)
 
   return (
     <LandingLayout>
@@ -47,7 +49,7 @@ export default function Home() {
             shop now
           </FancyButton>
           <SearchModal isOpen={isOpen} onClose={onClose} />
-          <Flex align="center" gap={5} mt={20}>
+          <Flex align="center" gap={5} mt={20} display={{ base: "none", lg: "flex"}}>
             <Box
               w={{ base: "500px", md: "1200px" }}
               mb={-20}
@@ -108,8 +110,9 @@ export default function Home() {
           maxW="1650px"
           mt="100px"
           align="center"
+          px={{ base: 4, }}
         >
-          <Text fontSize="3.5rem" fontWeight={600}>
+          <Text fontSize={{ base: "3rem", md: "4rem"}} textAlign={{ base: "center", md: "start"}} fontWeight={600}>
             Discover stores on ọjà mi
           </Text>
 
@@ -122,15 +125,14 @@ export default function Home() {
           >
             <Marquee speed={40} pauseOnHover>
               <Flex mt={20} p={2} w="full" overflow="hidden">
-                {fakeStores.map((item) => (
+                {stores.map((item) => (
                   <StoreCard
                     mr={14}
-                    key={item.store}
-                    image={item.image}
-                    store={item.store}
-                    avatar={item.avatar}
+                    key={item.storename}
+                    image={item.bannerImageUrl!}
+                    store={item.storename}
+                    avatar={item.profileImageUrl!}
                     ratings={item.ratings}
-                    reviews={item.reviews}
                   />
                 ))}
               </Flex>
@@ -184,7 +186,7 @@ export default function Home() {
           justify="space-between"
           px={{ base: 4 }}
         >
-          <Text fontSize={{ base: "3rem", md: "4rem" }} fontWeight={600}>
+          <Text fontSize={{ base: "3rem", md: "4rem" }} textAlign={{ base: "center", md: "start"}} fontWeight={600}>
             List my Products
           </Text>
           <Image
@@ -232,7 +234,7 @@ export default function Home() {
           justify="space-between"
           px={{ base: 4 }}
         >
-          <Text fontSize={{ base: "3rem", md: "4rem" }} fontWeight={600}>
+          <Text fontSize={{ base: "3rem", md: "4rem" }} textAlign={{ base: "center", md: "start"}} fontWeight={600}>
             Manage my Payments
           </Text>
           <Image
@@ -281,7 +283,7 @@ export default function Home() {
           justify="space-between"
           px={{ base: 4 }}
         >
-          <Text fontSize={{ base: "3rem", md: "4rem" }} fontWeight={600}>
+          <Text fontSize={{ base: "3rem", md: "4rem" }} textAlign={{ base: "center", md: "start"}} fontWeight={600}>
             Create my Marketplace
           </Text>
           <Image
@@ -303,6 +305,7 @@ export default function Home() {
         pos="absolute"
         mt="4600px"
         justify="center"
+        // display={{ base: "none", lg: "flex"}}
       >
         <Flex w="full" pos="absolute" mt={"700px"}>
           <Marquee direction="left">
@@ -323,28 +326,29 @@ export default function Home() {
         <Flex
           direction={{ base: "column", md: "row" }}
           w="full"
-          h="460px"
+          h={{ md: "460px"}}
           maxW="1650px"
           mt={{ base: "-50px", md: "100px"}}
           align="center"
           justify={{ md: "space-between"}}
         >
-          <Flex pos={{ md: "absolute" }} w={{ base: "80%", md: "100%"}}>
+          <Flex pos={{ md: "absolute" }} w={{ base: "90%", md: "100%"}} mt={{ base: "-50px", md: 0}}>
             <Flex
               bgImg="/assets/green-area.svg"
               bgPos="center"
               bgSize="contain"
               bgRepeat="no-repeat"
-              w={{ base: "300px", md: "800px"}}
-              h={{ md: "600px"}}
+              w={{ base: "800px", md: "800px"}}
+              h="600px"
+              mr={{ base: "-110px", md: 0}}
               pos="relative"
               align="center"
               justify="center"
-              px={{ base: 2, md: 28}}
+              px={{ base: 8, md: 28}}
             >
-              <Image src="/assets/oja-watashi.svg" alt="star" mr={6} w={{ base: "50px", md: "full"}} />
-              <Text lineHeight={1} fontSize={{ base:"2rem", md: "4rem"}} fontWeight={600}>
-                3D/AR Something sha
+              <Image src="/assets/oja-watashi.svg" alt="star" mr={6} w={{ base: "50px", md: "100px"}} />
+              <Text lineHeight={1} fontSize={{ base:"2rem", md: "3rem"}} fontWeight={600}>
+                Bring 3D Products in Reality
               </Text>
             </Flex>
             <FancyButton
@@ -353,8 +357,8 @@ export default function Home() {
               h={{ base: "200px", md: "80px"}}
               zIndex={1}
               pos="relative"
-              right={{base:"80px", md: "280px"}}
-              top={{ base:"270px", md: "470px"}}
+              right={{base:"140px", md: "280px"}}
+              top={{ base:"300px", md: "470px"}}
               transform="rotate(-12deg)"
               onClick={() => window.location.assign('/market')}
 
@@ -363,22 +367,23 @@ export default function Home() {
             </FancyButton>
           </Flex>
 
-          <Flex pos={{ md: "absolute" }} w={{ base: "80%", md: "50%"}} right={0}>
+          <Flex pos={{ md: "absolute" }} w={{ base: "90%", md: "50%"}} right={0} mt={{ base: "-240px", md: 0}}>
             <Flex
               bgImg="/assets/orange-area.svg"
               bgPos="center"
               bgSize="contain"
               bgRepeat="no-repeat"
-              w={{ base: "300px", md: "800px"}}
+              w={{ base: "800px", md: "800px"}}
+              mr={{ base: "-110px", md: 0}}
               zIndex={1}
               h="600px"
               pos="relative"
               align="center"
               justify="center"
-              px={{ base: 12, md: 40}}
+              px={{ base: 8, md: 40}}
             >
-              <Image src="/assets/oja-watashi.svg" alt="star" mr={6} w={{ base: "50px", md: "full"}} />
-              <Text lineHeight={1} fontSize={{ base:"2rem", md: "4rem"}}  fontWeight={600}>
+              <Image src="/assets/oja-watashi.svg" alt="star" mr={6} w={{ base: "50px", md: "100px"}} />
+              <Text lineHeight={1} fontSize={{ base:"2rem", md: "3rem"}}  fontWeight={600}>
                 AI Shopping Assistant
               </Text>
             </Flex>
@@ -388,8 +393,8 @@ export default function Home() {
               h={{ base: "200px", md: "80px"}}
               zIndex={1}
               pos="relative"
-              right={{base:"80px", md: "280px"}}
-              top={{ base:"270px", md: "470px"}}
+              right={{base:"140px", md: "280px"}}
+              top={{ base:"300px", md: "470px"}}
               transform="rotate(-12deg)"
               onClick={() => window.location.assign('/market')}
 
@@ -433,15 +438,16 @@ export default function Home() {
           maxW="1650px"
           mt="100px"
           align="center"
+          px={4}
         >
-          <Text fontSize="3.5rem" fontWeight={600}>
+          <Text fontSize="3.5rem" fontWeight={600} textAlign={{ base: "center", md: "start"}}>
             Find it on ọjà mi
           </Text>
           <FancyButton
             bg="/assets/buttons/oja-cloud-green.svg"
             w="300px"
             h="90px"
-            right={-40}
+            right={{ md: -40}}
             mt={-7}
             transform={"rotate(-10deg)"}
             onClick={() => window.location.assign('/market')}
@@ -455,7 +461,7 @@ export default function Home() {
             w="full"
             direction="column"
             align="center"
-            mt={24}
+            mt={{ base: 36, md: 24}}
           >
             <Marquee speed={50} direction="right">
               <Flex mt={20} p={2} w="full" overflow="hidden" align="center">

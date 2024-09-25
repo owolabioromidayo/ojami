@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { StoreCard } from "@/components/landing/store-card";
+import { StoreCard } from "@/components/utils/store-card";
 import { MarketLayout } from "@/components/market/layout";
 import {
   Carousel,
@@ -30,12 +30,13 @@ import {
   TbSmartHome,
 } from "react-icons/tb";
 import FancyButton from "@/components/ui/fancy-button";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Genjitsu } from "@/components/utils/xr/genjitsu";
 import { Model as Sofa } from "@/components/utils/xr/Sofa";
 import { Model as Chair } from "@/components/utils/xr/Office-chair";
 import { Datsun } from "@/components/utils/xr/Datsun-transformed";
 import { Cobra } from "@/components/utils/xr/Cobra-transformed";
+import { OjaContext } from "@/components/provider";
 
 const Market = () => {
   const plugin = React.useRef(Autoplay({ delay: 2000 }));
@@ -45,6 +46,7 @@ const Market = () => {
       anchorDiv.scrollIntoView({ behavior: "smooth" });
     }
   };
+  const { stores } = useContext(OjaContext)
 
   const [activeIndex, setActiveIndex] = useState(0);
   const totalDots = 5; // Total number of carousel dots
@@ -155,14 +157,13 @@ const Market = () => {
           className="w-full"
         >
           <CarouselContent>
-            {fakeStores.map((item, index) => (
-              <CarouselItem key={index} className="lg:basis-1/2 lg:basis-1/4">
+            {stores.map((item, index) => (
+              <CarouselItem key={index} className="sm:basis-1/2 lg:basis-1/4">
                 <StoreCard
-                  avatar={item.avatar}
-                  image={item.image}
+                  avatar={item.profileImageUrl}
+                  image={item.bannerImageUrl}
                   ratings={item.ratings}
-                  reviews={item.reviews}
-                  store={item.store}
+                  store={item.storename}
                   mr={20}
                   mb={2}
                 />
@@ -173,27 +174,49 @@ const Market = () => {
           <CarouselNext />
         </Carousel>
       </Flex>
-      <Flex align="center" gap={5} justify="space-between" w="full" mt={14}>
-        {categories.map((item) => (
-          <Flex
-            _hover={{ transform: "rotate(3deg)" }}
-            key={item.category}
-            h="80px"
-            w="full"
-          >
-            <FancyButton
-              bg="/assets/buttons/oja-cloud-green.svg"
+      <Flex w="full" overflow="hidden">
+        <Flex align="center" gap={5} justify="space-between" w="full" mt={14} overflow="auto" h="80px"  sx={{
+          "&::-webkit-scrollbar": {
+            width: "0", // Set the initial width to 0
+            height: "0px",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            background: "#FFDDA6",
+            borderRadius: "12px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            background: "#F4B95F",
+          },
+          "&::-webkit-scrollbar-track": {
+            background: "#FFF5E6",
+          },
+          "&:hover::-webkit-scrollbar": {
+            width: "0px",
+            height: "0px",
+          },
+        }}>
+          {categories.map((item) => (
+            <Flex
+              _hover={{ transform: "rotate(3deg)" }}
               key={item.category}
-              w="full"
               h="80px"
+              w="full"
             >
-              <Flex gap={2} align="center">
-                <Icon as={item.icon} />
-                {item.category}
-              </Flex>
-            </FancyButton>
-          </Flex>
-        ))}
+              <FancyButton
+                bg="/assets/buttons/oja-cloud-green.svg"
+                key={item.category}
+                w="170px"
+                h="80px"
+              >
+                <Flex gap={2} align="center">
+                  <Icon as={item.icon} />
+                  {item.category}
+                </Flex>
+              </FancyButton>
+            </Flex>
+          ))}
+        </Flex>
+
       </Flex>
 
       <Flex
@@ -206,7 +229,7 @@ const Market = () => {
         direction={{ base: "column", lg: "row" }}
       >
         {/** Top Items */}
-        <Stack h="full">
+        <Stack h="full" w={{ base: "full", lg: "445px" }} >
           <Text mb={4} fontWeight={600} fontSize={22}>
             Top ranking
           </Text>
@@ -214,7 +237,7 @@ const Market = () => {
             direction="column"
             p={5}
             bg="white"
-            w={{ base: "350px", lg: "445px" }}
+            w={{ base: "full", lg: "445px" }}
             rounded="15px"
             border="2px solid #000"
           >
@@ -231,7 +254,7 @@ const Market = () => {
                         src={item.image}
                         border="2px solid #000"
                         alt={item.label}
-                        w={{ base: "280px", lg: "400px" }}
+                        w={{ base: "full", lg: "400px" }}
                         h="420px"
                         objectFit="cover"
                         rounded="15px"
