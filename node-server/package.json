@@ -13,6 +13,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@langchain/community": "^0.3.3",
+    "@langchain/openai": "^0.3.2",
     "@mikro-orm/core": "^6.3.9",
     "@mikro-orm/migrations": "^6.3.9",
     "@mikro-orm/postgresql": "^6.3.9",
