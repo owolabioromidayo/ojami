@@ -57,7 +57,7 @@ export const OjaProvider: React.FC<OjaProviderProps> = ({ children }) => {
                 throw new Error(`Network response was not ok: ${response.statusText}`);
             }
             const cartData = await response.json(); // Parse the JSON from the response
-            setCart(cartData); // Update the cart state with fetched data
+            setCart(cartData.cart); // Update the cart state with fetched data
         } catch (error: any) {
             setError(error.message); // Update error state if there's an error
         } finally {

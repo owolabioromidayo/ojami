@@ -94,6 +94,7 @@ export interface Product {
     threeDModel?: Buffer; // Optional Buffer for 3D model
     description: string;
     quantity: number;
+    ratings: Array<number>;
     price: number;
     storefront: Storefront; // ManyToOne relation with Storefront
     link?: ProductLink; // Optional OneToOne relation with ProductLink

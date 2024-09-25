@@ -13,6 +13,7 @@ import {
   Icon,
   Flex,
   useToast,
+  Stack,
 } from "@chakra-ui/react";
 import React, { useContext, useEffect, useState } from "react";
 import { OjaContext } from "../provider";
@@ -26,8 +27,8 @@ interface CartDrawerProps {
 export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
   const btnRef = React.useRef(null);
   const { cart } = useContext(OjaContext);
+  console.log(cart?.items);
   const toast = useToast();
-  const [tempCart, setTempCart] = useState<Cart|null>(null)
 
   const createCart = async () => {
     const response = await fetch("http://localhost:4000/api/ecommerce/carts", {
@@ -54,9 +55,21 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         position: "top",
         containerStyle: { border: "2px solid #000", rounded: "md" },
       });
-      window.location.assign('/market')
+      window.location.assign("/market");
     }
   };
+
+  // Add this new function to calculate the total price
+  const calculateTotalPrice = (cart: Cart | null) => {
+    if (!cart || !cart.items) return 0;
+    return cart.items.reduce((total, item) => {
+      return total + item.product.price * item.quantity;
+    }, 0);
+  };
+
+  // Calculate the total price
+  const totalPrice = calculateTotalPrice(cart);
+
   return (
     <Drawer
       isOpen={isOpen}
@@ -90,12 +103,66 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
               </FancyButton>
             </Flex>
           ) : (
-            <>My Cart</>
+            <Flex
+              direction="column"
+              p={3}
+              border="2px solid #000"
+              h="full"
+              w="full"
+              bg="white"
+              overflowY="auto" // Add this line
+            >
+              {cart?.items?.map((item) => (
+                <Flex
+                  borderBottom="2px solid #000"
+                  gap={3}
+                  w="full"
+                  py={3}
+                  px={1}
+                  key={item.id}
+                  alignItems="center"
+                 justify="space-between"
+                >
+                  <Flex gap={2} align="center">
+
+                  <Image
+                    border="2px solid #000"
+                    rounded="md"
+                    src={item.product.images[0]}
+                    w="80px"
+                    h="80px"
+                    objectFit="cover"
+                    alt={item.product.name}
+                  />
+                  <Stack>
+                    <Flex align="center" gap={2} >
+                      <Image
+                        src={item.product.storefront.profileImageUrl!}
+                        w="30px"
+                        h="30px"
+                        alt={item.product.storefront.storename}
+                        rounded="10px"
+                      />
+                      <Text fontSize={15} fontWeight={500}>
+                        {item.product.storefront.storename}
+                      </Text>
+                    </Flex>
+                    <Text fontSize={20} fontWeight={500}>{item.product.name} x{item.quantity}</Text>
+                  </Stack>
+                  </Flex>
+                  <Text fontSize={20} fontWeight={500}>₦{item.product.price.toLocaleString()}</Text>
+                  {/* Add more item details here */}
+                </Flex>
+              ))}
+            </Flex>
           )}
         </DrawerBody>
 
         <DrawerFooter>
-          <Button variant="ghost" mr={3} py={6} onClick={onClose}>
+          <Stack textAlign="right" spacing={5}>
+          <Text fontSize={20} fontWeight={500}>Total: ₦{totalPrice.toLocaleString()}</Text>
+          <Flex gap={3}>
+          <Button variant="ghost" py={6} onClick={onClose}>
             Cancel
           </Button>
           <Button
@@ -107,6 +174,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
           >
             Checkout
           </Button>
+
+          </Flex>
+          </Stack>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
