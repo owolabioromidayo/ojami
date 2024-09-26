@@ -52,6 +52,7 @@ router.get("/products/:id", getProduct);
 // Order Routes
 router.post("/orders", isAuth,  createOrder);
 router.get("/orders/me/", isAuth,  getUserOrders);
+router.get("/orders/me/history", isAuth,  getUserOrderHistory);
 router.get("/orders/:id", isAuth, getOrder);
 
 // Cart Routes
@@ -301,6 +302,28 @@ async function getUserOrders(req: Request, res: Response) {
     try {
         // Fetch orders for the user
         const orders = await em.fork({}).find(Order, { toUser: Number(req.session.userid), status: { $eq: 'pending'} });
+
+        // Initialize an array to hold products
+        const products = [];
+
+        // Loop through each order to fetch the corresponding product
+        for (const order of orders) {
+            const product = await em.fork({}).findOneOrFail(Product, { id: order.product.id }, { populate: ['storefront'] });
+            products.push(product); // Add the fetched product to the products array
+        }
+
+        return res.status(200).json({ orders, products }); // Return both orders and products
+    } catch (err) {
+        return res.status(500).json({ errors: [{ field: 'orders', message: 'Could not fetch orders for this user', error: err }] });
+    }
+}
+
+async function getUserOrderHistory(req: Request, res: Response) {
+    const em = (req as RequestWithContext).em;
+
+    try {
+        // Fetch orders for the user
+        const orders = await em.fork({}).find(Order, { toUser: Number(req.session.userid) });
 
         // Initialize an array to hold products
         const products = [];

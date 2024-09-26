@@ -30,10 +30,10 @@ export class Voucher{
   @ManyToOne(() => User, { nullable: true }) 
   redeemer?: User;
 
-  @Property()
+  @Property({length: 10485760})
   publicKey!: string; 
 
-  @Property()
+  @Property({ length: 10485760 })
   signature!: string; 
 
   constructor(owner: User, amount: number, currency: string, voucherId: string, publicKey: string, signature: string) {
