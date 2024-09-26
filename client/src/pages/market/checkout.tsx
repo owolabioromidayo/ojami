@@ -35,7 +35,7 @@ const Checkout = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const fetchOrders = async () => {
-    const url = `http://localhost:4000/api/ecommerce/orders/me`;
+    const url = `https://api.greynote.app/oja/api/ecommerce/orders/me`;
 
     try {
       const response = await fetch(url, { credentials: "include" });
@@ -79,7 +79,7 @@ const Checkout = () => {
   const handleSendMoney = async () => {
     for (const order of orders!) {
       const response = await fetch(
-        "http://localhost:4000/api/payments/make_virtual_payment",
+        "https://api.greynote.app/oja/api/payments/make_virtual_payment",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -125,7 +125,7 @@ const Checkout = () => {
 
   const handlePayWithKora = async () => {
     const response = await fetch(
-      "http://localhost:4000/api/payments/pay_in/checkout_standard",
+      "https://api.greynote.app/oja/api/payments/pay_in/checkout_standard",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -169,7 +169,7 @@ const Checkout = () => {
             email: user?.email,
           },
           notification_url:
-            "http://localhost:4000/api/payments/korapay_webhook",
+            "https://api.greynote.app/oja/api/payments/korapay_webhook",
         });
       }, 700);
     }

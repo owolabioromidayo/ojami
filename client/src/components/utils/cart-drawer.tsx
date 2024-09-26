@@ -34,7 +34,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
   const toast = useToast();
 
   const createCart = async () => {
-    const response = await fetch("http://localhost:4000/api/ecommerce/carts", {
+    const response = await fetch("https://api.greynote.app/oja/api/ecommerce/carts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -76,7 +76,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     }
 
     const orderPromises = cart.items.map(async (item) => {
-      const response = await fetch("http://localhost:4000/api/ecommerce/orders", {
+      const response = await fetch("https://api.greynote.app/oja/api/ecommerce/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -104,7 +104,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     } else {
       // Clear the cart by removing each item individually
       const removeItemPromises = cart.items.map(async (item) => {
-        const response = await fetch("http://localhost:4000/api/ecommerce/carts/remove", {
+        const response = await fetch("https://api.greynote.app/oja/api/ecommerce/carts/remove", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -157,7 +157,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
 
   const handleRemoveItem = async ({ props }: { props: { item: CartItem } }) => {
     const response = await fetch(
-      "http://localhost:4000/api/ecommerce/carts/remove",
+      "https://api.greynote.app/oja/api/ecommerce/carts/remove",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
