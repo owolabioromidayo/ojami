@@ -120,7 +120,7 @@ async function getStoreFromName(req: Request, res: Response) {
     try {
         //TODO : do we want to populate with products in the req?
 
-        const storefront = await em.fork({}).findOneOrFail(Storefront, { storename: storename });
+        const storefront = await em.fork({}).findOneOrFail(Storefront, { storename: storename }, { populate: ["products"]});
         return res.status(200).json({ storefront });
     } catch (err) {
         return res.status(404).json({ errors: [{ field: 'storefront', message: 'Storefront not found' }] });
