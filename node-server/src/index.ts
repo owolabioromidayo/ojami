@@ -77,14 +77,13 @@ export const createApp = async () => {
     session({
       store: redisStore,
       name: process.env.COOKIE_NAME,
-      sameSite: "None",
       secret: process.env.SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
       cookie: {
         path: "/",
         httpOnly: true,
-        secure: true,
+        secure: false,
         maxAge: 1000 * 60 * 60 * 1024,
       },
     } as any)
