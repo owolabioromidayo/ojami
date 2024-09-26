@@ -91,11 +91,11 @@ export const OjaProvider: React.FC<OjaProviderProps> = ({ children }) => {
             setLoading(false); // Set loading to false after fetching
         }
     };
-    useEffect(() => {
-        if(store.length < 1){
-            fetchStoreData();
-        }
-    }, [store]);
+    // useEffect(() => {
+    //     if(store.length < 1){
+    //         fetchStoreData();
+    //     }
+    // }, [store]);
 
     return(
         <OjaContext.Provider value={{ user: user, stores: store, cart: cart, loading: loading, products: [] }}>

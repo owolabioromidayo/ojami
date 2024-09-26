@@ -76,7 +76,7 @@ const VerifyBusinessMobile: FC<VerifyBusinessMobileProps> = ({}) => {
               textAlign="center"
               fontSize="sm"
             >
-              <Link href={"/add-product"}>continue</Link>
+              <Link href={"/auth/add-product"}>continue</Link>
             </Text>
           </FancyButton>
 

@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useState, useEffect } from "react";
 import { Box, Text, Flex, Heading, keyframes } from "@chakra-ui/react";
 import Image from "next/image";
 import { useViewportHeight } from "@/utils/hooks/useViewportHeight";
@@ -6,7 +6,13 @@ import { useViewportHeight } from "@/utils/hooks/useViewportHeight";
 interface AccountSuccessMobileProps {}
 
 const AccountSuccessMobile: FC<AccountSuccessMobileProps> = () => {
-  const role = "vendor";
+  const [role, setRole] = useState<string | null>("");
+
+  useEffect(() => {
+    let role = localStorage.getItem("role");
+    setRole(role);
+  }, []);
+  
   const rotateAnimation = keyframes`
   from {
     transform: rotate(0deg);
