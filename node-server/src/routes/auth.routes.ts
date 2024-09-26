@@ -20,7 +20,6 @@ router.get("/users/:id", getUser);
 async function registerUser(req: Request, res: Response) {
     const { firstname, lastname, birthDate, phoneNumber, email, password } = req.body;
 
-
     const redis = (req as RequestWithContext).redis;
     const em = (req as RequestWithContext).em;
 
@@ -188,7 +187,7 @@ async function getCurrentUser(req: Request, res: Response) {
     const em = (req as RequestWithContext).em;
 
     try {
-        const user = await em.fork({}).findOneOrFail(User, { id: req.session.userid });
+        const user = await em.fork({}).findOneOrFail(User, { id: req.session.userid }, { populate: ["virtualWallet"]});
         return res.status(200).json({ user });
     } catch (err) {
         return res.status(500).json({ errors: [{ field: 'Could not fetch user', message: err }] });

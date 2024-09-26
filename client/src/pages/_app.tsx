@@ -7,6 +7,9 @@ import Head from "next/head";
 import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/react";
 import { OjaProvider } from "@/components/provider";
+import TopBarProgress from "react-topbar-progress-indicator";
+import React from "react";
+import { Router } from "next/router";
 
 const general = localFont({
   src: "./fonts/GeneralSans-Variable.woff2",
@@ -24,6 +27,21 @@ type AppPropsWithLayout = AppProps & {
 
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page);
+  const [progress, setProgress] = React.useState(false);
+
+  Router.events.on("routeChangeStart", () => {
+    setProgress(true);
+  });
+  Router.events.on("routeChangeComplete", () => {
+    setProgress(false);
+  });
+  TopBarProgress.config({
+    barColors: {
+      "0": "#EF8421",
+      "0.5": "#2BADE5",
+      "1.0": "#A580FF",
+    },
+  });
 
   return (
     <ChakraProvider>
@@ -49,6 +67,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       </Head>
       <main className={`${general.className}`} style={{ background: "#FFF9E5" }}>
         <OjaProvider>
+        {progress && <TopBarProgress />}
         {getLayout(<Component {...pageProps} />)}
           <Analytics />
         </OjaProvider>

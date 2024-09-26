@@ -9,6 +9,7 @@ interface OjaContextType {
     user: User | null;
     stores: Array<Storefront>;
     cart: Cart | null;
+    setCart: React.Dispatch<React.SetStateAction<Cart | null>>;
     loading: boolean;
     products: [Product] | [];
 }
@@ -17,6 +18,7 @@ export const OjaContext = createContext<OjaContextType>({
     user: null,
     stores: [],
     cart: null,
+    setCart: () => {},
     loading: false,
     products: []
 })
@@ -91,14 +93,14 @@ export const OjaProvider: React.FC<OjaProviderProps> = ({ children }) => {
             setLoading(false); // Set loading to false after fetching
         }
     };
-    useEffect(() => {
-        if(store.length < 1){
-            fetchStoreData();
-        }
-    }, [store]);
+    // useEffect(() => {
+    //     if(store.length < 1){
+    //         fetchStoreData();
+    //     }
+    // }, [store]);
 
     return(
-        <OjaContext.Provider value={{ user: user, stores: store, cart: cart, loading: loading, products: [] }}>
+        <OjaContext.Provider value={{ user: user, stores: store, cart: cart, setCart: setCart, loading: loading, products: [] }}>
             {children}
         </OjaContext.Provider>
     )

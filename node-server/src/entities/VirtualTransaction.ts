@@ -29,7 +29,7 @@ export class VirtualTransaction {
   @Property()
   isInstantPurchase!: boolean;
 
-  @Property()
+//  @Property()
   // narration!: string;
 
   @ManyToOne(() => VirtualWallet) 

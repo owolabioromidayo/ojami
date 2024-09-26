@@ -56,7 +56,7 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
     onClose: onCartClose,
   } = useDisclosure();
 
-  const { user, loading } = useContext(OjaContext);
+  const { user } = useContext(OjaContext);
   const router = useRouter();
 
   const tools = [
@@ -276,7 +276,7 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
                   border="2px solid #000"
                 >
                   <Text fontWeight={600} fontSize={34}>
-                    NGN 720,000
+                    NGN {user?.virtualWallet?.balance?.toLocaleString()}
                   </Text>
                 </Box>
                 <Flex gap={2} mt={2} align="center" p={2}>
@@ -294,6 +294,7 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
                   _hover={{ bg: "#f0f0f0" }}
                   rounded="lg"
                   cursor="pointer"
+                  onClick={() => router.push("/customer/collectibles")}
                 >
                   <Icon
                     as={IoTicketOutline}
@@ -311,7 +312,8 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
                   _hover={{ bg: "#f0f0f0" }}
                   rounded="lg"
                   cursor="pointer"
-                >
+                  onClick={() => router.push("/customer/my-orders")}
+                  >
                   <Icon
                     as={IoFileTrayOutline}
                     fontSize={36}
@@ -371,58 +373,75 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
             </DrawerTrigger>
             <DrawerContent className="bg-white">
               <div className="mx-auto w-full p-2">
-                  <Box
-                    w="full"
-                    p="20px"
-                    mt="4"
-                    bg="white"
-                    border="2px solid #000"
-                    rounded="10px"
+              <Box
+                w="full"
+                p="20px"
+                mt="4"
+                bg="white"
+                border="2px solid #000"
+                rounded="10px"
+              >
+                <Box
+                  w="full"
+                  p={5}
+                  h="170px"
+                  bgImg="/assets/oja-wallet-bg.png"
+                  alignContent="center"
+                  bgRepeat="no-repeat"
+                  bgSize="cover"
+                  bgPos="bottom"
+                  rounded="10px"
+                  border="2px solid #000"
+                >
+                  <Text fontWeight={600} fontSize={34}>
+                    NGN {user?.virtualWallet?.balance?.toLocaleString()}
+                  </Text>
+                </Box>
+                <Flex gap={2} mt={2} align="center" p={2}>
+                  <Icon as={IoPersonOutline} fontSize={36}
+                    p={2}
+                    border="1px solid #e2e2e2"
+                    rounded="4" />
+                <Text fontWeight={600}>Hello, {user?.firstname!} { user?.lastname!} 👋</Text>
+                </Flex>
+                
+                <Flex
+                  align="center"
+                  gap={2}
+                  p={2}
+                  _hover={{ bg: "#f0f0f0" }}
+                  rounded="lg"
+                  cursor="pointer"
+                  onClick={() => router.push("/customer/collectibles")}
+                >
+                  <Icon
+                    as={IoTicketOutline}
+                    fontSize={36}
+                    p={2}
+                    border="1px solid #e2e2e2"
+                    rounded="4"
+                  />
+                  <Text fontWeight={500}>Collectibles</Text>
+                </Flex>
+                <Flex
+                  align="center"
+                  gap={2}
+                  p={2}
+                  _hover={{ bg: "#f0f0f0" }}
+                  rounded="lg"
+                  cursor="pointer"
+                  onClick={() => router.push("/customer/my-orders")}
                   >
-                    <Box
-                      w="full"
-                      p={5}
-                      h="170px"
-                      bgImg="/assets/oja-wallet-bg.png"
-                      alignContent="center"
-                      bgRepeat="no-repeat"
-                      bgSize="cover"
-                      bgPos="bottom"
-                      rounded="10px"
-                      border="2px solid #000"
-                    >
-                      <Text fontWeight={600} fontSize={34}>
-                        NGN 720,000
-                      </Text>
-                    </Box>
-                    <Flex
-                      align="center"
-                      gap={2}
-                      mt={10}
-                      mb={2}
-                      fontWeight={600}
-                    >
-                      <Icon as={IoSparklesOutline} />
-                      <Text>Suggested searches</Text>
-                    </Flex>
-                    <Flex
-                      align="center"
-                      gap={2}
-                      p={2}
-                      _hover={{ bg: "#f0f0f0" }}
-                      rounded="lg"
-                      cursor="pointer"
-                    >
-                      <Icon
-                        as={IoSearch}
-                        fontSize={36}
-                        p={2}
-                        border="1px solid #e2e2e2"
-                        rounded="4"
-                      />
-                      <Text>PlayStation 5 Pro</Text>
-                    </Flex>
-                  </Box>
+                  <Icon
+                    as={IoFileTrayOutline}
+                    fontSize={36}
+                    p={2}
+                    border="1px solid #e2e2e2"
+                    rounded="4"
+                  />
+                  <Text fontWeight={500}>Orders</Text>
+                </Flex>
+              </Box>
               </div>
             </DrawerContent>
           </Drawer>
@@ -431,7 +450,7 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
 
       <Flex
         px={4}
-        mt="180px"
+        mt={{ base: "100px", md: "180px"}}
         maxW="1650px"
         w="full"
         direction="column"

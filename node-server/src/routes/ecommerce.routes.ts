@@ -1,4 +1,4 @@
-
+ 
 
 //PRODUCT VARIANTS?
 
@@ -51,6 +51,7 @@ router.get("/products/:id", getProduct);
 // Order Routes
 router.post("/orders", isAuth,  createOrder);
 router.get("/orders/me/", isAuth,  getUserOrders);
+router.get("/orders/me/history", isAuth,  getUserOrderHistory);
 router.get("/orders/:id", isAuth, getOrder);
 
 // Cart Routes
@@ -170,7 +171,7 @@ async function getProduct(req: Request, res: Response) {
 
     try {
         //TODO: what do we need to populate?
-        const product = await em.fork({}).findOneOrFail(Product, { id });
+        const product = await em.fork({}).findOneOrFail(Product, { id }, { populate: ["storefront"]});
         return res.status(200).json({ product });
     } catch (err) {
         return res.status(404).json({ errors: [{ field: 'product', message: 'Product not found' }] });
@@ -233,9 +234,9 @@ async function createOrder(req: Request, res: Response) {
 
     try {
         const product = await em.fork({}).findOneOrFail(Product, { id: productId }, {populate: ['storefront']});
-        const storefront = await em.fork({}).findOneOrFail(Storefront, { id: product.storefront.id } );
+        const storefront = await em.fork({}).findOneOrFail(Storefront, { id: product.storefront.id }, { populate: ["user"]} );
         const fromUser = await em.fork({}).findOneOrFail(User, { id: fromUserId });
-        const toUser = await em.fork({}).findOneOrFail(User, { id: Number(req.session.id)});
+        const toUser = await em.fork({}).findOneOrFail(User, { id: Number(storefront.user.id)});
         
         if (product.quantity < count) {
             return res.status(400).json({ errors: [{ field: 'quantity', message: 'Not enough stock' }] });
@@ -261,7 +262,8 @@ async function getOrder(req: Request, res: Response) {
     const em = (req as RequestWithContext).em;
 
     try {
-        const order = await em.fork({}).findOneOrFail(Order, { id: Number(id) });
+        const order = await em.fork({}).findOneOrFail(Order, { id: Number(id) }, { populate: ["product", "storefront"]});
+
 
         if (order.fromUser.id !== id || order.toUser.id !== id ) {
             return res.status(401).json({ errors: [{ field: 'auth', message: 'Not authorized' }] });
@@ -274,13 +276,44 @@ async function getOrder(req: Request, res: Response) {
 }
 
 async function getUserOrders(req: Request, res: Response) {
-
     const em = (req as RequestWithContext).em;
 
     try {
+        // Fetch orders for the user
+        const orders = await em.fork({}).find(Order, { toUser: Number(req.session.userid), status: { $eq: 'pending'} });
+
+        // Initialize an array to hold products
+        const products = [];
+
+        // Loop through each order to fetch the corresponding product
+        for (const order of orders) {
+            const product = await em.fork({}).findOneOrFail(Product, { id: order.product.id }, { populate: ['storefront'] });
+            products.push(product); // Add the fetched product to the products array
+        }
+
+        return res.status(200).json({ orders, products }); // Return both orders and products
+    } catch (err) {
+        return res.status(500).json({ errors: [{ field: 'orders', message: 'Could not fetch orders for this user', error: err }] });
+    }
+}
+
+async function getUserOrderHistory(req: Request, res: Response) {
+    const em = (req as RequestWithContext).em;
+
+    try {
+        // Fetch orders for the user
         const orders = await em.fork({}).find(Order, { toUser: Number(req.session.userid) });
 
-        return res.status(200).json({ orders });
+        // Initialize an array to hold products
+        const products = [];
+
+        // Loop through each order to fetch the corresponding product
+        for (const order of orders) {
+            const product = await em.fork({}).findOneOrFail(Product, { id: order.product.id }, { populate: ['storefront'] });
+            products.push(product); // Add the fetched product to the products array
+        }
+
+        return res.status(200).json({ orders, products }); // Return both orders and products
     } catch (err) {
         return res.status(500).json({ errors: [{ field: 'orders', message: 'Could not fetch orders for this user', error: err }] });
     }
@@ -316,7 +349,7 @@ async function getUserCart(req: Request, res: Response) {
 
     try {
         const user = await em.fork({}).findOneOrFail(User, { id: Number(req.session.userid) });
-        const cart = await em.fork({}).findOneOrFail(Cart, { user }, {populate: ["items"]});
+        const cart = await em.fork({}).findOneOrFail(Cart, { user }, {populate: ["items", "user", "items.product", "items.product.storefront"]});
 
         let totalPrice = cart.items.getItems().reduce((total, item: CartItem) => {
             if (item.product && typeof item.product.price == 'number') { 
@@ -336,7 +369,7 @@ async function getUserCart(req: Request, res: Response) {
 async function addToCart(req: Request, res: Response) {
 
     const productId = Number(req.body.productId);
-    const quantity= Number(req.body.productId);
+    const quantity= Number(req.body.quantity);
     
     if (isNaN(productId)) {
         return res.status(400).json({ errors: [{ field: 'productId', message: 'Invalid product ID' }] });
@@ -352,7 +385,7 @@ async function addToCart(req: Request, res: Response) {
 
         const user = await em.fork({}).findOneOrFail(User, { id: Number(req.session.userid) });
         const product = await em.fork({}).findOneOrFail(Product, { id: productId });
-        let cart = await em.fork({}).findOneOrFail(Cart, { user  });
+        let cart = await em.fork({}).findOneOrFail(Cart, { user  }, { populate: ["items"]});
 
         let existingItem = cart.items.find(item => item.product.id === productId);  
 
@@ -370,9 +403,9 @@ async function addToCart(req: Request, res: Response) {
 
 
         return res.status(200).json({ cart });
-    } catch (err) {
+    } catch (err: any) {
         return res.status(500).json({
-            errors: [{ field: "cart", message: "Could not add item to cart", error: err }],
+            errors: [{ field: "cart", message: err.message, error: err }],
         });
     }
 }
@@ -385,7 +418,7 @@ async function removeFromCart(req: Request, res: Response) {
 
     try {
         const user = await em.fork({}).findOneOrFail(User, { id: Number(req.session.userid) });
-        let cart = await em.fork({}).findOneOrFail(Cart, { user});
+        let cart = await em.fork({}).findOneOrFail(Cart, { user}, { populate: ["items"]});
         let itemToRemove = cart.items.find(item => item.product.id === productId);
 
         if (!itemToRemove) {
@@ -393,16 +426,14 @@ async function removeFromCart(req: Request, res: Response) {
                 errors: [{ field: "cart", message: "Item not found in cart" }],
             })
         }
-
-        cart.items.remove(itemToRemove); // Remove item from collection
-
-        await em.fork({}).persistAndFlush(cart);
+        await em.fork({}).nativeDelete(CartItem, { id: itemToRemove.id })
+       
 
         return res.status(200).json({ cart });
     }
-    catch (err) {
+    catch (err: any) {
         return res.status(500).json({
-            errors: [{ field: "cart", message: "Could not remove item from cart", error: err }],
+            errors: [{ field: "cart", message: err.message, error: err }],
         })
     }
 }

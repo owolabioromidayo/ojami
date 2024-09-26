@@ -135,7 +135,7 @@ const RegisterBusinessOneMobile: FC<RegisterBusinessOneMobileProps> = ({}) => {
               textAlign="center"
               fontSize="sm"
             >
-              <Link href={"/register-business-step-2"}>continue</Link>
+              <Link href={"/auth/register-business-step-2"}>continue</Link>
             </Text>
           </FancyButton>
         </Flex>

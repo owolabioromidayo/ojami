@@ -47,7 +47,7 @@ const OnboardingMobile: FC<OnboardingMobileProps> = () => {
             textAlign="center"
             fontSize="sm"
           >
-            <Link href={"/signup"}>Sign Up</Link>
+            <Link href={"/auth/signup"}>Sign Up</Link>
           </Text>
         </FancyButton>
         <FancyButton bg="/assets/buttons/oja-sweet-purple.svg" w={200} h={70}>
@@ -65,7 +65,7 @@ const OnboardingMobile: FC<OnboardingMobileProps> = () => {
       <Box display="flex" justifyContent="center" mt="2rem">
         <Text fontSize="sm">
           Already have an account?{" "}
-          <Link href="/signin" style={{ fontWeight: "bold" }}>
+          <Link href="/auth/signin" style={{ fontWeight: "bold" }}>
             Sign in
           </Link>
         </Text>

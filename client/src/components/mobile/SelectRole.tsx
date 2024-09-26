@@ -10,6 +10,10 @@ const SelectRoleMobile: FC<SelectRoleMobileProps> = () => {
   useViewportHeight();
   const router = useRouter();
 
+  const setRole = (role: string) => {
+    localStorage.setItem("role", role);
+  };
+
   return (
     <Box
       backgroundColor={"#fff"}
@@ -44,7 +48,10 @@ const SelectRoleMobile: FC<SelectRoleMobileProps> = () => {
           backgroundPosition={"center"}
           backgroundRepeat={"no-repeat"}
           backgroundSize={"cover"}
-          onClick={() => router.push("/signup")}
+          onClick={() => {
+            setRole("vendor");
+            router.push("/auth/signup");
+          }}
         >
           <Box
             position={"relative"}
@@ -72,7 +79,10 @@ const SelectRoleMobile: FC<SelectRoleMobileProps> = () => {
           backgroundPosition={"center"}
           backgroundRepeat={"no-repeat"}
           backgroundSize={"cover"}
-          onClick={() => router.push("/signup")}
+          onClick={() => {
+            setRole("customer");
+            router.push("/auth/signup");
+          }}
         >
           <Box
             position={"relative"}
