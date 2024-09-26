@@ -39,6 +39,7 @@ const router = express.Router();
 router.post("/storefronts", isAuth,  createStorefront);
 //TODO: do we want storefronts to be indexed by id or name? 
 router.get("/storefronts/:id", getStorefront);
+router.get("/storefronts/str/:storename", getStoreFromName)
 router.get("/storefronts/:id/products", getAllProductsFromStorefront);
 router.get("/storefronts", getAllStorefronts);
 
@@ -103,6 +104,23 @@ async function getStorefront(req: Request, res: Response) {
         //TODO : do we want to populate with products in the req?
 
         const storefront = await em.fork({}).findOneOrFail(Storefront, { id: Number(id) });
+        return res.status(200).json({ storefront });
+    } catch (err) {
+        return res.status(404).json({ errors: [{ field: 'storefront', message: 'Storefront not found' }] });
+    }
+}
+
+async function getStoreFromName(req: Request, res: Response) {
+
+    const storename  = (req.params.storename);
+
+
+    const em = (req as RequestWithContext).em;
+
+    try {
+        //TODO : do we want to populate with products in the req?
+
+        const storefront = await em.fork({}).findOneOrFail(Storefront, { storename: storename });
         return res.status(200).json({ storefront });
     } catch (err) {
         return res.status(404).json({ errors: [{ field: 'storefront', message: 'Storefront not found' }] });

@@ -66,7 +66,7 @@ const Collectibles = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const fetchvouchers = async () => {
-    const url = `http://localhost:4000/api/payments/vouchers/me`;
+    const url = `https://api.greynote.app/oja/api/payments/vouchers/me`;
 
     try {
       const response = await fetch(url, { credentials: "include" });

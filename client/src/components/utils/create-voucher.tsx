@@ -42,7 +42,7 @@ export const CreateVoucher = ({ onClose, isOpen }: CreateVoucherProps) => {
             initialValues={{ amount: "", currency: "NGN" }}
             onSubmit={async (values, actions) => {
               const response = await fetch(
-                `http://localhost:4000/api/payments/vouchers/generate`,
+                `https://api.greynote.app/oja/api/payments/vouchers/generate`,
                 {
                   method: "POST",
                   headers: {
