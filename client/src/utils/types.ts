@@ -94,6 +94,7 @@ export interface Product {
     threeDModel?: Buffer; // Optional Buffer for 3D model
     description: string;
     quantity: number;
+    ratings: Array<number>;
     price: number;
     storefront: Storefront; // ManyToOne relation with Storefront
     link?: ProductLink; // Optional OneToOne relation with ProductLink
@@ -117,6 +118,16 @@ export interface User {
     KYC?: KYC; // Optional OneToOne relation
     KYB?: KYB; // Optional OneToOne relation
     transactions: Array<Transaction>;
+}
+
+export interface Order {
+  id: number;
+  product: number; // Reference to Product type
+  count: number; // Quantity of the product in the order
+  storefront: number; // Reference to Storefront type
+  fromUser: User; // Reference to User type (the user making the order)
+  toUser: User; // Reference to User type (the user receiving the order)
+  status: TransactionStatus; // Status of the order using TransactionStatus enum
 }
 
 export interface Cart {

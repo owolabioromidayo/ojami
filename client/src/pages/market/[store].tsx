@@ -1,6 +1,7 @@
 "use client";
 
 import { MarketLayout } from "@/components/market/layout";
+import { ProductItem } from "@/components/utils/product";
 import { Cart, Product, Storefront, User, VirtualWallet } from "@/utils/types";
 
 import {
@@ -24,14 +25,17 @@ import {
   Radio,
   RadioGroup,
   Input,
+  SimpleGrid
 } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
 import { useEffect, useState } from "react";
 import { IoChevronDown, IoStarSharp } from "react-icons/io5";
+import { TbInfoTriangle } from "react-icons/tb";
 
 const StorePage = () => {
   const [store, setStore] = useState<Storefront | null>(null);
+  const [products, setProducts] = useState<Array<Product> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const router = useRouter();
@@ -44,6 +48,7 @@ const StorePage = () => {
   const fetchStoreData = async () => {
     if (!storename) return;
     const url = `http://localhost:4000/api/ecommerce/storefronts/str/${storename}`;
+
     try {
       const response = await fetch(url, { credentials: "include" });
       if (!response.ok) {
@@ -271,6 +276,21 @@ const StorePage = () => {
             In stock
           </Button>
         </Flex>
+        {store?.products?.length! < 1 ? (
+            <Flex gap={2} align="center">
+              <Icon as={TbInfoTriangle} />
+              <Text>This store has no products yet</Text>
+            </Flex>
+        ): (
+        <SimpleGrid minChildWidth='210px' spacing='5px' mt={5}>
+            {store?.products?.map((item) => (
+                <ProductItem product={item} key={item.id} />
+            ))}
+        </SimpleGrid>
+
+        )}
+
+
       </Stack>
     </MarketLayout>
   );

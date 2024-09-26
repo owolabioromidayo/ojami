@@ -1,5 +1,4 @@
 import { Entity, PrimaryKey, Property, ManyToOne, DecimalType } from "@mikro-orm/core";
-import { User } from "./User"; 
 import { VirtualTransactionStatus, TransactionType } from "../types"; 
 import { VirtualWallet } from "./VirtualWallet";
 
@@ -30,8 +29,8 @@ export class VirtualTransaction {
   @Property()
   isInstantPurchase!: boolean;
 
-  @Property()
-  narration!: string;
+//  @Property()
+  // narration!: string;
 
   @ManyToOne(() => VirtualWallet) 
   sendingWallet!: VirtualWallet;
@@ -39,11 +38,12 @@ export class VirtualTransaction {
   @ManyToOne(() => VirtualWallet) 
   receivingWallet?: VirtualWallet;
 
-  constructor(sendingWallet: VirtualWallet, receivingWallet: VirtualWallet, amount: number, isInstantPurchase: boolean) {
+  constructor(sendingWallet: VirtualWallet, receivingWallet: VirtualWallet, amount: number, isInstantPurchase: boolean, currency: string) {
     this._type = TransactionType.VIRTUAL_TRANSACTION;
     this.amount = amount;
     this.sendingWallet= sendingWallet;
     this.receivingWallet= receivingWallet;
     this.isInstantPurchase= isInstantPurchase; 
+    this.currency = currency;
   }
 }

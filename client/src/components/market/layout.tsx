@@ -56,7 +56,7 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
     onClose: onCartClose,
   } = useDisclosure();
 
-  const { user, loading } = useContext(OjaContext);
+  const { user } = useContext(OjaContext);
   const router = useRouter();
 
   const tools = [
@@ -276,7 +276,7 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
                   border="2px solid #000"
                 >
                   <Text fontWeight={600} fontSize={34}>
-                    NGN 720,000
+                    NGN {user?.virtualWallet?.balance?.toLocaleString()}
                   </Text>
                 </Box>
                 <Flex gap={2} mt={2} align="center" p={2}>

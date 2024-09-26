@@ -561,12 +561,12 @@ export const SignInModal: React.FC<SignInProps> = ({ isOpen, onClose }) => {
                           )}
                         </Field>
 
-                        <Field name="birthdate">
+                        <Field name="birthDate">
                           {({ field, form }: any) => (
                             <FormControl
                               mt={5}
                               isInvalid={
-                                form.errors.birthdate && form.touched.birthdate
+                                form.errors.birthDate && form.touched.birthDate
                               }
                             >
                               <FormLabel>Date of birth</FormLabel>
@@ -583,7 +583,7 @@ export const SignInModal: React.FC<SignInProps> = ({ isOpen, onClose }) => {
                                 focusBorderColor="#EF8421"
                               />
                               <FormErrorMessage>
-                                {form.errors.birthdate}
+                                {form.errors.birthDate}
                               </FormErrorMessage>
                             </FormControl>
                           )}

@@ -29,13 +29,13 @@ export class Order {
     // Order status can be an enum or a simple string
     // Why didn't you just use a simple string. Dyk how long i battled with the postgres driver issue cos TransactionStatus wasn't a defined type!!!
     @Property()
-    status!: 'pending' | 'completed' | 'canceled';
+    status!: 'pending' | 'processing' | 'completed' | 'canceled';
 
     constructor(product: Product, count: number,
         storefront: Storefront,
         fromUser: User,
         toUser: User,
-        status: 'pending' | 'completed' | 'canceled') {
+        status: 'pending' | 'processing' |  'completed' | 'canceled') {
         this.product = product;
         this.count = count;
         this.storefront = storefront;

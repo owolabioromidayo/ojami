@@ -17,12 +17,12 @@ const ProductItem: React.FC<{ product: Product }> = ({ product }) => {
   return (
     <Box>
       <Box
-        minW={"150px"}
+        minW={"180px"}
         border={"2px solid #000000"}
         rounded={"2xl"}
         display={"flex"}
         flexDir={"column"}
-        h={"full"}
+        h={"150px"}
         overflow={"hidden"}
       >
         <Box w={"full"} h={"100px"} position="relative">

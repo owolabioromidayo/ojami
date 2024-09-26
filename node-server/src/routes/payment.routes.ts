@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import QRCode from 'qrcode';
 
 
-import { CreateVirtualAccountResponse, RequestWithContext, BankTransferResponse, PendingBalanceStatus } from "../types";
+import { CreateVirtualAccountResponse, RequestWithContext, BankTransferResponse, PendingBalanceStatus, VirtualTransactionStatus, PayoutRequest, PayoutResponse, TransactionStatus } from "../types";
 import { User } from "../entities/User";
 import { Product } from "../entities/Product";
 import { isAuth } from "../middleware/isAuth";
@@ -16,7 +16,7 @@ import { isAuth } from "../middleware/isAuth";
 // })();
 import { VirtualAccount } from "../entities/VirtualAccount";
 import { Transaction } from "../entities/Transaction";
-import { ACCOUNT_NAME, ACCOUNT_REF, BANK_TRANSFER_NOTIFICATION_URL, KORAPAY_TOKEN } from "../constants";
+import { ACCOUNT_NAME, ACCOUNT_REF, BANK_TRANSFER_NOTIFICATION_URL, CHECKOUT_NOTIFICATION_URL, KORAPAY_TOKEN } from "../constants";
 import { ProductLink } from "../entities/ProductLink";
 import { VirtualTransaction } from "../entities/VirtualTransaction";
 import { VirtualWallet } from "../entities/VirtualWallet";
@@ -24,6 +24,12 @@ import { PendingBalance } from "../entities/PendingBalance";
 import { InstantOrder } from "../entities/InstantOrder";
 import { InstantOrderItem } from "../entities/InstantOrderItem";
 import { InstantOrderLink } from "../entities/InstantOrderLink";
+
+import crypto from 'crypto';
+import { Voucher } from '../entities/Voucher';
+import { VoucherStatus } from '../types';
+import { PayInTransaction } from "../entities/PayInTransaction";
+import { Order } from "../entities/Order";
 
 const router = express.Router();
 
@@ -37,15 +43,11 @@ router.post("/virtual_accounts/new", isAuth, createNewVirtualBankAccount);
 
 router.post("/pay_in/bank_transfer", isAuth, receiveBankTransferFromCustomer);
 
-// router.post("/pay_in/checkout", isAuth, initializeCheckout);
-// router.post("/pay_out/", isAuth, initializeCheckout);
+router.post("/pay_in/checkout_standard", isAuth, initializeCheckout);
 
 
 router.post("/make_virtual_payment", isAuth, makeVirtualPayment);
 
-// router.post("/make_virtual_transfer", isAuth, makeVirtualTransfer);
-
-// router.post("/pay_in/card_transfer", isAuth, receiveBankTransferFromCustomer);
 
 
 router.post("/generate_payment_link_from_product", isAuth, generatePaymentLinkFromProduct);
@@ -55,25 +57,12 @@ router.get("/pending_balances/calculate", isAuth, calculatePendingBalance);
 router.get("/pending_balances", isAuth, getPendingBalances);
 router.post("/pending_balances/update", updatePendingBalances);
 
-
-
-//create sandbox virtual account
-//get virtual account transactions
+router.post("/vouchers/generate", isAuth, generateVoucher );
+router.post("/vouchers/redeem", isAuth, redeemVoucher);
 
 //payout to bank account
+router.post("/payout", isAuth, payoutHandler);
 
-// bank transfer , from customer into korapay
-
-
-
-//MOBILE MONEY
-
-//Checkout Redirect, initialize charge?
-
-// payouts? escrow?
-
-
-// get virtual balance of user account
 
 
 async function createNewVirtualBankAccount(req: Request, res: Response) {
@@ -184,15 +173,15 @@ async function receiveBankTransferFromCustomer(req: Request, res: Response) {
 }
 
 async function makeVirtualPayment(req: Request, res: Response) {
-    const { receivingUserId, orderId, isInstantPurchase } = req.body;
+    const { receivingUserId, orderId, isInstantPurchase, amount } = req.body;
 
     if (!(typeof isInstantPurchase === 'boolean')) {
         return res.status(400).json({ errors: [{ field: 'isInstantPurchase', message: 'isInstantPurchase is not boolean' }] });
     }
 
-    // if (!amount || isNaN(Number(amount))) {
-    //     return res.status(400).json({ errors: [{ field: 'amount', message: 'amount is not a number' }] });
-    // }
+    if (!amount || isNaN(Number(amount))) {
+        return res.status(400).json({ errors: [{ field: 'amount', message: 'amount is not a number' }] });
+    }
 
     if (!receivingUserId || isNaN(Number(receivingUserId))) {
         return res.status(400).json({ errors: [{ field: 'receivingUserId', message: 'sendingUserId is not a number' }] });
@@ -209,9 +198,10 @@ async function makeVirtualPayment(req: Request, res: Response) {
     try {
 
         //calculate amount from order
+        // You were using InstantOrder even if isInstantPurchase is false so I've moved it inside the condition.
+        // I added the amount back into the body and added a new order status: processing so that new orders won't mix with old or initiated orders
 
-        const amount = (await em.fork({}).findOneOrFail(InstantOrder, { id: req.session.userid }, { populate: ['items', 'items.product.price'] })).items
-            .getItems().reduce((x: number, curr: InstantOrderItem) => x + (curr.product.price * curr.quantity), 0);
+      
 
 
         const sendingUser = await em.fork({}).findOneOrFail(User, { id: req.session.userid }, { populate: ['virtualWallet', 'virtualWallet.balance'] });
@@ -221,7 +211,7 @@ async function makeVirtualPayment(req: Request, res: Response) {
             return res.status(400).json({ errors: [{ message: 'Insufficient balance for transaction' }] });
         }
 
-        const virtualTransaction = new VirtualTransaction(sendingUser.virtualWallet, receivingUser.virtualWallet, amount, isInstantPurchase);
+        const virtualTransaction = new VirtualTransaction(sendingUser.virtualWallet, receivingUser.virtualWallet, amount, isInstantPurchase, "NGN");
 
         //transfer money between wallets?
         let sendingUser_wallet = await em.fork({}).findOneOrFail(VirtualWallet, { id: sendingUser.virtualWallet.id }, { populate: ['balance'] });
@@ -229,7 +219,10 @@ async function makeVirtualPayment(req: Request, res: Response) {
 
         if (isInstantPurchase) {
             //transfer the money immediately
+            const amount = (await em.fork({}).findOneOrFail(InstantOrder, { id: req.session.userid }, { populate: ['items', 'items.product.price'] })).items
+            .getItems().reduce((x: number, curr: InstantOrderItem) => x + (curr.product.price * curr.quantity), 0);
             sendingUser_wallet.balance -= amount;
+            virtualTransaction.status = VirtualTransactionStatus.COMPLETED;
 
             receivingUser_wallet.balance += amount;
 
@@ -241,15 +234,23 @@ async function makeVirtualPayment(req: Request, res: Response) {
         // create a new pending balance (default time is 7 days)
         sendingUser_wallet.balance -= amount;
         const pendingBalance = new PendingBalance(sendingUser_wallet, receivingUser_wallet, amount);
+        pendingBalance.currency = "NGN"
+        virtualTransaction.status = VirtualTransactionStatus.PENDING;
 
+        // set order to processing
+        const order = await em.fork({}).findOne(Order, { id: orderId, fromUser: req.session.userid })
+        if(order){
+            order.status = 'processing'
+            await em.fork({}).persistAndFlush(order)
+        }
 
         await em.fork({}).persistAndFlush([pendingBalance, virtualTransaction, sendingUser_wallet, receivingUser_wallet]);
+        return res.status(200).json({ sendingUser_wallet });
 
 
 
-
-    } catch (err) {
-        return res.status(500).json({ errors: [{ message: `Transaction failed` }] });
+    } catch (err: any) {
+        return res.status(500).json({ errors: [{ message: err.message }] });
     }
 
 
@@ -422,6 +423,235 @@ async function generatePaymentLinkFromInstantOrder(req: Request, res: Response) 
 
 
 }
+
+
+async function generateVoucher(req: Request, res: Response) {
+    const { amount, currency } = req.body;
+
+    if (!amount || isNaN(Number(amount))) {
+        return res.status(400).json({ errors: [{ field: 'amount', message: 'Amount is not valid' }] });
+    }
+
+    if (!currency || typeof currency !== 'string') {
+        return res.status(400).json({ errors: [{ field: 'currency', message: 'Currency is not valid' }] });
+    }
+
+    const em = (req as RequestWithContext).em;
+
+    try {
+        const user = await em.fork({}).findOneOrFail(User, { id: req.session.userid }, { populate: ['virtualWallet'] });
+
+        if (user.virtualWallet.balance < Number(amount)) {
+            return res.status(400).json({ errors: [{ message: 'Insufficient balance to create voucher' }] });
+        }
+
+        const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+            modulusLength: 2048,
+            publicKeyEncoding: { type: 'spki', format: 'pem' },
+            privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
+        });
+
+        const voucherId = crypto.randomBytes(16).toString('hex');
+
+        const data = `${voucherId}:${amount}:${currency}`;
+        const signature = crypto.sign('sha256', Buffer.from(data), privateKey);
+
+
+        const voucher = new Voucher(user, Number(amount), currency, voucherId, publicKey, signature.toString('hex'));
+
+        user.virtualWallet.balance -= Number(amount);
+
+        await em.fork({}).persistAndFlush([voucher, user.virtualWallet]);
+
+        return res.status(201).json({ 
+            message: 'Voucher generated successfully',
+            voucherId: voucherId,
+            amount: amount,
+            currency: currency,
+            publicKey: voucher.publicKey,
+            signature: voucher.signature
+        });
+
+    } catch (err) {
+        return res.status(500).json({ errors: [{ message: 'Failed to generate voucher' }] });
+    }
+}
+
+async function redeemVoucher(req: Request, res: Response) {
+    const { voucherId } = req.body;
+
+    if (!voucherId || typeof voucherId !== 'string') {
+        return res.status(400).json({ errors: [{ field: 'voucherId', message: 'Voucher ID is not valid' }] });
+    }
+
+    const em = (req as RequestWithContext).em;
+
+    try {
+        const voucher = await em.fork({}).findOneOrFail(Voucher, { voucherId: voucherId });
+
+        if (voucher.status !== VoucherStatus.VALID) {
+            return res.status(400).json({ errors: [{ message: 'Voucher is not valid' }] });
+        }
+
+        const redeemer = await em.fork({}).findOneOrFail(User, { id: req.session.userid }, { populate: ['virtualWallet'] });
+
+        const data = `${voucherId}:${voucher.amount}:${voucher.currency}`;
+        const isValid = crypto.verify(
+            'sha256',
+            Buffer.from(data),
+            voucher.publicKey,
+            Buffer.from(voucher.signature, 'base64')
+        );
+
+        if (!isValid) {
+            return res.status(400).json({ errors: [{ message: 'Voucher verification failed' }] });
+        }
+
+
+        voucher.status = VoucherStatus.REDEEMED;
+        voucher.redeemer = redeemer;
+
+        redeemer.virtualWallet.balance += voucher.amount;
+
+        await em.fork({}).persistAndFlush([voucher, redeemer.virtualWallet]);
+
+        return res.status(200).json({ 
+            message: 'Voucher redeemed successfully',
+            amount: voucher.amount,
+            currency: voucher.currency
+        });
+
+    } catch (err) {
+        return res.status(500).json({ errors: [{ message: 'Failed to redeem voucher' }] });
+    }
+}
+
+
+
+
+async function payoutHandler(req: Request, res: Response) {
+    const { destination, metadata } = req.body as PayoutRequest;
+
+    if ( !destination || !destination.type || !destination.amount || !destination.currency || !destination.customer.email) {
+        return res.status(400).json({ errors: [{ message: 'Missing required fields' }] });
+    }
+
+    const em = (req as RequestWithContext).em;
+
+    try {
+        const user = await em.fork({}).findOneOrFail(User, { id: req.session.userid }, { populate: ['virtualWallet'] });
+
+        if (user.virtualWallet.balance < destination.amount) {
+            return res.status(400).json({ errors: [{ message: 'Insufficient balance' }] });
+        }
+
+        const payload: PayoutRequest = {
+            reference: uuidv4(),
+            destination,
+            metadata
+        };
+
+        const resp = await fetch("https://api.korapay.com/merchant/api/v1/transactions/disburse", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${KORAPAY_TOKEN}`
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (!resp.ok) {
+            return res.status(500).json({ errors: [{ message: 'Payout request failed' }] });
+        }
+
+        const data = await resp.json() as PayoutResponse;
+
+
+
+        if (data.status === true) {
+            if (data.data.status === "success")
+            {
+                    user.virtualWallet.balance -= destination.amount;
+                await em.fork({}).persistAndFlush(user.virtualWallet);
+
+                return res.status(200).json({ 
+                    message: 'Payout successful',
+                    data: data.data
+                });
+            } else if (data.data.status === "processing" ) {
+                // TODO: not handling for now, just repeat success, dispute can be opened
+                // TODO: we need a proper payout verification handler for this
+                user.virtualWallet.balance -= destination.amount;
+                await em.fork({}).persistAndFlush(user.virtualWallet);
+
+                return res.status(200).json({ 
+                    message: 'Payout processing',
+                    data: data.data
+                });
+            } else {
+                // failed
+                return res.status(500).json({ errors: [{ message: data.message }] });
+            }
+        } else {
+            return res.status(500).json({ errors: [{ message: data.message }] });
+        }
+
+    } catch (err) {
+        return res.status(500).json({ errors: [{ message: 'Failed to process payout', error: err }] });
+    }
+}
+
+
+async function initializeCheckout(req: Request, res: Response) {
+    const em = (req as RequestWithContext).em;
+    const { amount, currency, orderId } = req.body;
+
+    if (isNaN(Number(amount))) {
+        return res.status(400).json({ errors: [{ field: 'amount', message: 'Invalid amount' }] });
+    }
+
+    try {
+        const user = await em.fork({}).findOneOrFail(User, { id: req.session.userid });
+        const reference = uuidv4();
+
+        // Create a new PayInTransaction
+        const transaction = new PayInTransaction(user, reference, Number(amount), currency, TransactionStatus.PENDING);
+        transaction.paymentMethod = "pay with kora";
+        transaction.paymentProvider = "korapay"
+        await em.fork({}).persistAndFlush(transaction);
+
+         // set order to processing
+         const order = await em.fork({}).findOne(Order, { id: orderId, fromUser: req.session.userid })
+         if(order){
+             order.status = 'processing'
+             await em.fork({}).persistAndFlush(order)
+         }
+
+        // Prepare the checkout information for the frontend
+        const checkoutInfo = {
+            key: process.env.KORAPAY_PUBLIC_KEY,
+            reference,
+            amount: Number(amount),
+            currency,
+            customer: {
+                name: `${user.firstname} ${user.lastname}`,
+                email: user.email
+            },
+            notification_url: CHECKOUT_NOTIFICATION_URL 
+        };
+
+        return res.status(200).json({
+            message: 'Checkout initialized successfully',
+            data: checkoutInfo
+        });
+
+    } catch (err: any) {
+        console.error('Error initializing checkout:', err);
+        return res.status(500).json({ errors: [{ message: 'Failed to initialize checkout', error: err.message }] });
+    }
+}
+
+
 
 
 
