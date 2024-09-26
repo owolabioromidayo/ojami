@@ -120,6 +120,16 @@ export interface User {
     transactions: Array<Transaction>;
 }
 
+export interface Order {
+  id: number;
+  product: number; // Reference to Product type
+  count: number; // Quantity of the product in the order
+  storefront: number; // Reference to Storefront type
+  fromUser: User; // Reference to User type (the user making the order)
+  toUser: User; // Reference to User type (the user receiving the order)
+  status: TransactionStatus; // Status of the order using TransactionStatus enum
+}
+
 export interface Cart {
   id: number; // Unique identifier for the cart
   user: User; // ManyToOne relation with User

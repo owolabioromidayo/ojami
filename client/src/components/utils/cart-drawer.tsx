@@ -14,6 +14,7 @@ import {
   Flex,
   useToast,
   Stack,
+  useDisclosure,
 } from "@chakra-ui/react";
 import React, { useContext, useEffect, useState } from "react";
 import { OjaContext } from "../provider";
@@ -27,7 +28,8 @@ interface CartDrawerProps {
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
   const btnRef = React.useRef(null);
-  const { cart, setCart } = useContext(OjaContext);
+  const { user, cart, setCart } = useContext(OjaContext);
+  const { isOpen: isPaymentOpen, onOpen: onPaymentOpen, onClose: onPaymentClose } = useDisclosure()
   console.log(cart?.items);
   const toast = useToast();
 
@@ -60,7 +62,89 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  // Add this new function to calculate the total price
+  const createOrder = async () => {
+    if (!cart || !cart.items || cart.items.length === 0) {
+      toast({
+        title: "Cart Empty",
+        description: "Your cart is empty. Add items before checking out.",
+        status: "warning",
+        duration: 5000,
+        position: "top",
+        containerStyle: { border: "2px solid #000", rounded: "md" },
+      });
+      return;
+    }
+
+    const orderPromises = cart.items.map(async (item) => {
+      const response = await fetch("http://localhost:4000/api/ecommerce/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          count: item.quantity,
+          productId: item.product.id,
+          fromUserId: user?.id, // Assuming the cart object has a userId property
+        }),
+      });
+      return response;
+    });
+
+    const responses = await Promise.all(orderPromises);
+    const failedOrders = responses.filter(response => !response.ok);
+
+    if (failedOrders.length > 0) {
+      toast({
+        title: "Checkout Error",
+        description: `Failed to create ${failedOrders.length} order(s). Please try again.`,
+        status: "error",
+        duration: 5000,
+        position: "top",
+        containerStyle: { border: "2px solid #000", rounded: "md" },
+      });
+    } else {
+      // Clear the cart by removing each item individually
+      const removeItemPromises = cart.items.map(async (item) => {
+        const response = await fetch("http://localhost:4000/api/ecommerce/carts/remove", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ productId: item.product.id }),
+        });
+        return response;
+      });
+
+      const removeResponses = await Promise.all(removeItemPromises);
+      const failedRemovals = removeResponses.filter(response => !response.ok);
+
+      if (failedRemovals.length > 0) {
+        toast({
+          title: "Cart Clearing Error",
+          description: `Failed to remove ${failedRemovals.length} item(s) from the cart. Please try again.`,
+          status: "error",
+          duration: 5000,
+          position: "top",
+          containerStyle: { border: "2px solid #000", rounded: "md" },
+        });
+        return;
+      }
+
+      // Clear the cart in the local state
+      setCart(null);
+      
+      toast({
+        title: "Orders Initiated Successfully",
+        description: "Your cart has been cleared and you are being redirected to the payment page",
+        status: "success",
+        duration: 5000,
+        position: "top",
+        containerStyle: { border: "2px solid #000", rounded: "md" },
+      });
+      setTimeout(() => {
+        window.location.assign("/market/checkout");
+      }, 800);
+    }
+  };
+
   const calculateTotalPrice = (cart: Cart | null) => {
     if (!cart || !cart.items) return 0;
     return cart.items.reduce((total, item) => {
@@ -221,7 +305,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                               </Text>
                             </Flex>
                             <Text fontSize={20} fontWeight={500} w="400px">
-                              {item.product.name} x{item.quantity}
+                              {item.product.name} {"=>"} x{item.quantity}
                             </Text>
                           </Stack>
                         </Flex>
@@ -260,6 +344,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                 px={7}
                 border="2px solid #000"
                 color="black"
+                onClick={createOrder}
               >
                 Checkout
               </Button>
