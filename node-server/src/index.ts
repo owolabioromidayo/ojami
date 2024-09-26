@@ -110,7 +110,7 @@ export const createApp = async () => {
 const startServer = async () => {
   const app = await createApp();
   
-  const PORT = process.env.PORT || 4000;
+  const PORT = process.env.PORT || 4003;
   
   app.listen(PORT, () => {
     console.log(`Server ready on http://localhost:${PORT}`);
