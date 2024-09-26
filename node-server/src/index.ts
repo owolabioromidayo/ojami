@@ -67,7 +67,7 @@ export const createApp = async () => {
   app.set("trust proxy", 1);
   app.use(cors({
     credentials: true,
-    origin: [`http://localhost:${process.env.PORT || 3000}`, 'https://ojami.shop']
+    origin: [`http://localhost:${process.env.PORT || 3000}`, 'https://ojami.shop', 'https://www.ojami.shop']
   }));
 
   app.use(helmet());
@@ -84,24 +84,24 @@ export const createApp = async () => {
       cookie: {
         path: "/",
         httpOnly: true,
-        secure: false,
+        secure: true,
         maxAge: 1000 * 60 * 60 * 1024,
       },
     } as any)
   );
 
-  app.get('/', (req, res) => {
+  app.get('/oja', (req, res) => {
     res.send('Welcome to the Storefront Marketplace API');
   });
 
   
-  app.use('/api/auth', authRoutes);
-  app.use('/api/identity', identityRoutes);
-  app.use('/api/ecommerce', ecommerceRoutes);
-  app.use('/api/payments', paymentRoutes);
-  app.use('/api/webhooks', webhookRoutes);
-  app.use('/api/ai', aiRoutes);
-  app.get('/p/:id', isAuth, resolvePaymentLink);
+  app.use('/oja/api/auth', authRoutes);
+  app.use('/oja/api/identity', identityRoutes);
+  app.use('/oja/api/ecommerce', ecommerceRoutes);
+  app.use('/oja/api/payments', paymentRoutes);
+  app.use('/oja/api/webhooks', webhookRoutes);
+  app.use('/oja/api/ai', aiRoutes);
+  app.get('/oja/p/:id', isAuth, resolvePaymentLink);
 
 
   return app; 
