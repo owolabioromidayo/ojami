@@ -205,7 +205,7 @@ const Market = () => {
               <FancyButton
                 bg="/assets/buttons/oja-cloud-green.svg"
                 key={item.category}
-                w="170px"
+                w="200px"
                 h="80px"
               >
                 <Flex gap={2} align="center">
