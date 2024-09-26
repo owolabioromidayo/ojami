@@ -254,9 +254,9 @@ async function createOrder(req: Request, res: Response) {
 
     try {
         const product = await em.fork({}).findOneOrFail(Product, { id: productId }, {populate: ['storefront']});
-        const storefront = await em.fork({}).findOneOrFail(Storefront, { id: product.storefront.id } );
+        const storefront = await em.fork({}).findOneOrFail(Storefront, { id: product.storefront.id }, { populate: ["user"]} );
         const fromUser = await em.fork({}).findOneOrFail(User, { id: fromUserId });
-        const toUser = await em.fork({}).findOneOrFail(User, { id: Number(req.session.id)});
+        const toUser = await em.fork({}).findOneOrFail(User, { id: Number(storefront.user.id)});
         
         if (product.quantity < count) {
             return res.status(400).json({ errors: [{ field: 'quantity', message: 'Not enough stock' }] });
@@ -282,7 +282,8 @@ async function getOrder(req: Request, res: Response) {
     const em = (req as RequestWithContext).em;
 
     try {
-        const order = await em.fork({}).findOneOrFail(Order, { id: Number(id) });
+        const order = await em.fork({}).findOneOrFail(Order, { id: Number(id) }, { populate: ["product", "storefront"]});
+
 
         if (order.fromUser.id !== id || order.toUser.id !== id ) {
             return res.status(401).json({ errors: [{ field: 'auth', message: 'Not authorized' }] });
@@ -295,13 +296,22 @@ async function getOrder(req: Request, res: Response) {
 }
 
 async function getUserOrders(req: Request, res: Response) {
-
     const em = (req as RequestWithContext).em;
 
     try {
-        const orders = await em.fork({}).find(Order, { toUser: Number(req.session.userid) });
+        // Fetch orders for the user
+        const orders = await em.fork({}).find(Order, { toUser: Number(req.session.userid), status: { $eq: 'pending'} });
 
-        return res.status(200).json({ orders });
+        // Initialize an array to hold products
+        const products = [];
+
+        // Loop through each order to fetch the corresponding product
+        for (const order of orders) {
+            const product = await em.fork({}).findOneOrFail(Product, { id: order.product.id }, { populate: ['storefront'] });
+            products.push(product); // Add the fetched product to the products array
+        }
+
+        return res.status(200).json({ orders, products }); // Return both orders and products
     } catch (err) {
         return res.status(500).json({ errors: [{ field: 'orders', message: 'Could not fetch orders for this user', error: err }] });
     }

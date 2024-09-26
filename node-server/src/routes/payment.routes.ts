@@ -29,6 +29,7 @@ import crypto from 'crypto';
 import { Voucher } from '../entities/Voucher';
 import { VoucherStatus } from '../types';
 import { PayInTransaction } from "../entities/PayInTransaction";
+import { Order } from "../entities/Order";
 
 const router = express.Router();
 
@@ -172,15 +173,15 @@ async function receiveBankTransferFromCustomer(req: Request, res: Response) {
 }
 
 async function makeVirtualPayment(req: Request, res: Response) {
-    const { receivingUserId, orderId, isInstantPurchase } = req.body;
+    const { receivingUserId, orderId, isInstantPurchase, amount } = req.body;
 
     if (!(typeof isInstantPurchase === 'boolean')) {
         return res.status(400).json({ errors: [{ field: 'isInstantPurchase', message: 'isInstantPurchase is not boolean' }] });
     }
 
-    // if (!amount || isNaN(Number(amount))) {
-    //     return res.status(400).json({ errors: [{ field: 'amount', message: 'amount is not a number' }] });
-    // }
+    if (!amount || isNaN(Number(amount))) {
+        return res.status(400).json({ errors: [{ field: 'amount', message: 'amount is not a number' }] });
+    }
 
     if (!receivingUserId || isNaN(Number(receivingUserId))) {
         return res.status(400).json({ errors: [{ field: 'receivingUserId', message: 'sendingUserId is not a number' }] });
@@ -197,9 +198,10 @@ async function makeVirtualPayment(req: Request, res: Response) {
     try {
 
         //calculate amount from order
+        // You were using InstantOrder even if isInstantPurchase is false so I've moved it inside the condition.
+        // I added the amount back into the body and added a new order status: processing so that new orders won't mix with old or initiated orders
 
-        const amount = (await em.fork({}).findOneOrFail(InstantOrder, { id: req.session.userid }, { populate: ['items', 'items.product.price'] })).items
-            .getItems().reduce((x: number, curr: InstantOrderItem) => x + (curr.product.price * curr.quantity), 0);
+      
 
 
         const sendingUser = await em.fork({}).findOneOrFail(User, { id: req.session.userid }, { populate: ['virtualWallet', 'virtualWallet.balance'] });
@@ -217,6 +219,8 @@ async function makeVirtualPayment(req: Request, res: Response) {
 
         if (isInstantPurchase) {
             //transfer the money immediately
+            const amount = (await em.fork({}).findOneOrFail(InstantOrder, { id: req.session.userid }, { populate: ['items', 'items.product.price'] })).items
+            .getItems().reduce((x: number, curr: InstantOrderItem) => x + (curr.product.price * curr.quantity), 0);
             sendingUser_wallet.balance -= amount;
             virtualTransaction.status = VirtualTransactionStatus.COMPLETED;
 
@@ -230,15 +234,23 @@ async function makeVirtualPayment(req: Request, res: Response) {
         // create a new pending balance (default time is 7 days)
         sendingUser_wallet.balance -= amount;
         const pendingBalance = new PendingBalance(sendingUser_wallet, receivingUser_wallet, amount);
+        pendingBalance.currency = "NGN"
         virtualTransaction.status = VirtualTransactionStatus.PENDING;
 
+        // set order to processing
+        const order = await em.fork({}).findOne(Order, { id: orderId, fromUser: req.session.userid })
+        if(order){
+            order.status = 'processing'
+            await em.fork({}).persistAndFlush(order)
+        }
+
         await em.fork({}).persistAndFlush([pendingBalance, virtualTransaction, sendingUser_wallet, receivingUser_wallet]);
+        return res.status(200).json({ sendingUser_wallet });
 
 
 
-
-    } catch (err) {
-        return res.status(500).json({ errors: [{ message: `Transaction failed` }] });
+    } catch (err: any) {
+        return res.status(500).json({ errors: [{ message: err.message }] });
     }
 
 
@@ -592,7 +604,7 @@ async function payoutHandler(req: Request, res: Response) {
 
 async function initializeCheckout(req: Request, res: Response) {
     const em = (req as RequestWithContext).em;
-    const { amount, currency } = req.body;
+    const { amount, currency, orderId } = req.body;
 
     if (isNaN(Number(amount))) {
         return res.status(400).json({ errors: [{ field: 'amount', message: 'Invalid amount' }] });
@@ -604,7 +616,16 @@ async function initializeCheckout(req: Request, res: Response) {
 
         // Create a new PayInTransaction
         const transaction = new PayInTransaction(user, reference, Number(amount), currency, TransactionStatus.PENDING);
+        transaction.paymentMethod = "pay with kora";
+        transaction.paymentProvider = "korapay"
         await em.fork({}).persistAndFlush(transaction);
+
+         // set order to processing
+         const order = await em.fork({}).findOne(Order, { id: orderId, fromUser: req.session.userid })
+         if(order){
+             order.status = 'processing'
+             await em.fork({}).persistAndFlush(order)
+         }
 
         // Prepare the checkout information for the frontend
         const checkoutInfo = {
@@ -624,9 +645,9 @@ async function initializeCheckout(req: Request, res: Response) {
             data: checkoutInfo
         });
 
-    } catch (err) {
+    } catch (err: any) {
         console.error('Error initializing checkout:', err);
-        return res.status(500).json({ errors: [{ message: 'Failed to initialize checkout', error: err }] });
+        return res.status(500).json({ errors: [{ message: 'Failed to initialize checkout', error: err.message }] });
     }
 }
 

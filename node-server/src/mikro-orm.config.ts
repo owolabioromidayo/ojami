@@ -58,6 +58,8 @@ import { Transaction } from "./entities/Transaction";
 import { VirtualAccount } from "./entities/VirtualAccount";
 import { VirtualTransaction } from "./entities/VirtualTransaction";
 import { VirtualWallet } from "./entities/VirtualWallet";
+import { Voucher } from "./entities/Voucher";
+import { PayInTransaction } from "./entities/PayInTransaction";
 
 const commonConfig = {
   migrations: {
@@ -84,6 +86,8 @@ const commonConfig = {
     VirtualAccount,
     VirtualTransaction,
     VirtualWallet,
+    Voucher,
+    PayInTransaction
   ],
   debug: !__prod__,
   metadataProvider: TsMorphMetadataProvider,
