@@ -66,7 +66,7 @@ export const createApp = async () => {
   app.set("trust proxy", 1);
   app.use(cors({
     credentials: true,
-    origin: [`http://localhost:${process.env.PORT || 3000}`]
+    origin: [`http://localhost:${process.env.PORT || 3000}`, 'https://ojami.shop']
   }));
 
   app.use(helmet());
