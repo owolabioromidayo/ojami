@@ -20,7 +20,6 @@ router.get("/users/:id", getUser);
 async function registerUser(req: Request, res: Response) {
     const { firstname, lastname, birthDate, phoneNumber, email, password } = req.body;
 
-
     const redis = (req as RequestWithContext).redis;
     const em = (req as RequestWithContext).em;
 

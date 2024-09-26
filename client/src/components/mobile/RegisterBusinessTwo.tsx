@@ -156,7 +156,7 @@ const RegisterBusinessTwoMobile: FC<RegisterBusinessTwoMobileProps> = ({}) => {
               textAlign="center"
               fontSize="sm"
             >
-              <Link href={"/verify-business"}>continue</Link>
+              <Link href={"/auth/verify-business"}>continue</Link>
             </Text>
           </FancyButton>
         </Flex>
