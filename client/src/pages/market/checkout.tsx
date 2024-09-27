@@ -312,10 +312,10 @@ const Checkout = () => {
             >
                 <Icon as={IoInformationCircleOutline} fontSize="24px" />
               <Stack spacing={0}>
-              <Text fontSize="16" fontWeight="600">
+              <Text fontSize={{ base: "12px", md: "16px" }} fontWeight="600">
                 Delivery includes a PIN confirmation
               </Text>
-                <Text fontSize="14" fontWeight="400">
+                <Text fontSize={{ base: "10px", md: "14px" }} fontWeight="400">
                   This helps ensure that your order is given to the right person
                 </Text>
               </Stack>
@@ -335,6 +335,7 @@ const Checkout = () => {
                 bg="/assets/buttons/oja-sweet-orange.svg"
                 h="80px"
                 onClick={onAToggle}
+                fontSize={{ base: "12px", md: "16px" }}
               >
                 Pay with Oja Wallet
               </FancyButton>
@@ -343,6 +344,7 @@ const Checkout = () => {
                 bg="/assets/buttons/oja-sweet-purple.svg"
                 h="80px"
                 onClick={handlePayWithKora}
+                fontSize={{ base: "12px", md: "16px" }}
               >
                 Pay with Kora
               </FancyButton>
