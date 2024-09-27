@@ -24,7 +24,7 @@ const SignupMobile: FC<SignupMobileProps> = ({}) => {
   const [role, setRole] = useState<string | null>("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const toast = useToast()
-  const baseUrl = "http://api.ojami.shop";
+  const baseUrl = "https://api.ojami.shop";
 
   useEffect(() => {
     let role = localStorage.getItem("role");

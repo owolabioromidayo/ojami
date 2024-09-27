@@ -29,7 +29,7 @@ export const OjaProvider: React.FC<OjaProviderProps> = ({ children }) => {
     const [error, setError] = useState(null);
 
     const fetchUserData = async () => {
-        const url = 'http://api.ojami.shop/api/auth/users/me';
+        const url = 'https://api.ojami.shop/api/auth/users/me';
         try {
             const response = await fetch(url, { credentials: 'include' });
             if (!response.ok) {
@@ -52,7 +52,7 @@ export const OjaProvider: React.FC<OjaProviderProps> = ({ children }) => {
     const [cart, setCart] = useState<Cart | null>(null); 
 
     const fetchcartData = async () => {
-        const url = 'http://api.ojami.shop/api/ecommerce/carts/me';
+        const url = 'https://api.ojami.shop/api/ecommerce/carts/me';
         try {
             const response = await fetch(url, { credentials: 'include' });
             if (!response.ok) {
@@ -75,7 +75,7 @@ export const OjaProvider: React.FC<OjaProviderProps> = ({ children }) => {
     const [store, setStore] = useState<Array<Storefront>>([]); 
 
     const fetchStoreData = async () => {
-        const url = 'http://api.ojami.shop/api/ecommerce/storefronts';
+        const url = 'https://api.ojami.shop/api/ecommerce/storefronts';
         try {
             const response = await fetch(url, { credentials: 'include' });
             if (!response.ok) {
