@@ -132,8 +132,12 @@ const Checkout = () => {
         credentials: "include",
         body: JSON.stringify({
           currency: "NGN",
-          //   amount: (products?.find(p => p.id === order.product)?.price!) * order.count + 2500 + (products?.find(p => p.id === order.product)?.price! * 0.05)
-          amount: 2500,
+          amount:
+            products?.find((p) => p.id === order.product)?.price! *
+              order.count +
+            2500 +
+            products?.find((p) => p.id === order.product)?.price! * 0.05,
+          redirect_url: "https://www.ojami.shop/market",
         }),
       }
     );
@@ -214,7 +218,14 @@ const Checkout = () => {
           </Flex>
         </Flex>
       </Flex>
-      <Flex mt="100px" h="full" w="full" direction={{ base: "column", md: "row" }} maxW="1650px" justify="space-between">
+      <Flex
+        mt="100px"
+        h="full"
+        w="full"
+        direction={{ base: "column", md: "row" }}
+        maxW="1650px"
+        justify="space-between"
+      >
         <Flex
           borderRight="2px solid #000"
           w="full"
@@ -310,11 +321,11 @@ const Checkout = () => {
               gap={2}
               align="center"
             >
-                <Icon as={IoInformationCircleOutline} fontSize="24px" />
+              <Icon as={IoInformationCircleOutline} fontSize="24px" />
               <Stack spacing={0}>
-              <Text fontSize={{ base: "12px", md: "16px" }} fontWeight="600">
-                Delivery includes a PIN confirmation
-              </Text>
+                <Text fontSize={{ base: "12px", md: "16px" }} fontWeight="600">
+                  Delivery includes a PIN confirmation
+                </Text>
                 <Text fontSize={{ base: "10px", md: "14px" }} fontWeight="400">
                   This helps ensure that your order is given to the right person
                 </Text>
@@ -351,7 +362,7 @@ const Checkout = () => {
             </Flex>
             <Collapse in={isAOpen} animateOpacity>
               <Box
-                w={{ md: "400px"}}
+                w={{ md: "400px" }}
                 p="20px"
                 mt="4"
                 bg="white"
