@@ -54,6 +54,8 @@ router.post("/virtual_accounts/new", isAuth, createNewVirtualBankAccount);
 router.post("/pay_in/bank_transfer", isAuth, receiveBankTransferFromCustomer);
 
 router.post("/pay_in/checkout_standard", isAuth, initializeCheckout);
+router.post("/pay_in/success", isAuth, completeCheckout);
+
 
 router.post("/make_virtual_payment", isAuth, makeVirtualPayment);
 
@@ -875,6 +877,34 @@ async function payoutHandler(req: Request, res: Response) {
       .status(500)
       .json({ errors: [{ message: "Failed to process payout", error: err }] });
   }
+}
+
+async function completeCheckout(req: Request, res: Response) {
+
+    const id  = Number(req.params.id);
+
+    if (isNaN(id)) {
+        return res.status(400).json({ errors: [{ field: 'id', message: 'Invalid ID' }] });
+    }
+    
+
+    const em = (req as RequestWithContext).em;
+
+    try {
+        const order = await em.fork({}).findOneOrFail(Order, { id: Number(id) }, { populate: ["product", "storefront"]});
+
+
+        if (order.fromUser.id !== id || order.toUser.id !== id ) {
+            return res.status(401).json({ errors: [{ field: 'auth', message: 'Not authorized' }] });
+        }
+
+        order.status = "processing"
+        await em.fork({}).persistAndFlush(order)
+
+        return res.status(200).json({ order });
+    } catch (err) {
+        return res.status(404).json({ errors: [{ field: 'order', message: 'Order not found' }] });
+    }
 }
 
 async function initializeCheckout(req: Request, res: Response) {
