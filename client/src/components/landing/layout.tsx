@@ -1,9 +1,11 @@
 import { Flex, Image, keyframes, useDisclosure } from "@chakra-ui/react";
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import FancyButton from "../ui/fancy-button";
 import { SignInModal } from "../utils/signin-modal";
 import { OjaContext } from "../provider";
 import { CartDrawer } from "../utils/cart-drawer";
+import { AnimatePresence, motion } from "framer-motion";
+import { Loader } from "../utils/loader";
 
 interface LandingLayoutProps {
   children: React.ReactNode;
@@ -23,8 +25,23 @@ export const LandingLayout: React.FC<LandingLayoutProps> = ({ children }) => {
 0% { transform: rotate(0deg); }
 100% { transform: rotate(360deg); }
 `;
+
+const [isLoading, setIsLoading] = useState(true);
+
+useEffect(() => {
+  setTimeout(() => {
+    setIsLoading(false);
+    }, 2000);
+  }, []);
   return (
-    <Flex
+    <AnimatePresence>
+      <AnimatePresence>{isLoading && <Loader />}</AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, delay: 2.5 }}
+      >
+      <Flex
       direction="column"
       pos="relative"
       px={{ lg: 10 }}
@@ -108,5 +125,7 @@ export const LandingLayout: React.FC<LandingLayoutProps> = ({ children }) => {
         <Flex bg="#EF8421" w="full" h="40px" zIndex={2} mt={-10} />
       </Flex>
     </Flex>
+      </motion.div>
+    </AnimatePresence>
   );
 };

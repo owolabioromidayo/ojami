@@ -34,7 +34,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
   const toast = useToast();
 
   const createCart = async () => {
-    const response = await fetch("https://api.greynote.app/oja/api/ecommerce/carts", {
+    const response = await fetch("https://api.ojami.shop/api/ecommerce/carts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -47,7 +47,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         status: "error",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
     } else {
       toast({
@@ -56,7 +56,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         status: "success",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
       window.location.assign("/market");
     }
@@ -70,13 +70,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         status: "warning",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
       return;
     }
 
     const orderPromises = cart.items.map(async (item) => {
-      const response = await fetch("https://api.greynote.app/oja/api/ecommerce/orders", {
+      const response = await fetch("https://api.ojami.shop/api/ecommerce/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -99,12 +99,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         status: "error",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
     } else {
       // Clear the cart by removing each item individually
       const removeItemPromises = cart.items.map(async (item) => {
-        const response = await fetch("https://api.greynote.app/oja/api/ecommerce/carts/remove", {
+        const response = await fetch("https://api.ojami.shop/api/ecommerce/carts/remove", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -123,7 +123,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
           status: "error",
           duration: 5000,
           position: "top",
-          containerStyle: { border: "2px solid #000", rounded: "md" },
+          containerStyle: { border: "2px solid #000", rounded: "10px" },
         });
         return;
       }
@@ -137,7 +137,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         status: "success",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
       setTimeout(() => {
         window.location.assign("/market/checkout");
@@ -157,7 +157,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
 
   const handleRemoveItem = async ({ props }: { props: { item: CartItem } }) => {
     const response = await fetch(
-      "https://api.greynote.app/oja/api/ecommerce/carts/remove",
+      "https://api.ojami.shop/api/ecommerce/carts/remove",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -173,7 +173,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         status: "error",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
     } else {
       setCart((prevCart) => {
@@ -199,7 +199,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         status: "info",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
     }
   };

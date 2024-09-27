@@ -89,7 +89,7 @@ export const SignInModal: React.FC<SignInProps> = ({ isOpen, onClose }) => {
                   initialValues={{ email: "", password: "" }}
                   onSubmit={async (values, actions) => {
                     const response = await fetch(
-                      "https://api.greynote.app/oja/api/auth/users/login",
+                      "https://api.ojami.shop/api/auth/users/login",
                       {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -401,7 +401,7 @@ export const SignInModal: React.FC<SignInProps> = ({ isOpen, onClose }) => {
                   }}
                   onSubmit={async (values, actions) => {
                     const response = await fetch(
-                      "https://api.greynote.app/oja/api/auth/users/signup",
+                      "https://api.ojami.shop/api/auth/users/signup",
                       {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },

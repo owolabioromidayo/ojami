@@ -35,7 +35,7 @@ const Checkout = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const fetchOrders = async () => {
-    const url = `https://api.greynote.app/oja/api/ecommerce/orders/me`;
+    const url = `https://api.ojami.shop/api/ecommerce/orders/me`;
 
     try {
       const response = await fetch(url, { credentials: "include" });
@@ -45,7 +45,6 @@ const Checkout = () => {
       const storeData = await response.json(); // Parse the JSON from the response
       setOrders(storeData.orders); // Update the products state with fetched data
       setProducts(storeData.products);
-      console.log(storeData);
     } catch (error: any) {
       setError(error.message); // Update error state if there's an error
     } finally {
@@ -79,7 +78,7 @@ const Checkout = () => {
   const handleSendMoney = async () => {
     for (const order of orders!) {
       const response = await fetch(
-        "https://api.greynote.app/oja/api/payments/make_virtual_payment",
+        "https://api.ojami.shop/api/payments/make_virtual_payment",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -104,7 +103,7 @@ const Checkout = () => {
           status: "error",
           duration: 5000,
           position: "top",
-          containerStyle: { border: "2px solid #000", rounded: "md" },
+          containerStyle: { border: "2px solid #000", rounded: "10px" },
         });
       } else {
         toast({
@@ -113,32 +112,41 @@ const Checkout = () => {
           status: "success",
           duration: 5000,
           position: "top",
-          containerStyle: { border: "2px solid #000", rounded: "md" },
+          containerStyle: { border: "2px solid #000", rounded: "10px" },
         });
       }
     }
     // Redirect after all payments are processed
-    // window.location.assign("/market");
+    setTimeout(() => {
+      window.location.assign("/market");
+    }, 3000);
   };
 
   const [koraData, setKoraData] = useState<any>(null);
 
   const handlePayWithKora = async () => {
+    for (const order of orders!) {
     const response = await fetch(
-      "https://api.greynote.app/oja/api/payments/pay_in/checkout_standard",
+      "https://api.ojami.shop/api/payments/pay_in/checkout_standard",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
           currency: "NGN",
-          //   amount: (products?.find(p => p.id === order.product)?.price!) * order.count + 2500 + (products?.find(p => p.id === order.product)?.price! * 0.05)
-          amount: 2500,
+          orderId: order.id,
+          amount:
+            products?.find((p) => p.id === order.product)?.price! *
+              order.count +
+            2500 +
+            products?.find((p) => p.id === order.product)?.price! * 0.05,
+          redirect_url: "https://www.ojami.shop/market",
         }),
       }
     );
-    const data = await response.json();
-    setKoraData(data.data);
+      const data = await response.json();
+      setKoraData(data.data);
+    
     if (!response.ok) {
       toast({
         title: "Checkout Error",
@@ -146,7 +154,7 @@ const Checkout = () => {
         status: "error",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
     } else {
       toast({
@@ -155,7 +163,7 @@ const Checkout = () => {
         status: "info",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
       setTimeout(() => {
         window.Korapay.initialize({
@@ -169,12 +177,11 @@ const Checkout = () => {
             email: user?.email,
           },
           notification_url:
-            "https://api.greynote.app/oja/api/payments/korapay_webhook",
+            "https://api.ojami.shop/api/payments/korapay_webhook",
         });
       }, 700);
     }
-    // for (const order of orders!) {
-    // }
+    }
     // Redirect after all payments are processed
     // window.location.assign("/market");
   };
@@ -214,7 +221,14 @@ const Checkout = () => {
           </Flex>
         </Flex>
       </Flex>
-      <Flex mt="100px" h="full" w="full" direction={{ base: "column", md: "row" }} maxW="1650px" justify="space-between">
+      <Flex
+        mt="100px"
+        h="full"
+        w="full"
+        direction={{ base: "column", md: "row" }}
+        maxW="1650px"
+        justify="space-between"
+      >
         <Flex
           borderRight="2px solid #000"
           w="full"
@@ -310,12 +324,12 @@ const Checkout = () => {
               gap={2}
               align="center"
             >
-                <Icon as={IoInformationCircleOutline} fontSize="24px" />
+              <Icon as={IoInformationCircleOutline} fontSize="24px" />
               <Stack spacing={0}>
-              <Text fontSize="16" fontWeight="600">
-                Delivery includes a PIN confirmation
-              </Text>
-                <Text fontSize="14" fontWeight="400">
+                <Text fontSize={{ base: "12px", md: "16px" }} fontWeight="600">
+                  Delivery includes a PIN confirmation
+                </Text>
+                <Text fontSize={{ base: "10px", md: "14px" }} fontWeight="400">
                   This helps ensure that your order is given to the right person
                 </Text>
               </Stack>
@@ -335,6 +349,7 @@ const Checkout = () => {
                 bg="/assets/buttons/oja-sweet-orange.svg"
                 h="80px"
                 onClick={onAToggle}
+                fontSize={{ base: "12px", md: "16px" }}
               >
                 Pay with Oja Wallet
               </FancyButton>
@@ -343,13 +358,14 @@ const Checkout = () => {
                 bg="/assets/buttons/oja-sweet-purple.svg"
                 h="80px"
                 onClick={handlePayWithKora}
+                fontSize={{ base: "12px", md: "16px" }}
               >
                 Pay with Kora
               </FancyButton>
             </Flex>
             <Collapse in={isAOpen} animateOpacity>
               <Box
-                w={{ md: "400px"}}
+                w={{ md: "400px" }}
                 p="20px"
                 mt="4"
                 bg="white"

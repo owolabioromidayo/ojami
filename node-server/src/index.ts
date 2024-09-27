@@ -89,18 +89,18 @@ export const createApp = async () => {
     } as any)
   );
 
-  app.get('/oja', (req, res) => {
+  app.get('/', (req, res) => {
     res.send('Welcome to the Storefront Marketplace API');
   });
 
   
-  app.use('/oja/api/auth', authRoutes);
-  app.use('/oja/api/identity', identityRoutes);
-  app.use('/oja/api/ecommerce', ecommerceRoutes);
-  app.use('/oja/api/payments', paymentRoutes);
-  app.use('/oja/api/webhooks', webhookRoutes);
-  app.use('/oja/api/ai', aiRoutes);
-  app.get('/oja/p/:id', isAuth, resolvePaymentLink);
+  app.use('/api/auth', authRoutes);
+  app.use('/api/identity', identityRoutes);
+  app.use('/api/ecommerce', ecommerceRoutes);
+  app.use('/api/payments', paymentRoutes);
+  app.use('/api/webhooks', webhookRoutes);
+  app.use('/api/ai', aiRoutes);
+  app.get('/p/:id', isAuth, resolvePaymentLink);
 
 
   return app; 
