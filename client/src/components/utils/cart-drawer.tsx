@@ -47,7 +47,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         status: "error",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
     } else {
       toast({
@@ -56,7 +56,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         status: "success",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
       window.location.assign("/market");
     }
@@ -70,7 +70,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         status: "warning",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
       return;
     }
@@ -99,7 +99,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         status: "error",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
     } else {
       // Clear the cart by removing each item individually
@@ -123,7 +123,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
           status: "error",
           duration: 5000,
           position: "top",
-          containerStyle: { border: "2px solid #000", rounded: "md" },
+          containerStyle: { border: "2px solid #000", rounded: "10px" },
         });
         return;
       }
@@ -137,7 +137,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         status: "success",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
       setTimeout(() => {
         window.location.assign("/market/checkout");
@@ -173,7 +173,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         status: "error",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
     } else {
       setCart((prevCart) => {
@@ -199,7 +199,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         status: "info",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
     }
   };

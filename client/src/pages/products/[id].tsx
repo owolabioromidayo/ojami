@@ -119,7 +119,7 @@ const ProductsPage = () => {
         status: "error",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
     } else {
       // Update the cart state
@@ -148,7 +148,7 @@ const ProductsPage = () => {
         status: "info",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
     }
   };

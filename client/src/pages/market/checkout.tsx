@@ -104,7 +104,7 @@ const Checkout = () => {
           status: "error",
           duration: 5000,
           position: "top",
-          containerStyle: { border: "2px solid #000", rounded: "md" },
+          containerStyle: { border: "2px solid #000", rounded: "10px" },
         });
       } else {
         toast({
@@ -113,7 +113,7 @@ const Checkout = () => {
           status: "success",
           duration: 5000,
           position: "top",
-          containerStyle: { border: "2px solid #000", rounded: "md" },
+          containerStyle: { border: "2px solid #000", rounded: "10px" },
         });
       }
     }
@@ -146,7 +146,7 @@ const Checkout = () => {
         status: "error",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
     } else {
       toast({
@@ -155,7 +155,7 @@ const Checkout = () => {
         status: "info",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
       setTimeout(() => {
         window.Korapay.initialize({
