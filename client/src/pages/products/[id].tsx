@@ -46,7 +46,7 @@ const ProductsPage = () => {
 
   const fetchproductData = async () => {
     if (!productId) return;
-    const url = `https://api.ojami.shop/api/ecommerce/products/${productId}`;
+    const url = `${process.env.NEXT_PUBLIC_OJAMI}/api/ecommerce/products/${productId}`;
 
     try {
       const response = await fetch(url, { credentials: "include" });
@@ -102,7 +102,7 @@ const ProductsPage = () => {
   const { cart, setCart } = useContext(OjaContext);
 
   const addToCart = async () => {
-    const response = await fetch("https://api.ojami.shop/api/ecommerce/carts/add", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_OJAMI}/api/ecommerce/carts/add`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

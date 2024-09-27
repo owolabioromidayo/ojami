@@ -66,7 +66,7 @@ const Collectibles = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const fetchvouchers = async () => {
-    const url = `https://api.ojami.shop/api/payments/vouchers/me`;
+    const url = `${process.env.NEXT_PUBLIC_OJAMI}/api/payments/vouchers/me`;
 
     try {
       const response = await fetch(url, { credentials: "include" });
