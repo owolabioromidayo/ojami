@@ -12,7 +12,7 @@ const MyOrders = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const fetchOrders = async () => {
-    const url = `https://api.greynote.app/oja/api/ecommerce/orders/me/history`;
+    const url = `http://api.ojami.shop/api/ecommerce/orders/me/history`;
 
     try {
       const response = await fetch(url, { credentials: "include" });
