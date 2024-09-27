@@ -45,7 +45,6 @@ const Checkout = () => {
       const storeData = await response.json(); // Parse the JSON from the response
       setOrders(storeData.orders); // Update the products state with fetched data
       setProducts(storeData.products);
-      console.log(storeData);
     } catch (error: any) {
       setError(error.message); // Update error state if there's an error
     } finally {
@@ -118,12 +117,15 @@ const Checkout = () => {
       }
     }
     // Redirect after all payments are processed
-    // window.location.assign("/market");
+    setTimeout(() => {
+      window.location.assign("/market");
+    }, 3000);
   };
 
   const [koraData, setKoraData] = useState<any>(null);
 
   const handlePayWithKora = async () => {
+    for (const order of orders!) {
     const response = await fetch(
       "https://api.ojami.shop/api/payments/pay_in/checkout_standard",
       {
@@ -132,6 +134,7 @@ const Checkout = () => {
         credentials: "include",
         body: JSON.stringify({
           currency: "NGN",
+          orderId: order.id,
           amount:
             products?.find((p) => p.id === order.product)?.price! *
               order.count +
@@ -141,8 +144,9 @@ const Checkout = () => {
         }),
       }
     );
-    const data = await response.json();
-    setKoraData(data.data);
+      const data = await response.json();
+      setKoraData(data.data);
+    
     if (!response.ok) {
       toast({
         title: "Checkout Error",
@@ -177,8 +181,7 @@ const Checkout = () => {
         });
       }, 700);
     }
-    // for (const order of orders!) {
-    // }
+    }
     // Redirect after all payments are processed
     // window.location.assign("/market");
   };
