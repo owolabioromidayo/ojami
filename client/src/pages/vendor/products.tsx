@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { Box, Heading, Flex, Text, Grid, GridItem } from "@chakra-ui/react";
+import { Box, Heading, Flex, Text, Grid, GridItem, BoxProps } from "@chakra-ui/react";
 import { useViewportHeight } from "@/utils/hooks/useViewportHeight";
 import VendorLayout from "@/components/mobile/layout/VendorLayout";
 import type { NextPageWithLayout } from "../_app";
@@ -13,11 +13,15 @@ interface Product {
   amountRemaining?: number;
 }
 
-const ProductItem: React.FC<{ product: Product }> = ({ product }) => {
+interface ProductItemProps extends BoxProps {
+  product: Product;
+}
+
+const ProductItem: React.FC<ProductItemProps> = ({ product, ...props }) => {
   return (
     <Box>
       <Box
-        minW={"180px"}
+        {...props}
         border={"2px solid #000000"}
         rounded={"2xl"}
         display={"flex"}
@@ -187,7 +191,7 @@ const Products: NextPageWithLayout<{}> = () => {
           }}
         >
           {hotProducts.map((product, index) => (
-            <ProductItem key={index} product={product} />
+            <ProductItem key={index} product={product} minW='180px'/>
           ))}
         </Flex>
       </Box>

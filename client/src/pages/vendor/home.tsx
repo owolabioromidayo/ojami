@@ -3,8 +3,12 @@ import { Box, Stack, Flex, Text, Grid, GridItem, Heading, Avatar, Badge } from "
 import VendorLayout from "@/components/mobile/layout/VendorLayout";
 import type { NextPageWithLayout } from "../_app";
 import Image from "next/image";
+import { useOjaContext } from "@/components/provider";
+import {format} from 'date-fns'
 
 const VendorHome: NextPageWithLayout<{}> = () => {
+  const {user} = useOjaContext()
+  const currentDate = format(new Date(), 'MMMM yyyy')
   const quickLinks = [
     {
       image: "/images/mobile/vendorHome/create-link.svg",
@@ -76,6 +80,8 @@ const VendorHome: NextPageWithLayout<{}> = () => {
     },
   ];
 
+  console.log(user)
+
   return (
     <Box
       p={"0.2rem"}
@@ -100,9 +106,9 @@ const VendorHome: NextPageWithLayout<{}> = () => {
               fontSize={"xl"}
               color={"#000000"}
               fontWeight={"500"}
-              pt={"3.2rem"}
+              pt={"2rem"}
             >
-              Welcome to ọjà mi, Semilogo
+              Welcome to ọjà mi, {user?.firstname}
             </Text>
             <Image
               alt="gear"
@@ -114,18 +120,17 @@ const VendorHome: NextPageWithLayout<{}> = () => {
 
           <Flex
             flexDir={"column"}
-            mt={"1.5rem"}
             lineHeight={"1"}
             gap={2}
             pb={"1.5rem"}
           >
             <Text fontSize={"xs"} fontWeight={"semibold"}>
-              Revenue • september 2024
+              Revenue • {currentDate}
             </Text>
             <Text fontWeight={"semibold"} fontSize={"sm"}>
-              NGN{" "}
+              {user?.virtualWallet.currency}{" "}
               <span style={{ fontSize: "30px", fontWeight: "600" }}>
-                645,193.54
+                {user?.virtualWallet.balance.toLocaleString()}
               </span>
             </Text>
           </Flex>
@@ -332,12 +337,12 @@ const VendorHome: NextPageWithLayout<{}> = () => {
                   />
                   <Stack gap={0}>
                     <Flex gap={2} alignItems={"center"}>
-                      <Text fontWeight={"bold"} fontSize={"sm"}>
+                      <Text fontWeight={"bold"} fontSize={"xs"}>
                         Andrew Okafor
                       </Text>
                       <Badge
                         fontSize={"3xs"}
-                        py={"0.2rem"}
+                        py={"0.1rem"}
                         px={"0.3rem"}
                         rounded={"2xl"}
                         border={"2px solid #000000"}

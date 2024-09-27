@@ -5,6 +5,7 @@ import { validateRegister, validateNewPass } from "../utils/validation";
 
 import { RequestWithContext } from "../types";
 import { User } from "../entities/User";
+import { populate } from "dotenv";
 
 const router = express.Router();
 
@@ -187,7 +188,7 @@ async function getCurrentUser(req: Request, res: Response) {
     const em = (req as RequestWithContext).em;
 
     try {
-        const user = await em.fork({}).findOneOrFail(User, { id: req.session.userid }, { populate: ["virtualWallet"]});
+        const user = await em.fork({}).findOneOrFail(User, { id: req.session.userid }, { populate: ["virtualWallet", "storefronts"]},);
         return res.status(200).json({ user });
     } catch (err) {
         return res.status(500).json({ errors: [{ field: 'Could not fetch user', message: err }] });
