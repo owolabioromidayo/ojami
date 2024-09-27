@@ -211,6 +211,15 @@ const Collectibles = () => {
                             (event.currentTarget as HTMLElement).dataset.timer =
                               timer.toString();
                           }}
+                          onTouchStart={(event) => {
+                            const timer = setTimeout(() => {
+                              setRedeem(voucher);
+                              onOpenReveal();
+                              setPop(true);
+                            }, 2000);
+                            (event.currentTarget as HTMLElement).dataset.timer =
+                              timer.toString();
+                          }}
                           onMouseUp={(event: React.MouseEvent<HTMLElement>) => {
                             if (event.currentTarget.dataset.timer) {
                               clearTimeout(
@@ -219,7 +228,23 @@ const Collectibles = () => {
                               delete event.currentTarget.dataset.timer;
                             }
                           }}
+                          onTouchEnd={(event: React.TouchEvent<HTMLElement>) => {
+                            if (event.currentTarget.dataset.timer) {
+                              clearTimeout(
+                                parseInt(event.currentTarget.dataset.timer)
+                              );
+                              delete event.currentTarget.dataset.timer;
+                            }
+                          }}
                           onMouseLeave={(event) => {
+                            if (event.currentTarget.dataset.timer) {
+                              clearTimeout(
+                                parseInt(event.currentTarget.dataset.timer)
+                              );
+                              delete event.currentTarget.dataset.timer;
+                            }
+                          }}
+                          onTouchCancel={(event) => {
                             if (event.currentTarget.dataset.timer) {
                               clearTimeout(
                                 parseInt(event.currentTarget.dataset.timer)
