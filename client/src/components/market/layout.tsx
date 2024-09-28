@@ -43,6 +43,7 @@ import { useRouter } from "next/router";
 import { CartDrawer } from "../utils/cart-drawer";
 import { Loader } from "../utils/loader";
 import { AnimatePresence, motion } from "framer-motion";
+import { OjaAssistant } from "../utils/assistant";
 
 interface MarketLayoutProps {
   children: React.ReactNode;
@@ -57,6 +58,8 @@ export const MarketLayout: React.FC<MarketLayoutProps> = ({ children }) => {
     isOpen: isCartOpen,
     onClose: onCartClose,
   } = useDisclosure();
+
+  const { isOpen: isChatOpen, onOpen: onChatOpen, onClose: onChatClose } = useDisclosure();
 
   const { user, loading } = useContext(OjaContext);
   const router = useRouter();
@@ -177,7 +180,7 @@ useEffect(() => {
                   px={6}
                 />
                 <IconButton
-                  onClick={() => onToggle()}
+                  onClick={() => onChatOpen()}
                   _hover={{ bg: "orange.100" }}
                   colorScheme="orange"
                   variant="ghost"
@@ -523,6 +526,7 @@ useEffect(() => {
           <Flex bg="#EF8421" w="full" h="40px" zIndex={2} mt={-10} />
         </Flex>
       </Flex>
+      <OjaAssistant isOpen={isChatOpen} onClose={onChatClose} />
       </motion.div>
     </AnimatePresence>
   );

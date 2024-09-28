@@ -158,9 +158,9 @@ const Checkout = () => {
         });
       }
     }
-    // setTimeout(() => {
-    //   window.location.assign("/market");
-    // }, 700);
+    setTimeout(() => {
+      window.location.assign("/market");
+    }, 700);
   };
 
   const handlePayWithKora = async () => {
@@ -212,7 +212,6 @@ const Checkout = () => {
           key: process.env.NEXT_PUBLIC_PUB!,
           reference: data.data.reference,
           narration: "Payment for product on Ojami Marketplace",
-          redirect_url: "https://www.ojami.shop/market",
           amount: data.data.amount,
           currency: "NGN",
           customer: {
