@@ -17,7 +17,7 @@ export class PayInTransaction {
   currency!: string;
 
   @Property()
-  status!: TransactionStatus;
+  status!: 'pending' | 'processing' | 'completed' | 'failed';
 
   @Property()
   paymentMethod!: string;

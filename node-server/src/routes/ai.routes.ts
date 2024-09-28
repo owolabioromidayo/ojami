@@ -6,12 +6,23 @@ import { RunnableSequence } from '@langchain/core/runnables';
 import { PromptTemplate } from '@langchain/core/prompts';
 import { StringOutputParser } from "@langchain/core/output_parsers";
 
+import { v4 as uuidv4 } from "uuid";
+import QRCode from "qrcode";
 import fs from 'fs';
 import path from 'path';
 
 import * as readline from 'readline';
+import { EntityManager } from "@mikro-orm/core";
+import { Product } from "../entities/Product";
+import { ProductLink } from "../entities/ProductLink";
+import { RequestWithContext } from "../types";
+import { MikroORM } from "@mikro-orm/core";
+import microConfig from "../mikro-orm.config";
+import { kMaxLength } from "buffer";
+
 require("dotenv").config();
 
+const URL_PREFIX = `${process.env.DOMAIN_URL}/p/`;
 
 const router = express.Router();
 const openaiKey = process.env.OPENAI_API_KEY;
@@ -47,9 +58,11 @@ const START_PROMPT = "Introduce yourself";
 const FILTER_PROMPT = `
 You are a shopping assistant for Oja mi, a digital shopping platform for selling a range of items from several stores in Nigeria.
 Respond to the user's question based on the provided context and product information. 
-Do not mention prices unless specifically asked. 
-Do not assume the user has made a selection unless they explicitly state so. 
-If the user asks about products we don't have information for, politely inform them and offer alternatives if available.
+Do not mention prices unless specifically asked.  
+DO NOT say items are unavailable when they are.
+Do not waste the customers time, do what they want, dont suggest things they dont care about, urgency and pertinence are paramount.
+Your coe objective is to speedily get the customer to choose an item, then move to the purchasing step.
+
 `;
 
 
@@ -157,20 +170,26 @@ async function generateFilterResponse(conversation: any[], metadata: any) {
         metadata.recommendations = searchResults.map(doc => doc.pageContent);
 
         const context = `
-            User's question: ${conversation[conversation.length - 1].text}
+             Conversation: ${conversation},
+            ${conversation[conversation.length - 1].text}
             Relevant product information:
             ${metadata.recommendations.join('\n')}
         `;
 
         let resp = await queryCgpt(FILTER_PROMPT, context);
 
+        console.log(context, resp);
 
         // Check if the response indicates a clear selection
-        const hasUserSettled = await queryCgpt(`Based on the following context, has the user settled on an item they want to buy? Please answer with only 'yes' or 'no'.
+        const hasUserSettled = await queryCgpt(`
+            Based on the following context, has the user settled on an item they want to buy, have they asked to pay, or the AI is wasting time? We dont want to waste the user's time.
+            Please answer with only 'yes' or 'no' for the question asked.
             Context:
 ${context}`, "");
 
-        if (hasUserSettled.toString().toLowerCase().trim() === 'yes') {
+        console.log(hasUserSettled);
+
+        if (hasUserSettled.toString().toLowerCase().trim().startsWith('yes') || conversation[conversation.length - 1].text.toLowerCase().includes('skip')) {
             metadata.state = "item_chosen";
         } else {
             metadata.state = "filtering_loop";
@@ -188,11 +207,61 @@ ${context}`, "");
 }
 
 
-async function handleItemChosen(conversation: any[], metadata: any) {
-    const itemChosen = await queryCgpt(`What specific item did this user decide to buy? ${conversation[conversation.length - 1].text}`, "");
-    const resp = `Thank you for deciding to purchase from us! Here is your payment link: https://ojami.shop/p/TESTLINK`;
-    metadata.state = "await_confirmation";
-    return { resp, metadata };
+async function handleItemChosen(conversation: any[], metadata: any, em: EntityManager) {
+    const productName = JSON.parse(metadata.recommendations?.[0])?.name;
+    metadata.chosenItem = productName;
+
+    const product = await em.findOne(Product, { name: { $like: `%${productName}%` } });
+    console.log(product)
+
+    if (!product) {
+        throw new Error('Product not found in database');
+    }
+
+    try {
+        if (product.link) {
+            await em.populate(product, ['link.shortLink', 'link.qrCode']);
+            metadata.links = {
+                shortLink: product.link?.shortLink,
+                qrCode: product.link?.qrCode,
+            };
+            console.log(product.link);
+
+            const resp = `Thank you for deciding to purchase ${metadata.chosenItem} from us! Here is your payment link: ${metadata.links.shortLink}`;
+            metadata.state = "await_confirmation";
+            return { resp, metadata };
+        } else {
+            throw new Error('Product link not found');
+        }
+    }
+    catch (error) {
+        const linkId: string = uuidv4();
+        const shortLink: string = `${URL_PREFIX}${linkId}`;
+        let qrCode: string = '';
+
+        QRCode.toDataURL(shortLink, async (err, url) => {
+            if (err) {
+                console.log("Could not generate QR code");
+            } else {
+                qrCode = url;
+            }
+        })
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const productLink = new ProductLink(linkId, shortLink, qrCode, product);
+        await em.fork({}).persistAndFlush(productLink);
+
+        metadata.links = {
+            shortLink: shortLink,
+            qrCode: qrCode,
+        };
+
+
+        const resp = `Thank you for deciding to purchase ${metadata.chosenItem} from us! Here is your payment link: ${metadata.links.shortLink}`;
+        metadata.state = "await_confirmation";
+        return { resp, metadata };
+    }
+
 }
 
 async function awaitConfirmation(conversation: any[], metadata: any) {
@@ -201,7 +270,7 @@ async function awaitConfirmation(conversation: any[], metadata: any) {
     return { resp, metadata };
 }
 
-async function checkConfirmation(conversation: any[], metadata: any) {
+async function checkConfirmation(conversation: any[], metadata: any, em: EntityManager) {
 
     const resp = `Your payment has been confirmed on our backend servers. We will now proceed to order fulfillment.
     The tracking link will be generated by the merchant in a period of 7 days if it is in stock. If not, you will be refunded.`;
@@ -209,33 +278,33 @@ async function checkConfirmation(conversation: any[], metadata: any) {
     return { resp, metadata };
 }
 
-async function waitingForTracking(conversation: any[], metadata: any) {
+async function waitingForTracking(conversation: any[], metadata: any, em: EntityManager) {
     const resp = `The merchant has verified that he has your items in stock and has generated a tracking link for your order.
     Here it is: `;
     metadata.state = "awaiting_receive_order";
     return { resp, metadata };
 }
 
-async function awaitingReceiveOrder(conversation: any[], metadata: any) {
+async function awaitingReceiveOrder(conversation: any[], metadata: any, em: EntityManager) {
     const resp = `The item is on its way. Please notify us when it arrives. `;
     metadata.state = "exit_survey";
     return { resp, metadata };
 }
 
-async function exitSurvey(conversation: any[], metadata: any) {
+async function exitSurvey(conversation: any[], metadata: any, em: EntityManager) {
     const resp = `Thank you for shopping with oja mi. Please take this exit survey to rate your experience. Link: `;
     metadata.state = "EXIT";
     return { resp, metadata };
 }
 
-async function handleFailure(conversation: any[], metadata: any) {
+async function handleFailure(conversation: any[], metadata: any, em: EntityManager) {
     const resp = `We sincerely apologize for the failure in payments. Please contact 08016182046 to get things sorted.`;
     metadata.state = "EXIT";
     return { resp, metadata };
 }
 
 
-type StateFunction = (conversation: any[], metadata: any) => Promise<{ resp: any; metadata: any }>;
+type StateFunction = (conversation: any[], metadata: any, em: EntityManager) => Promise<{ resp: any; metadata: any }>;
 
 interface StateGraph {
     [key: string]: { func: StateFunction };
@@ -253,14 +322,16 @@ const stateGraph: StateGraph = {
     handle_failure: { func: handleFailure },
 };
 
-async function processCgpt(conversation: any[], metadata: { state: keyof StateGraph }) {
+async function processCgpt(conversation: any[], metadata: { state: keyof StateGraph }, em: EntityManager) {
     const stateFunc = stateGraph[metadata.state].func;
-    return await stateFunc(conversation, metadata);
+    return await stateFunc(conversation, metadata, em);
 }
 
 router.post('/chat', async (req, res) => {
+    const em = (req as RequestWithContext).em;
     const { conversation, metadata } = req.body;
-    const resp = await processCgpt(conversation, metadata);
+
+    const resp = await processCgpt(conversation, metadata, em);
 
     res.json({ text: resp.resp, metadata: resp.metadata });
 });
@@ -268,6 +339,10 @@ router.post('/chat', async (req, res) => {
 
 
 async function runCLI() {
+    const orm = await MikroORM.init(microConfig);
+    await orm.getMigrator().up();
+    const em = orm.em.fork();
+
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout
@@ -279,7 +354,8 @@ async function runCLI() {
     console.log("Welcome to the AI Chat CLI. Type 'exit' to quit.");
 
     while (true) {
-        const { resp, metadata: updatedMetadata } = await processCgpt(conversation, metadata);
+        const { resp, metadata: updatedMetadata } = await processCgpt(conversation, metadata, em);
+        conversation.push({ text: `AI: ${resp}` });
         console.log(resp, metadata);
         console.log("AI:", resp);
 
@@ -291,7 +367,7 @@ async function runCLI() {
             break;
         }
 
-        conversation.push({ text: userInput });
+        conversation.push({ text: `Customer: ${userInput}` });
         metadata = updatedMetadata;
     }
 
@@ -299,7 +375,8 @@ async function runCLI() {
     console.log("Thank you for using AI Chat CLI. Goodbye!");
 }
 
-// runCLI();
+runCLI();
 
 
 export default router;
+

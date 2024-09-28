@@ -37,21 +37,9 @@ export class Storefront {
   tags = new Collection<Tag>(this);
 
 
-  constructor(user: User, storename: string, description: string, tagNames: string[], em: EntityManager) {
+  constructor(user: User, storename: string, description: string) {
     this.user = user;
     this.storename = storename;
     this.description = description;
-
-    tagNames.forEach(async (tagName) => {
-      let tag = await em.findOne(Tag, { name: tagName });
-
-      if (!tag) {
-        tag = new Tag();
-        tag.name = tagName;
-        await em.persistAndFlush(tag);
-      }
-
-      this.tags.add(tag);
-    });
   }
 }

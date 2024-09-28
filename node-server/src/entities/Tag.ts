@@ -18,4 +18,9 @@ export class Tag {
 
   @ManyToMany(() => Storefront, storefront => storefront.tags, { owner: true })
   storefronts = new Collection<Storefront>(this);
+
+  constructor(name: string) {
+    this.name = name;
+  }
 }
+
