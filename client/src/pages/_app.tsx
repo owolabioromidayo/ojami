@@ -64,6 +64,9 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         <meta property="og:site_name" content="oja mi" />
         <meta property="og:url" content="https://ojami.shop" />
         <meta property="og:image" content="/pwa/thumbnail.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="mobile-web-app-capable" content="yes" />
       </Head>
       <main className={`${general.className}`} style={{ background: "#FFF9E5" }}>
         <OjaProvider>
