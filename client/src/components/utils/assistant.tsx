@@ -202,7 +202,7 @@ export const OjaAssistant: React.FC<OjaAssistantProps> = ({
                 autoplay
                 loop
                 src="/assets/chat.json"
-                style={{width: "500px", height: "500px"}}
+                style={{width: "300px", height: "500px"}}
               />
             )}
             <VStack pos="absolute" bottom="0" w="full">

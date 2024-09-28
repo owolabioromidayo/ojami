@@ -53,25 +53,34 @@ export default function Home() {
             <Box
               w={{ base: "500px", md: "1200px" }}
               mb={-20}
+              mr={-20}
               h="700px"
+              bgImg="/assets/store-web.png"
+              bgPos="center"
+              bgSize="cover"
+              bgRepeat="no-repeat"
               rounded="30px"
-              border="2px solid #000000"
-              bg="gray.100"
             />
             <Box
-              w={{ base: "500px", md: "1200px" }}
-              h="700px"
+              w={{ base: "500px", md: "1400px" }}
+              h="900px"
               rounded="30px"
-              border="2px solid #000000"
-              bg="gray.100"
+              bgImg="/assets/market-web.png"
+              bgPos="center"
+              bgSize="cover"
+              bgRepeat="no-repeat"
             />
             <Box
               w={{ base: "500px", md: "1200px" }}
               mb={-20}
+              ml={-20}
+
+              bgImg="/assets/product-web.png"
+              bgPos="center"
+              bgSize="cover"
+              bgRepeat="no-repeat"
               h="700px"
               rounded="30px"
-              border="2px solid #000000"
-              bg="gray.100"
             />
           </Flex>
         </Flex>
