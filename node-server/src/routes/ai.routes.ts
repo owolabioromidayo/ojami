@@ -37,7 +37,7 @@ fs.readFile(path.join(__dirname, 'catalogue.json'), 'utf-8', (err, data) => {
 
 
 
-const businessPrepPrompt = `You are a very helpful sales-rep for gatewaydevice, a growing Instagram store for selling technology hardware and accessories.`;
+const businessPrepPrompt = `You are a very helpful sales-rep and a shopping assistant on oja mi, a digital shopping platform for selling a range of items from several stores in Nigeria.`;
 
 const SYSTEM_TEMPLATE = `STRONGLY ENSURE TO NOT STATE ANY PRICING OR AVAILABLE ITEM INFORMATION NOT PROVIDED TO YOU. Think logically. Reason step by step. Understand numbers and their relations. Always keep things from your the context in memory and reason accordingly. You work in a professional manner and work on sales and upselling and matching users with potential products they are likely to buy using ground truth and step by step reasoning. Follow this role as defined : ${businessPrepPrompt}`;
 
@@ -45,7 +45,7 @@ const START_PROMPT = "Introduce yourself";
 // const FILTER_PROMPT = `Based on our previous conversation, the user is interested in our product catalog. Please provide relevant information about the products they're asking about. If they haven't specified a product, ask for more details about what they're looking for. Don't make assumptions about their selection unless they clearly state it.`;
 
 const FILTER_PROMPT = `
-You are a sales representative for GatewayDevice, an Instagram store specializing in technology hardware and accessories. 
+You are a shopping assistant for Oja mi, a digital shopping platform for selling a range of items from several stores in Nigeria.
 Respond to the user's question based on the provided context and product information. 
 Do not mention prices unless specifically asked. 
 Do not assume the user has made a selection unless they explicitly state so. 
@@ -223,7 +223,7 @@ async function awaitingReceiveOrder(conversation: any[], metadata: any) {
 }
 
 async function exitSurvey(conversation: any[], metadata: any) {
-    const resp = `Thank you for shopping with @gatewaydevice. Please take this exit survey to rate your experience. Link: `;
+    const resp = `Thank you for shopping with oja mi. Please take this exit survey to rate your experience. Link: `;
     metadata.state = "EXIT";
     return { resp, metadata };
 }
