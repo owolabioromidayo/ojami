@@ -56,6 +56,16 @@ const Store: NextPageWithLayout<{}> = () => {
     () => storeData?.[currentStoreIndex]
   );
 
+  const averageRating =
+    currentStoreData?.ratings.length! > 0
+      ? (
+          currentStoreData?.ratings?.reduce(
+            (acc: any, curr) => parseInt(acc) + Number(curr),
+            0
+          )! / currentStoreData?.ratings?.length!
+        ).toFixed(1)
+      : "0.0";
+
   useEffect(() => {
     const storedIndex = localStorage.getItem("currentStoreIndex");
     if (storedIndex) {
@@ -375,7 +385,7 @@ const Store: NextPageWithLayout<{}> = () => {
           <Flex alignItems={"center"} gap={1}>
             <Icon as={IoStarSharp} />
             <Text fontSize={"xs"} fontWeight={"500"}>
-              4.5 (2k)
+              {averageRating} ({currentStoreData?.ratings.length}k)
             </Text>
           </Flex>
           <Text fontSize={"xs"} textAlign={"center"}>

@@ -96,7 +96,7 @@ const Orders: NextPageWithLayout<{}> = () => {
                 fontWeight={"semibold"}
                 key={index}
                 _selected={{ color: "#EF8421" }}
-                fontSize={"xs"}
+                fontSize={"2xs"}
                 color={"#B0B0B0"}
               >
                 {tab}
@@ -157,13 +157,13 @@ const Orders: NextPageWithLayout<{}> = () => {
               </Box>
             </TabPanel>
             <TabPanel>
-              <p>two!</p>
+              {/* <p>two!</p> */}
             </TabPanel>
             <TabPanel>
-              <p>three!</p>
+              {/* <p>three!</p> */}
             </TabPanel>
             <TabPanel>
-              <p>one!</p>
+              {/* <p>one!</p> */}
             </TabPanel>
           </TabPanels>
         </Tabs>

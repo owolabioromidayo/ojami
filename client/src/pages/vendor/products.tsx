@@ -174,7 +174,7 @@ const Products: NextPageWithLayout<{}> = () => {
           🔥 Hot Products from your store
         </Heading>
 
-        {products?.length == 0 ? (
+        {products?.length <= 5 ? (
           <>
             <Flex
               bg="gray.100"

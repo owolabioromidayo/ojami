@@ -53,42 +53,45 @@ async function resolvePaymentLink(req: Request, res: Response) {
 }
 
 
-async function initAppData(em: EntityManager) {
-  const cataloguePath = path.join(__dirname, 'routes', 'catalogue.json');
-  const catalogueData = JSON.parse(fs.readFileSync(cataloguePath, 'utf-8'));
+// async function initAppData(em: EntityManager) {
+//   const cataloguePath = path.join(__dirname, 'routes', 'catalogue.json');
+//   const catalogueData = JSON.parse(fs.readFileSync(cataloguePath, 'utf-8'));
 
-    const user = new User('Gateway', 'Technologies', '09100000000', 'info@gateway.tech', 'password');
+//   const user = new User('Gateway', 'Technologies', '09100000000', 'info@gateway.tech', 'password');
+
+//   // Check if the tag already exists
+//   let techTag = await em.findOne(Tag, { name: "tech" });
+//   if (!techTag) {
+//     techTag = new Tag("tech");
+//     em.persist(techTag);
+//   }
+
+//   const storefront = new Storefront(user, 'Gateway Technologies', 'Technology Products', "", "", [], em);
   
-    const techTag = new Tag("tech");
-    em.persist(techTag);
-    const storefront = new Storefront(user, 'Gateway Technologies', 'Technology Products', "", "", [], em);
+//   storefront.tags.add(techTag);
   
+//   em.persist(user);
+//   em.persist(storefront);
+//   await em.flush();
   
-    storefront.tags.add(techTag);
+//   for (let i = 0; i < Math.min(catalogueData.length, 1500); i++) {
+//     try {
+//       const item = catalogueData[i];
+//       console.log(item.description);
+//       const price: number = typeof item.prices === 'string' ? parseFloat(item.prices.replace(/,/g, '')) : item.prices;
+//       const product = new Product(storefront, item.name || "null", price || 0, [item.displayUrl] as string[], item.description as string || "null", 100);
+
+//       product.tags.add(techTag);
+//       em.persist(product);
+//     } catch (error) {
+//       console.error(`Failed to create product at index ${i}:`, error);
+//     }
+//   }
   
-    em.persist(user);
-    em.persist(storefront);
-    await em.flush();
+//   await em.flush();
   
-    for (let i = 0; i < Math.min(catalogueData.length, 1500); i++) {
-      try {
-        const item = catalogueData[i];
-        console.log(item.description)
-        const price: number = typeof item.prices === 'string' ? parseFloat(item.prices.replace(/,/g, '')) : item.prices;
-        const product = new Product(storefront, item.name || "null", price || 0, [item.displayUrl] as string[], item.description as string || "null", 100);
-  
-        product.tags.add(techTag);
-        em.persist(product);
-  
-      } catch (error) {
-        console.error(`Failed to create product at index ${i}:`, error);
-      }
-    }
-  
-    await em.flush();
-  
-    console.log('App data initialized successfully');
-  }
+//   console.log('App data initialized successfully');
+// }
 
 
 export const createApp = async () => {
@@ -137,7 +140,7 @@ export const createApp = async () => {
     } as any)
   );
 
-  initAppData(em);
+  // initAppData(em);
 
   app.get('/', (req, res) => {
     res.send('Welcome to api.ojami.shop');

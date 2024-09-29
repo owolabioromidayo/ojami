@@ -43,6 +43,7 @@ router.get("/storefronts/:id", getStorefront);
 router.get("/storefronts/str/:name", getStorefrontFromName);
 router.get("/storefronts/:id/products", getAllProductsFromStorefront);
 router.get("/storefronts", getAllStorefronts);
+router.get("/storefronts/:id/orders", getAllOrdersFromStorefront);
 
 
 // Product Routes
@@ -252,6 +253,30 @@ async function getAllProductsFromStorefront(req: Request, res: Response) {
         return res.status(404).json({ errors: [{ field: 'storefront', message: 'Storefront not found or has no products' }] });
     }
 }
+
+
+async function getAllOrdersFromStorefront(req: Request, res: Response) {
+    const storefrontId  = Number(req.params.id); 
+
+    if (isNaN(storefrontId)) {
+        return res.status(400).json({ errors: [{ field: 'id', message: 'Invalid ID' }] });
+    }
+
+    const em = (req as RequestWithContext).em;
+
+    try {
+        // Find the storefront by ID
+        const storefront = await em.fork({}).findOneOrFail(Storefront, { id: storefrontId });
+
+        // Fetch orders associated with the storefront
+        const orders = await em.fork({}).find(Order, { storefront });
+
+        return res.status(200).json({ orders });
+    } catch (err) {
+        return res.status(404).json({ errors: [{ field: 'storefront', message: 'Storefront not found or has no orders' }] });
+    }
+}
+
 
 async function createOrder(req: Request, res: Response) {
 

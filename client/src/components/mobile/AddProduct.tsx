@@ -47,6 +47,8 @@ import { useRouter } from "next/navigation";
 interface AddProductMobileProps {}
 
 const productDescriptionTags = [
+  "Gaming",
+  "Mobile-Device",
   "Handmade",
   "Eco-Friendly",
   "Organic",
