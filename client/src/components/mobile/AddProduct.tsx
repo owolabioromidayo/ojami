@@ -234,7 +234,7 @@ const AddProductMobile: FC<AddProductMobileProps> = ({}) => {
           variant: "subtle",
         });
         setTimeout(() => {
-          router.push('/vendor/store')
+          router.push('/vendor/products')
         }, 2000)
       } else {
         toast({
