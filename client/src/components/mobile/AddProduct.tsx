@@ -1,11 +1,10 @@
-import { FC, useRef, useState } from "react";
+import { FC, useRef, useState, useEffect } from "react";
 import {
   Flex,
   Text,
   Input,
   Box,
   Heading,
-  Select,
   Button,
   Icon,
   Accordion,
@@ -18,40 +17,88 @@ import {
   FormControl,
   FormLabel,
   FormErrorMessage,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverHeader,
+  PopoverBody,
+  PopoverCloseButton,
+  useDisclosure,
+  Stack,
+  Avatar,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItemOption,
+  MenuOptionGroup,
+  InputGroup,
+  InputLeftAddon,
 } from "@chakra-ui/react";
 import { Formik, Field } from "formik";
 import { useViewportHeight } from "@/utils/hooks/useViewportHeight";
 import FancyButton from "@/components/ui/fancy-button";
-import Link from "next/link";
 import { HiOutlineCamera } from "react-icons/hi2";
 import * as Yup from "yup";
 import axios from "axios";
-import { Description } from "@radix-ui/react-dialog";
+import { useOjaContext } from "../provider";
+import { RiArrowDownSLine } from "react-icons/ri";
 
 interface AddProductMobileProps {}
 
-const categories = [
-  "Electronics",
-  "Fashion",
-  "Home and Living",
-  "Health and Beauty",
-  "Sports and Outdoors",
-  "Toys and Games",
-  "Books and Stationery",
-  "Automotive",
-  "Groceries",
-  "Services",
+const productDescriptionTags = [
+  "Handmade",
+  "Eco-Friendly",
+  "Organic",
+  "Vintage",
+  "Luxury",
+  "Durable",
+  "Lightweight",
+  "Compact",
+  "Waterproof",
+  "Portable",
+  "Customizable",
+  "Recyclable",
+  "High-Quality",
+  "Affordable",
+  "Innovative",
+  "Artisanal",
+  "Limited Edition",
+  "Energy Efficient",
+  "Multi-Functional",
+  "Sustainable",
+  "Minimalist",
+  "Ergonomic",
+  "Natural",
+  "Modern",
+  "Rustic",
+  "Premium",
+  "Comfortable",
+  "Stylish",
+  "High Performance",
+  "Versatile",
+  "Reusable",
+  "Scratch Resistant",
+  "Wireless",
+  "Smart",
+  "Heavy-Duty",
+  "Biodegradable",
+  "Hypoallergenic",
+  "Non-Toxic",
+  "Vegan",
 ];
 
 const AddProductMobile: FC<AddProductMobileProps> = ({}) => {
   const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/dat1uvwz1/image/upload`;
   const upload_preset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-  const toast = useToast()
+  const toast = useToast();
+  const { isOpen, onToggle, onClose } = useDisclosure();
+  const { user } = useOjaContext();
   const [fileNames, setFileNames] = useState([""]);
-  const [imageUrls, setImageUrls] = useState<string[]>()
-  const [storefrontId, setStorefrontId] = useState()
-  const [isSubmitting,  setIsSubmitting] = useState(false)
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASEURL;
+  const [imageUrls, setImageUrls] = useState<string[]>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tags, setTags] = useState([]);
+  const baseUrl = "https://api.ojami.shop";
+  const [currentStoreIndex, setCurrentStoreIndex] = useState<number>(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
   useViewportHeight();
@@ -59,15 +106,23 @@ const AddProductMobile: FC<AddProductMobileProps> = ({}) => {
     inputRef.current?.click();
   };
 
-  const handleFileChange = async(event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files!;
-    const fileNames = []
+  const storeData = user?.storefronts;
 
-    for(let every of files){
-      fileNames.push(every.name)
+  const handleTagChange = (value: any) => {
+    setTags(value);
+  };
+
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = event.target.files!;
+    const fileNames = [];
+
+    for (let every of files) {
+      fileNames.push(every.name);
     }
 
-    setFileNames(fileNames)
+    setFileNames(fileNames);
 
     if (files) {
       const fileReaders: FileReader[] = [];
@@ -78,106 +133,137 @@ const AddProductMobile: FC<AddProductMobileProps> = ({}) => {
         fileReaders.push(reader);
 
         reader.onload = () => {
-
           fileContents[index] = reader.result as string;
         };
 
         reader.readAsDataURL(file);
       });
-      
     }
 
     const urls = await handleImageUpload(files);
     setImageUrls(urls);
   };
 
-const handleImageUpload = async (selectedFiles: FileList) => {
-  const imageUrls: string[] = [];
+  const handleImageUpload = async (selectedFiles: FileList) => {
+    const imageUrls: string[] = [];
 
-  try {
-    toast({
-      title: `Uploading ${selectedFiles!.length} image(s)`,
-      description: "Please wait while the images are being uploaded...",
-      status: "info",
-      duration: 2000,
-      isClosable: true,
-      position: "top",
-    });
+    try {
+      toast({
+        title: `Uploading ${selectedFiles!.length} image(s)`,
+        description: "Please wait while the images are being uploaded...",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+        variant: "subtle",
+      });
 
-    const uploadPromises = Array.from(selectedFiles).map(async (file) => {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("upload_preset", upload_preset as string);
-      formData.append("cloud_name", "dat1uvwz1");
+      const uploadPromises = Array.from(selectedFiles).map(async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", upload_preset as string);
+        formData.append("cloud_name", "dat1uvwz1");
 
-      const response = await axios.post(CLOUDINARY_URL, formData);
-      if (response) {
-        return response.data.secure_url;
-      } else {
-        throw new Error(`Error uploading ${file.name}`);
-      }
-    });
+        const response = await axios.post(CLOUDINARY_URL, formData);
+        if (response) {
+          return response.data.secure_url;
+        } else {
+          throw new Error(`Error uploading ${file.name}`);
+        }
+      });
 
-    const responses = await Promise.all(uploadPromises);
-    imageUrls.push(...responses);
+      const responses = await Promise.all(uploadPromises);
+      imageUrls.push(...responses);
 
-    toast({
-      title: `${selectedFiles!.length} image(s) uploaded successfully!`,
-      description: "Your images have been uploaded to Cloudinary.",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
-      position: "top",
-    });
-  } catch (e) {
-    console.log("Error:", e);
+      toast({
+        title: `${selectedFiles!.length} image(s) uploaded successfully!`,
+        description: "Your images have been uploaded to Cloudinary.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+        variant: "subtle",
+      });
+    } catch (e) {
+      console.log("Error:", e);
 
-    toast.closeAll();
+      toast.closeAll();
 
-    toast({
-      title: `Error uploading images`,
-      description: "An error occurred while uploading the images.",
-      status: "error",
-      duration: 3000,
-      isClosable: true,
-      position: "top",
-    });
-  }
-
-  return imageUrls;
-};
-
-const handleSubmit = async (values: any) => {
-  //TODO: add toasts for  success and errors
-  setIsSubmitting(true);
-  const postData = {
-    name: values.productName.trim(), // on the form
-    images: imageUrls, //done
-    description: values.description, // on the form
-    tags: values.tags, // not done
-    storefrontId: storefrontId, //not done
-    price: values.price.trim(), //on the form
-  };
-  try {
-    const response = await axios.post(
-      `${baseUrl}/api/auth/users/signup`,
-      postData
-    );
-    if (response) {
-      window.location.assign("/auth/account-success");
+      toast({
+        title: `Error uploading images`,
+        description: "An error occurred while uploading the images.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+        variant: "subtle",
+      });
     }
-  } catch (err) {
-    console.log("error", err);
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+
+    return imageUrls;
+  };
+
+  const handleSubmit = async (values: any) => {
+    setIsSubmitting(true);
+    const postData = {
+      name: values.productName,
+      images: imageUrls,
+      description: values.description,
+      tags: tags,
+      storefrontId: storeData?.[currentStoreIndex]?.id,
+      price: values.price,
+      quantity: values.stockQuantity,
+    };
+    try {
+      const response = await axios.post(
+        `${baseUrl}/api/ecommerce/products`,
+        postData,
+        { withCredentials: true }
+      );
+      if (response.status >= 200 && response.status < 300) {
+        toast({
+          title: `Product added successfully👌`,
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+          position: "top",
+          variant: "subtle",
+        });
+      } else {
+        toast({
+          title: `Error`,
+          description: "An error occurred while adding your product.",
+          status: "error",
+          duration: 2000,
+          isClosable: true,
+          position: "top",
+          variant: "subtle",
+        });
+      }
+    } catch (err: any) {
+      console.log("error", err);
+      toast({
+        title: `Error`,
+        description: `${err?.response?.data?.errors[0]?.message}`,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+        variant: "subtle",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const schema = Yup.object().shape({
     description: Yup.string().max(
       300,
       "Word count exceeded. Maximum is 300 words."
     ),
+    productName: Yup.string().required("Product name is required"),
+    price: Yup.number().required("Price is required"),
+    stockQuantity: Yup.number().required("Stock quantity is required"),
   });
 
   return (
@@ -206,17 +292,97 @@ const handleSubmit = async (values: any) => {
           Add my products
         </Heading>
 
+        <Flex alignItems={"start"} mt={"1.5rem"} flexDir={"column"}>
+          <Popover matchWidth isOpen={isOpen} onClose={onClose}>
+            <PopoverTrigger>
+              <Flex
+                onClick={onToggle}
+                alignItems="center"
+                gap={2}
+                border="2px solid #000000"
+                rounded="md"
+                p="0.5rem"
+                bg="white"
+                h={"50px"}
+                _hover={{ bg: "#F0F4F8", borderColor: "#2BADE5" }}
+                _active={{ bg: "#E2E8F0", borderColor: "#2BADE5" }}
+                transition="background-color 0.2s, border-color 0.2s"
+                cursor="pointer"
+                boxShadow="sm"
+                w="full"
+                justifyContent="space-between"
+              >
+                <Text
+                  maxW="120px"
+                  fontWeight="500"
+                  isTruncated
+                  fontSize="sm"
+                  color="#333"
+                >
+                  Select Store
+                </Text>
+                <Icon as={RiArrowDownSLine} color="#333" boxSize={6} />
+              </Flex>
+            </PopoverTrigger>
+            <PopoverContent
+              w="95%"
+              mx="auto"
+              mt={2}
+              border={"2px solid #000000"}
+              backgroundColor="#FFF9E5"
+            >
+              <PopoverCloseButton />
+              <PopoverHeader fontWeight={"semibold"}>
+                Select a Store
+              </PopoverHeader>
+              <PopoverBody>
+                <Stack>
+                  {storeData?.map((store, index) => (
+                    <Flex
+                      key={index}
+                      p={"0.3rem"}
+                      gap={2}
+                      alignItems={"center"}
+                      border={"2px solid #000000"}
+                      rounded={"10px"}
+                      backgroundColor={"#ffffff"}
+                      _active={{ bg: "#E2E8F0", borderColor: "#2BADE5" }}
+                      onClick={() => {
+                        setCurrentStoreIndex(index);
+                        onClose();
+                      }}
+                    >
+                      <Avatar
+                        size={"sm"}
+                        src={store.profileImageUrl}
+                        border={"2px solid #000000"}
+                      />
+                      <Text fontSize={"xs"} fontWeight={"500"}>
+                        {store.storename}
+                      </Text>
+                    </Flex>
+                  ))}
+                </Stack>
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
+
+          <Flex flexDir={"column"}>
+            <Text fontSize={"2xs"} mt={"0.2rem"} color={"blue.400"}>
+              {storeData?.[currentStoreIndex]?.storename}
+            </Text>
+          </Flex>
+        </Flex>
+
         <Formik
           initialValues={{
             productName: "",
-            price: "",
-            category: "",
-            immageField: [],
+            price: 0,
             description: "",
-            stockQuantity: "",
+            stockQuantity: 0,
           }}
           onSubmit={(values) => {
-            alert(JSON.stringify(values, null, 2));
+            handleSubmit(values);
           }}
           validationSchema={schema}
         >
@@ -254,59 +420,88 @@ const handleSubmit = async (values: any) => {
                   <Text mb="6px" fontSize={"sm"} fontWeight={"semibold"}>
                     Price
                   </Text>
-                  <Field
-                    as={Input}
-                    id="price"
-                    name="price"
-                    type={"number"}
-                    size="sm"
-                    placeholder="Enter amount"
-                    fontSize={"sm"}
-                    border={"2px solid #000000"}
-                    rounded={"lg"}
-                    height={"50px"}
-                    background={"#FBFBFB"}
-                    focusBorderColor="#2BADE5"
-                    _focus={{ backgroundColor: "#ffffff", borderWidth: "1px" }}
-                    _placeholder={{ color: "#B9B9B9" }}
-                  />
+                  <InputGroup rounded={"lg"} height={"50px"}>
+                    <InputLeftAddon
+                      background={"#FBFBFB"}
+                      height={"50px"}
+                      border={"2px solid #000000"}
+                      borderRightWidth={"0px"}
+                    >
+                      ₦
+                    </InputLeftAddon>
+                    <Field
+                      as={Input}
+                      id="price"
+                      name="price"
+                      type={"number"}
+                      size="sm"
+                      height={"50px"}
+                      borderLeftWidth="0px"
+                      border={"2px solid #000000"}
+                      borderRightRadius="lg"
+                      placeholder="Enter amount"
+                      fontSize={"sm"}
+                      background={"#FBFBFB"}
+                      focusBorderColor="#2BADE5"
+                      _focus={{
+                        backgroundColor: "#ffffff",
+                        borderWidth: "1px",
+                      }}
+                      _placeholder={{ color: "#B9B9B9" }}
+                    />
+                  </InputGroup>
                 </Box>
                 <FormErrorMessage>{errors.price}</FormErrorMessage>
-              </FormControl>
-
-              <FormControl isInvalid={!!errors.category && touched.category}>
-                <Box mt={"1.5rem"}>
-                  <Text mb="6px" fontSize={"sm"} fontWeight={"semibold"}>
-                    Category
-                  </Text>
-                  <Field
-                    as={Select}
-                    id="category"
-                    name="category"
-                    placeholder="select category"
-                    border={"2px solid #000000"}
-                    height={"50px"}
-                    background={"#FBFBFB"}
-                    _placeholder={{ color: "#B9B9B9" }}
-                    rounded={"lg"}
-                    size={"sm"}
-                    fontSize={"sm"}
-                    focusBorderColor="#2BADE5"
-                  >
-                    {categories.map((category, index) => (
-                      <option key={index} value={category}>
-                        {category}
-                      </option>
-                    ))}
-                  </Field>
-                </Box>
-                <FormErrorMessage>{errors.category}</FormErrorMessage>
               </FormControl>
 
               <FormControl>
                 <Box mt={"1.5rem"}>
                   <Text mb="6px" fontSize={"sm"} fontWeight={"semibold"}>
-                    Add Image
+                    Tags
+                  </Text>
+                  <Menu matchWidth closeOnSelect={false}>
+                    <MenuButton
+                      as={Flex}
+                      alignItems={"center"}
+                      height={"50px"}
+                      background={"#FBFBFB"}
+                      _placeholder={{ color: "#B9B9B9" }}
+                      rounded={"lg"}
+                      fontSize={"sm"}
+                      border={"2px solid #000000"}
+                      w={"full"}
+                      textAlign={"start"}
+                      px={"0.8rem"}
+                    >
+                      Select Tags
+                    </MenuButton>
+                    <MenuList px={"1rem"} maxH={"300px"} overflowY={"auto"}>
+                      <MenuOptionGroup
+                        title="Select all tags that apply to your product"
+                        type="checkbox"
+                        value={tags}
+                        onChange={handleTagChange}
+                      >
+                        {productDescriptionTags.map((item, index) => (
+                          <MenuItemOption
+                            value={item}
+                            rounded={"sm"}
+                            key={index}
+                            fontSize={"sm"}
+                          >
+                            {item}
+                          </MenuItemOption>
+                        ))}
+                      </MenuOptionGroup>
+                    </MenuList>
+                  </Menu>
+                </Box>
+              </FormControl>
+
+              <FormControl>
+                <Box mt={"1.5rem"}>
+                  <Text mb="6px" fontSize={"sm"} fontWeight={"semibold"}>
+                    Add Product Images
                   </Text>
 
                   <Input
@@ -397,9 +592,9 @@ const handleSubmit = async (values: any) => {
                           }}
                           _placeholder={{ color: "#B9B9B9" }}
                         />
-                          <FormErrorMessage>
-                            {errors.description}
-                          </FormErrorMessage>
+                        <FormErrorMessage>
+                          {errors.description}
+                        </FormErrorMessage>
                       </Box>
                     </FormControl>
 
@@ -446,6 +641,8 @@ const handleSubmit = async (values: any) => {
                   w={200}
                   h={62}
                   type="submit"
+                  isLoading={isSubmitting}
+                  isDisabled={imageUrls?.length == 0}
                 >
                   <Text
                     maxW="150px"
@@ -453,16 +650,9 @@ const handleSubmit = async (values: any) => {
                     textAlign="center"
                     fontSize="sm"
                   >
-                    continue
+                    Add Product{" "}
                   </Text>
                 </FancyButton>
-
-                <Link
-                  href={"#"}
-                  style={{ fontWeight: "600", fontSize: "13px" }}
-                >
-                  Maybe later
-                </Link>
               </Flex>
             </form>
           )}

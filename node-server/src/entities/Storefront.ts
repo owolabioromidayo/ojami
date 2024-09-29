@@ -37,10 +37,12 @@ export class Storefront {
   tags = new Collection<Tag>(this);
 
 
-  constructor(user: User, storename: string, description: string, tagNames: string[], em: EntityManager) {
+  constructor(user: User, storename: string, description: string, bannerImageUrl: string, profileImageUrl: string, tagNames: string[], em: EntityManager) {
     this.user = user;
     this.storename = storename;
     this.description = description;
+    this.bannerImageUrl = bannerImageUrl;
+    this.profileImageUrl = profileImageUrl;
 
     tagNames.forEach(async (tagName) => {
       let tag = await em.findOne(Tag, { name: tagName });

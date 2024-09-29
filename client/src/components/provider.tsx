@@ -29,7 +29,7 @@ export const OjaProvider: React.FC<OjaProviderProps> = ({ children }) => {
     const [error, setError] = useState(null);
 
     const fetchUserData = async () => {
-        const url = 'https://api.ojami.shop/api/auth/users/me';
+        const url = "https://api.ojami.shop/api/auth/users/me";
         try {
             const response = await fetch(url, { credentials: 'include' });
             if (!response.ok) {

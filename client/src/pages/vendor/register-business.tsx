@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { useBreakpointValue } from "@chakra-ui/react";
-import RegisterBusinessMobile from "@/components/mobile/RegisterBusinessOne";
+import RegisterBusinessMobile from "@/components/mobile/RegisterBusiness";
 
 interface RegisterBusinessProps {}
 

@@ -1,14 +1,26 @@
 import type { ReactElement } from "react";
-import { Box, Stack, Flex, Text, Grid, GridItem, Heading, Avatar, Badge } from "@chakra-ui/react";
+import {
+  Box,
+  Stack,
+  Flex,
+  Text,
+  Grid,
+  GridItem,
+  Heading,
+  Avatar,
+  Badge,
+} from "@chakra-ui/react";
 import VendorLayout from "@/components/mobile/layout/VendorLayout";
 import type { NextPageWithLayout } from "../_app";
 import Image from "next/image";
 import { useOjaContext } from "@/components/provider";
-import {format} from 'date-fns'
+import { format } from "date-fns";
+import { useRouter } from "next/navigation";
 
 const VendorHome: NextPageWithLayout<{}> = () => {
-  const {user} = useOjaContext()
-  const currentDate = format(new Date(), 'MMMM yyyy')
+  const { user } = useOjaContext();
+  const router = useRouter();
+  const currentDate = format(new Date(), "MMMM yyyy");
   const quickLinks = [
     {
       image: "/images/mobile/vendorHome/create-link.svg",
@@ -62,10 +74,7 @@ const VendorHome: NextPageWithLayout<{}> = () => {
       amount: 1102000,
       firstName: "Victoria",
       lastName: "Folarin",
-      items: [
-        "1x Sony XM1000-WH5",
-        "2x Oraimo Freepods 4",
-      ],
+      items: ["1x Sony XM1000-WH5", "2x Oraimo Freepods 4"],
     },
     {
       profileImg: "/images/mobile/profile.svg",
@@ -79,8 +88,6 @@ const VendorHome: NextPageWithLayout<{}> = () => {
       ],
     },
   ];
-
-  console.log(user)
 
   return (
     <Box
@@ -118,12 +125,7 @@ const VendorHome: NextPageWithLayout<{}> = () => {
             />
           </Flex>
 
-          <Flex
-            flexDir={"column"}
-            lineHeight={"1"}
-            gap={2}
-            pb={"1.5rem"}
-          >
+          <Flex flexDir={"column"} lineHeight={"1"} gap={2} pb={"1.5rem"}>
             <Text fontSize={"xs"} fontWeight={"semibold"}>
               Revenue • {currentDate}
             </Text>
@@ -209,6 +211,7 @@ const VendorHome: NextPageWithLayout<{}> = () => {
                 borderTop={"0px"}
                 borderRight={"0px"}
                 h={"full"}
+                onClick={() => router.push("/vendor/add-product")}
               >
                 <Image
                   src={quickLinks[2].image}
@@ -377,11 +380,7 @@ const VendorHome: NextPageWithLayout<{}> = () => {
 };
 
 VendorHome.getLayout = function getLayout(page: ReactElement) {
-  return (
-    <VendorLayout>
-      {page}
-    </VendorLayout>
-  );
+  return <VendorLayout>{page}</VendorLayout>;
 };
 
 export default VendorHome;

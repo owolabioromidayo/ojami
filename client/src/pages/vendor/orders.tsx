@@ -82,13 +82,13 @@ const Orders: NextPageWithLayout<{}> = () => {
       backgroundSize={"cover"}
       backgroundRepeat={"no-repeat"}
       px={"0.8rem"}
-      overflowY={'auto'}
+      overflowY={"auto"}
     >
       <Heading as={"h1"} size={"lg"} fontWeight={"semibold"} pt={"3rem"}>
         Orders Received
       </Heading>
 
-      <Box mt={"0.5rem"} pb={'0.5rem'}>
+      <Box mt={"0.5rem"} pb={"0.5rem"}>
         <Tabs position="relative" variant="unstyled">
           <TabList w={"fit-content"}>
             {tabs.map((tab, index) => (
@@ -118,7 +118,7 @@ const Orders: NextPageWithLayout<{}> = () => {
                 overflowX="hidden"
                 mt={"1rem"}
               >
-                <Table variant="unstyled" size={"xs"} w={"full"} maxH={'65vh'}>
+                <Table variant="unstyled" size={"xs"} w={"full"} maxH={"65vh"}>
                   <Thead backgroundColor={"#D9D9D9"} fontSize={"2xs"}>
                     <Tr>
                       <Th px={2} py={2} textTransform={"none"}>
@@ -137,14 +137,16 @@ const Orders: NextPageWithLayout<{}> = () => {
                         fontWeight={"semibold"}
                         key={index}
                         border={"2px solid #000000"}
-                        borderLeft={'0px'}
-                        borderRight={'0px'}
-                        borderBlockEnd={'0px'}
+                        borderLeft={"0px"}
+                        borderRight={"0px"}
+                        borderBlockEnd={"0px"}
                       >
                         <Td py={4} px={2}>
                           #{item.id}
                         </Td>
-                        <Td pr={'1rem'} isTruncated maxW={'70px'}>{item.item}</Td>
+                        <Td pr={"1rem"} isTruncated maxW={"70px"}>
+                          {item.item}
+                        </Td>
                         <Td>{item.quantity}</Td>
                         <Td>{item.price}</Td>
                         <Td>see details</Td>
