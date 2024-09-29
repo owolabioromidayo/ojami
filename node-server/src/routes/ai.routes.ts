@@ -375,7 +375,7 @@ async function runCLI() {
     console.log("Thank you for using AI Chat CLI. Goodbye!");
 }
 
-runCLI();
+// runCLI();
 
 
 export default router;
