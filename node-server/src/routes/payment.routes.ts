@@ -47,6 +47,8 @@ import { Order } from "../entities/Order";
 
 const router = express.Router();
 
+const kora_token = process.env.KORAPAY_API_TOKEN
+
 const URL_PREFIX = `${process.env.DOMAIN_URL}/p/`;
 
 router.post("/virtual_accounts/new", isAuth, createNewVirtualBankAccount);
@@ -791,6 +793,7 @@ async function redeemVoucher(req: Request, res: Response) {
 async function payoutHandler(req: Request, res: Response) {
   const { destination, metadata } = req.body as PayoutRequest;
 
+  // Validate required fields
   if (
     !destination ||
     !destination.type ||
@@ -798,26 +801,20 @@ async function payoutHandler(req: Request, res: Response) {
     !destination.currency ||
     !destination.customer.email
   ) {
-    return res
-      .status(400)
-      .json({ errors: [{ message: "Missing required fields" }] });
+    return res.status(400).json({ errors: [{ message: "Missing required fields" }] });
   }
 
   const em = (req as RequestWithContext).em;
 
   try {
-    const user = await em
-      .fork({})
-      .findOneOrFail(
-        User,
-        { id: req.session.userid },
-        { populate: ["virtualWallet"] }
-      );
+    const user = await em.fork({}).findOneOrFail(
+      User,
+      { id: req.session.userid },
+      { populate: ["virtualWallet"] }
+    );
 
     if (user.virtualWallet.balance < destination.amount) {
-      return res
-        .status(400)
-        .json({ errors: [{ message: "Insufficient balance" }] });
+      return res.status(400).json({ errors: [{ message: "Insufficient balance" }] });
     }
 
     const payload: PayoutRequest = {
@@ -832,50 +829,33 @@ async function payoutHandler(req: Request, res: Response) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${KORAPAY_TOKEN}`,
+          Authorization: `Bearer ${kora_token}`,
         },
         body: JSON.stringify(payload),
       }
     );
 
     if (!resp.ok) {
-      return res
-        .status(500)
-        .json({ errors: [{ message: "Payout request failed" }] });
+      const errorData = await resp.json().catch(() => ({}));
+      return res.status(500).json({ errors: [{ message: "Payout request failed", details: errorData }] });
     }
 
     const data = (await resp.json()) as PayoutResponse;
 
     if (data.status === true) {
-      if (data.data.status === "success") {
-        user.virtualWallet.balance -= destination.amount;
-        await em.fork({}).persistAndFlush(user.virtualWallet);
+      user.virtualWallet.balance -= destination.amount;
+      await em.fork({}).persistAndFlush(user.virtualWallet);
 
-        return res.status(200).json({
-          message: "Payout successful",
-          data: data.data,
-        });
-      } else if (data.data.status === "processing") {
-        // TODO: not handling for now, just repeat success, dispute can be opened
-        // TODO: we need a proper payout verification handler for this
-        user.virtualWallet.balance -= destination.amount;
-        await em.fork({}).persistAndFlush(user.virtualWallet);
-
-        return res.status(200).json({
-          message: "Payout processing",
-          data: data.data,
-        });
-      } else {
-        // failed
-        return res.status(500).json({ errors: [{ message: data.message }] });
-      }
+      return res.status(200).json({
+        message: data.data.status === "success" ? "Payout successful" : "Payout processing",
+        data: data.data,
+      });
     } else {
       return res.status(500).json({ errors: [{ message: data.message }] });
     }
-  } catch (err) {
-    return res
-      .status(500)
-      .json({ errors: [{ message: "Failed to process payout", error: err }] });
+  } catch (err: any) {
+    console.error("Error processing payout:", err);
+    return res.status(500).json({ errors: [{ message: "Failed to process payout", error: err.message }] });
   }
 }
 
