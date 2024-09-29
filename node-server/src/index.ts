@@ -62,7 +62,7 @@ async function initAppData(em: EntityManager) {
 
   const techTag = new Tag("tech");
   em.persist(techTag);
-  const storefront = new Storefront(user, 'Gateway Technologies', 'Technology Products');
+  const storefront = new Storefront(user, 'Gateway Technologies', 'Technology Products', "", "", [], em);
 
 
   storefront.tags.add(techTag);
