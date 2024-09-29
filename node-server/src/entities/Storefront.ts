@@ -48,7 +48,7 @@ export class Storefront {
       let tag = await em.findOne(Tag, { name: tagName });
 
       if (!tag) {
-        tag = new Tag();
+        tag = new Tag(tagName);
         tag.name = tagName;
         await em.persistAndFlush(tag);
       }
