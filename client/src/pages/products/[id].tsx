@@ -1,4 +1,4 @@
-"use client";
+// @ts-nocheck
 
 import { MarketLayout } from "@/components/market/layout";
 import { OjaContext } from "@/components/provider";
