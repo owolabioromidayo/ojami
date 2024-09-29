@@ -175,8 +175,6 @@ const VendorHome: NextPageWithLayout<{}> = () => {
     }
   };
 
-  console.log(destination)
-
   return (
     <Box
       p={"0.2rem"}
@@ -688,7 +686,7 @@ const VendorHome: NextPageWithLayout<{}> = () => {
                   textAlign="center"
                   fontSize="sm"
                 >
-                  Redeem Voucher
+                  Request Payout
                 </Text>
               </FancyButton>
             </Flex>
