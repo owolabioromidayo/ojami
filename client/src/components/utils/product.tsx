@@ -38,7 +38,7 @@ export const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
   >
     <Stack w="full" mb={5} _hover={{ "& img": { transform: "scale(1.1)" } }}>
       <Box
-        w="220px"
+        w={{ base: "160px", lg: "220px"}}
         h="200px"
         overflow="hidden"
         pos="relative"

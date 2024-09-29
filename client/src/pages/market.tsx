@@ -46,7 +46,7 @@ const Market = () => {
       anchorDiv.scrollIntoView({ behavior: "smooth" });
     }
   };
-  const { stores } = useContext(OjaContext)
+  const { stores } = useContext(OjaContext);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const totalDots = 5; // Total number of carousel dots
@@ -67,7 +67,8 @@ const Market = () => {
       caption:
         "Three-seat comfortable sofa for living room, apartment, simple and modern style",
       price: "₦255,000",
-      avatar: "https://img.freepik.com/free-vector/creative-furniture-store-logo_23-2148455884.jpg",
+      avatar:
+        "https://img.freepik.com/free-vector/creative-furniture-store-logo_23-2148455884.jpg",
       ratings: 4.8,
       review: "15.2k",
     },
@@ -76,17 +77,19 @@ const Market = () => {
       store: "Dundler Miffin",
       caption: "Emperor 5-Wheeler ergonomic office chair",
       price: "₦180,000",
-      avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2UWzuJKyjupOxC6H5eIa5_Zkse2UQrB1V-Q&s",
+      avatar:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2UWzuJKyjupOxC6H5eIa5_Zkse2UQrB1V-Q&s",
       ratings: 4.1,
       review: "1.1k",
     },
     {
-      model: <Datsun scale={[2,2,2]} />,
+      model: <Datsun scale={[2, 2, 2]} />,
       store: "Chike Customs",
       caption:
         "Datsun 240K-GT Inline 6 Engine, 47hp with 187Nm torque 0-60 in 5s",
       price: "₦129,500,000",
-      avatar: "https://cdn3.vectorstock.com/i/1000x1000/25/82/car-icon-speeding-racecar-on-white-background-vector-37232582.jpg",
+      avatar:
+        "https://cdn3.vectorstock.com/i/1000x1000/25/82/car-icon-speeding-racecar-on-white-background-vector-37232582.jpg",
       ratings: 4.7,
       review: "16.7k",
     },
@@ -175,26 +178,35 @@ const Market = () => {
         </Carousel>
       </Flex>
       <Flex w="full" overflow="hidden">
-        <Flex align="center" gap={5} justify="space-between" w="full" mt={14} overflow="auto" h="80px"  sx={{
-          "&::-webkit-scrollbar": {
-            width: "0", // Set the initial width to 0
-            height: "0px",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            background: "#FFDDA6",
-            borderRadius: "12px",
-          },
-          "&::-webkit-scrollbar-thumb:hover": {
-            background: "#F4B95F",
-          },
-          "&::-webkit-scrollbar-track": {
-            background: "#FFF5E6",
-          },
-          "&:hover::-webkit-scrollbar": {
-            width: "0px",
-            height: "0px",
-          },
-        }}>
+        <Flex
+          align="center"
+          gap={5}
+          justify="space-between"
+          w="full"
+          mt={14}
+          overflow="auto"
+          h="80px"
+          sx={{
+            "&::-webkit-scrollbar": {
+              width: "0", // Set the initial width to 0
+              height: "0px",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              background: "#FFDDA6",
+              borderRadius: "12px",
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
+              background: "#F4B95F",
+            },
+            "&::-webkit-scrollbar-track": {
+              background: "#FFF5E6",
+            },
+            "&:hover::-webkit-scrollbar": {
+              width: "0px",
+              height: "0px",
+            },
+          }}
+        >
           {categories.map((item) => (
             <Flex
               _hover={{ transform: "rotate(3deg)" }}
@@ -216,7 +228,6 @@ const Market = () => {
             </Flex>
           ))}
         </Flex>
-
       </Flex>
 
       <Flex
@@ -229,7 +240,7 @@ const Market = () => {
         direction={{ base: "column", lg: "row" }}
       >
         {/** Top Items */}
-        <Stack h="full" w={{ base: "full", lg: "445px" }} >
+        <Stack h="full" w={{ base: "full", lg: "445px" }}>
           <Text mb={4} fontWeight={600} fontSize={22}>
             Top ranking
           </Text>
@@ -245,7 +256,7 @@ const Market = () => {
               <CarouselContent>
                 {faketrends.map((item) => (
                   <CarouselItem key={item.label}>
-                    <Flex direction="column" w={{ base: "full", lg: "450px"}}>
+                    <Flex direction="column" w={{ base: "full", lg: "450px" }}>
                       <Text fontWeight={600} fontSize={18} mb={1}>
                         Most Popular
                       </Text>
@@ -437,7 +448,12 @@ const Market = () => {
         <Text mb={4} fontWeight={600} fontSize={22}>
           See products in Augmented Reality
         </Text>
-        <Flex gap={14} direction={{ base: "column", lg: "row"}} w="full" align="center">
+        <Flex
+          gap={14}
+          direction={{ base: "column", lg: "row" }}
+          w="full"
+          align="center"
+        >
           {models.map((item) => (
             <Genjitsu
               model={item.model}

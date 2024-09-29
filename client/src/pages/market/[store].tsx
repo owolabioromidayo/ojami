@@ -47,7 +47,7 @@ const StorePage = () => {
 
   const fetchStoreData = async () => {
     if (!storename) return;
-    const url = `https://api.ojami.shop/api/ecommerce/storefronts/str/${storename}`;
+    const url = `${process.env.NEXT_PUBLIC_OJAMI}/api/ecommerce/storefronts/str/${storename}`;
 
     try {
       const response = await fetch(url, { credentials: "include" });
@@ -282,7 +282,7 @@ const StorePage = () => {
               <Text>This store has no products yet</Text>
             </Flex>
         ): (
-        <SimpleGrid minChildWidth='210px' spacing='5px' mt={5}>
+        <SimpleGrid minChildWidth={{ base: "150px", lg: '210px'}} spacing='5px' mt={5}>
             {store?.products?.map((item) => (
                 <ProductItem product={item} key={item.id} />
             ))}

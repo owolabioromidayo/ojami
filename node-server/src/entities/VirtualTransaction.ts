@@ -1,5 +1,5 @@
 import { Entity, PrimaryKey, Property, ManyToOne, DecimalType } from "@mikro-orm/core";
-import { VirtualTransactionStatus, TransactionType } from "../types"; 
+import { VirtualTransactionStatus, TransactionType } from "../types";
 import { VirtualWallet } from "./VirtualWallet";
 
 //TODO: transaction type, from and to
@@ -12,16 +12,16 @@ export class VirtualTransaction {
   id!: number;
 
   @Property()
-  _type!: TransactionType;
+  _type!: 'bank_transfer' | 'virtual_transaction';
 
   @Property()
   currency!: string;
 
-  @Property({type: DecimalType})
+  @Property({ type: DecimalType })
   amount!: number;
 
   @Property()
-  status!: VirtualTransactionStatus;
+  status!: 'pending' | 'processing' | 'completed' | 'failed';
 
   @Property()
   createdAt = new Date();
@@ -29,21 +29,21 @@ export class VirtualTransaction {
   @Property()
   isInstantPurchase!: boolean;
 
-//  @Property()
+  //  @Property()
   // narration!: string;
 
-  @ManyToOne(() => VirtualWallet) 
+  @ManyToOne(() => VirtualWallet)
   sendingWallet!: VirtualWallet;
 
-  @ManyToOne(() => VirtualWallet) 
+  @ManyToOne(() => VirtualWallet)
   receivingWallet?: VirtualWallet;
 
   constructor(sendingWallet: VirtualWallet, receivingWallet: VirtualWallet, amount: number, isInstantPurchase: boolean, currency: string) {
-    this._type = TransactionType.VIRTUAL_TRANSACTION;
+    this._type = 'virtual_transaction';
     this.amount = amount;
-    this.sendingWallet= sendingWallet;
-    this.receivingWallet= receivingWallet;
-    this.isInstantPurchase= isInstantPurchase; 
+    this.sendingWallet = sendingWallet;
+    this.receivingWallet = receivingWallet;
+    this.isInstantPurchase = isInstantPurchase;
     this.currency = currency;
   }
 }

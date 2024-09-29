@@ -10,7 +10,7 @@ export class Product {
   @PrimaryKey()
   id!: number;
 
-  @Property()
+  @Property({ length: 1000 })
   name!: string;
 
   @Property({ type: 'json' })
@@ -22,7 +22,7 @@ export class Product {
   @Property({ type: 'blob' })
   threeDModel?: Buffer;
 
-  @Property()
+  @Property({ length: 10000 })
   description!: string;
 
   @Property()
@@ -35,29 +35,17 @@ export class Product {
   storefront!: Storefront;
 
   @OneToOne(() => ProductLink, productLink => productLink.product, { owner: true })
- link?: ProductLink 
+  link?: ProductLink
 
   @ManyToMany(() => Tag, tag => tag.products)
   tags = new Collection<Tag>(this);
 
-  constructor(storefront: Storefront, name: string, price: number, images: string[], description: string, quantity: number, tagNames: string[], em: EntityManager) {
+  constructor(storefront: Storefront, name: string, price: number, images: string[], description: string, quantity: number) {
     this.storefront = storefront;
     this.name = name;
     this.description = description;
     this.quantity = quantity;
     this.images = images;
     this.price = price;
-
-    tagNames.forEach(async (tagName) => {
-      let tag = await em.findOne(Tag, { name: tagName });
-
-      if (!tag) {
-        tag = new Tag();
-        tag.name = tagName;
-        await em.persistAndFlush(tag);
-      }
-
-      this.tags.add(tag);
-    });
   }
 }

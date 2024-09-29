@@ -30,6 +30,7 @@ import { Cart } from "../entities/Cart";
 import { CartItem } from "../entities/CartItem";
 import { serialize } from "v8";
 import { isAuth } from "../middleware/isAuth";
+import { Tag } from "../entities/Tag";
 
 const router = express.Router();
 
@@ -77,6 +78,15 @@ async function createStorefront(req: Request, res: Response) {
     try {
         const user = await em.fork({}).findOneOrFail(User, { id: req.session.userid  });
         const storefront = new Storefront(user, storename, description, bannerImageUrl, profileImageUrl, tags, em);
+        tags.forEach(async (tagName: string) => {
+          let tag = await em.findOne(Tag, { name: tagName });
+          if (!tag) {
+            tag = new Tag(tagName);
+            await em.persistAndFlush(tag);
+          }
+
+          storefront.tags.add(tag);
+        });
 
         await em.fork({}).persistAndFlush(storefront);
 
@@ -172,7 +182,16 @@ async function createProduct(req: Request, res: Response) {
             return res.status(401).json({ errors: [{ field: 'auth', message: 'Not authenticated' }] });
         }
 
-        const product = new Product(storefront, name, price , images, description, quantity, tags, em);
+        const product = new Product(storefront, name, price , images, description, quantity);
+        tags.forEach(async (tagName: string) => {
+          let tag = await em.findOne(Tag, { name: tagName });
+          if (!tag) {
+            tag = new Tag(tagName);
+            await em.persistAndFlush(tag);
+          }
+
+          product.tags.add(tag);
+        });
         await em.fork({}).persistAndFlush(product);
         return res.status(201).json({ product });
     } catch (err) {

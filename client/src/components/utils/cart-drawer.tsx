@@ -30,11 +30,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
   const btnRef = React.useRef(null);
   const { user, cart, setCart } = useContext(OjaContext);
   const { isOpen: isPaymentOpen, onOpen: onPaymentOpen, onClose: onPaymentClose } = useDisclosure()
-  console.log(cart?.items);
   const toast = useToast();
 
   const createCart = async () => {
-    const response = await fetch("https://api.ojami.shop/api/ecommerce/carts", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_OJAMI}/api/ecommerce/carts`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -76,7 +75,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     }
 
     const orderPromises = cart.items.map(async (item) => {
-      const response = await fetch("https://api.ojami.shop/api/ecommerce/orders", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_OJAMI}/api/ecommerce/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -104,7 +103,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     } else {
       // Clear the cart by removing each item individually
       const removeItemPromises = cart.items.map(async (item) => {
-        const response = await fetch("https://api.ojami.shop/api/ecommerce/carts/remove", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_OJAMI}/api/ecommerce/carts/remove`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -157,7 +156,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
 
   const handleRemoveItem = async ({ props }: { props: { item: CartItem } }) => {
     const response = await fetch(
-      "https://api.ojami.shop/api/ecommerce/carts/remove",
+      `${process.env.NEXT_PUBLIC_OJAMI}/api/ecommerce/carts/remove`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -204,11 +203,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleUpdateQuantity = ({ props }: { props: { item: CartItem } }) => {
-    // Implement update quantity logic here
-    console.log("Update quantity for item:", props.item);
-  };
-
   return (
     <Drawer
       isOpen={isOpen}
@@ -249,7 +243,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
               h="full"
               w="full"
               bg="white"
-              overflowY="auto" // Add this line
+              overflowY="auto"
             >
               {cart?.items?.length === 0 ? (
                 <>

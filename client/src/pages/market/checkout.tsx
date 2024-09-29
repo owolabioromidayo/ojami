@@ -35,7 +35,7 @@ const Checkout = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const fetchOrders = async () => {
-    const url = `https://api.ojami.shop/api/ecommerce/orders/me`;
+    const url = `${process.env.NEXT_PUBLIC_OJAMI}/api/ecommerce/orders/me`;
 
     try {
       const response = await fetch(url, { credentials: "include" });
@@ -78,7 +78,7 @@ const Checkout = () => {
   const handleSendMoney = async () => {
     for (const order of orders!) {
       const response = await fetch(
-        "https://api.ojami.shop/api/payments/make_virtual_payment",
+        `${process.env.NEXT_PUBLIC_OJAMI}/api/payments/make_virtual_payment`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -124,30 +124,72 @@ const Checkout = () => {
 
   const [koraData, setKoraData] = useState<any>(null);
 
-  const handlePayWithKora = async () => {
+  const completeOrder = async () => {
     for (const order of orders!) {
-    const response = await fetch(
-      "https://api.ojami.shop/api/payments/pay_in/checkout_standard",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          currency: "NGN",
-          orderId: order.id,
-          amount:
-            products?.find((p) => p.id === order.product)?.price! *
-              order.count +
-            2500 +
-            products?.find((p) => p.id === order.product)?.price! * 0.05,
-          redirect_url: "https://www.ojami.shop/market",
-        }),
-      }
-    );
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_OJAMI}/api/payments/pay_in/success`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            orderId: order.id,
+          }),
+        }
+      );
       const data = await response.json();
-      setKoraData(data.data);
-    
-    if (!response.ok) {
+      if (!response.ok) {
+        toast({
+          title: "Payment Error",
+          description: `Failed to process payment for order ${order.id}: ${data.errors[0].message}`,
+          status: "error",
+          duration: 5000,
+          position: "top",
+          containerStyle: { border: "2px solid #000", rounded: "10px" },
+        });
+      } else {
+        toast({
+          title: "Payment Successful",
+          description: `Payment for order ${order.id} processed successfully`,
+          status: "success",
+          duration: 5000,
+          position: "top",
+          containerStyle: { border: "2px solid #000", rounded: "10px" },
+        });
+      }
+    }
+    setTimeout(() => {
+      window.location.assign("/market");
+    }, 700);
+  };
+
+  const handlePayWithKora = async () => {
+    let data = null;
+    let promise: Response | null = null;
+    for (const order of orders!) {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_OJAMI}/api/payments/pay_in/checkout_standard`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            currency: "NGN",
+            orderId: order.id,
+            amount:
+              products?.find((p) => p.id === order.product)?.price! *
+                order.count +
+              2500 +
+              products?.find((p) => p.id === order.product)?.price! * 0.05,
+          }),
+        }
+      );
+      promise = response;
+      data = await response.json();
+    }
+    setKoraData(data.data);
+
+    if (!promise) {
       toast({
         title: "Checkout Error",
         description: `Failed to initiate payment`,
@@ -169,27 +211,24 @@ const Checkout = () => {
         window.Korapay.initialize({
           key: process.env.NEXT_PUBLIC_PUB!,
           reference: data.data.reference,
-          narration: "Payment for product Y",
+          narration: "Payment for product on Ojami Marketplace",
           amount: data.data.amount,
           currency: "NGN",
           customer: {
             name: user?.firstname + " " + user?.lastname,
             email: user?.email,
           },
-          notification_url:
-            "https://api.ojami.shop/api/payments/korapay_webhook",
+          onSuccess: () => completeOrder(),
+          notification_url: `${process.env.NEXT_PUBLIC_OJAMI}/api/payments/korapay_webhook`,
         });
       }, 700);
-    }
     }
     // Redirect after all payments are processed
     // window.location.assign("/market");
   };
 
-  function payKorapay() {}
-
   return (
-    <Flex direction="column" h="100vh" align="center">
+    <Flex direction="column" overflow="auto" align="center">
       <Flex
         borderBottom="2px solid #000"
         w="full"
@@ -224,6 +263,7 @@ const Checkout = () => {
       <Flex
         mt="100px"
         h="full"
+        overflow="auto"
         w="full"
         direction={{ base: "column", md: "row" }}
         maxW="1650px"
@@ -232,7 +272,7 @@ const Checkout = () => {
         <Flex
           borderRight="2px solid #000"
           w="full"
-          h={{ md: "full" }}
+          h={{ base: "full", md: "full" }}
           py={6}
           pl={{ base: 6, lg: 0 }}
           pr={6}
@@ -420,85 +460,118 @@ const Checkout = () => {
             </Collapse>
           </Stack>
         </Flex>
-        <Flex w="full" h="full" pos="sticky" top="0" p={6} direction="column">
-          {orders &&
-            products?.map((item, index) => (
-              <Flex
-                direction="column"
-                gap={3}
-                borderBottom="2px solid #000"
-                py={3}
-                px={1}
-                key={item.id}
-              >
+
+        <Flex
+          w="full"
+          h="full"
+          pos={{ lg: "sticky" }}
+          top="0"
+          p={6}
+          direction="column"
+        >
+          <Stack
+            h={{ lg: "60%" }}
+            overflowY="auto"
+            sx={{
+              "&::-webkit-scrollbar": {
+                width: "0", // Set the initial width to 0
+                height: "0px",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                background: "#FFDDA6",
+                borderRadius: "12px",
+              },
+              "&::-webkit-scrollbar-thumb:hover": {
+                background: "#F4B95F",
+              },
+              "&::-webkit-scrollbar-track": {
+                background: "#FFF5E6",
+              },
+              "&:hover::-webkit-scrollbar": {
+                width: "0px",
+                height: "0px",
+              },
+            }}
+          >
+            {orders &&
+              products?.map((item, index) => (
                 <Flex
+                  direction="column"
                   gap={3}
-                  w="full"
-                  alignItems="center"
-                  justify="space-between"
+                  borderBottom="2px solid #000"
+                  py={3}
+                  px={1}
+                  key={item.id}
                 >
                   <Flex
-                    cursor="pointer"
                     gap={3}
                     w="full"
-                    py={3}
-                    px={1}
-                    key={item.id}
                     alignItems="center"
                     justify="space-between"
                   >
-                    <Flex gap={2} align="center" pos="relative">
-                      <Image
-                        border="2px solid #000"
-                        rounded="md"
-                        src={item?.images[0]}
-                        w="80px"
-                        h="80px"
-                        objectFit="cover"
-                        alt={item.name}
-                      />
-                      <Flex
-                        pos="absolute"
-                        top="-2"
-                        left="-2"
-                        p={3}
-                        w="20px"
-                        h="20px"
-                        bg="#000"
-                        rounded="full"
-                        align="center"
-                        justify="center"
-                        fontSize="20px"
-                        fontWeight="600"
-                        color="#fff"
-                      >
-                        {orders[index].count}
-                      </Flex>
-                      <Stack>
-                        <Flex align="center" gap={2}>
-                          <Image
-                            src={item.storefront?.profileImageUrl!}
-                            w="30px"
-                            h="30px"
-                            alt={item.storefront?.storename}
-                            rounded="10px"
-                          />
-                          <Text fontSize={15} fontWeight={500}>
-                            {item.storefront?.storename}
-                          </Text>
+                    <Flex
+                      cursor="pointer"
+                      gap={3}
+                      w="full"
+                      py={3}
+                      px={1}
+                      key={item.id}
+                      alignItems="center"
+                      justify="space-between"
+                    >
+                      <Flex gap={2} align="center" pos="relative">
+                        <Image
+                          border="2px solid #000"
+                          rounded="md"
+                          src={item?.images[0]}
+                          w="80px"
+                          h="80px"
+                          objectFit="cover"
+                          alt={item.name}
+                        />
+                        <Flex
+                          pos="absolute"
+                          top="-2"
+                          left="-2"
+                          p={3}
+                          w="20px"
+                          h="20px"
+                          bg="#000"
+                          rounded="full"
+                          align="center"
+                          justify="center"
+                          fontSize="20px"
+                          fontWeight="600"
+                          color="#fff"
+                        >
+                          {orders[index].count}
                         </Flex>
-                        <Text fontSize={20} fontWeight={500} w="400px">
-                          {item.name}
-                        </Text>
-                      </Stack>
+                        <Stack>
+                          <Flex align="center" gap={2}>
+                            <Image
+                              src={item.storefront?.profileImageUrl!}
+                              w="30px"
+                              h="30px"
+                              alt={item.storefront?.storename}
+                              rounded="10px"
+                            />
+                            <Text fontSize={15} fontWeight={500}>
+                              {item.storefront?.storename}
+                            </Text>
+                          </Flex>
+                          <Text fontSize={20} fontWeight={500} w="400px">
+                            {item.name}
+                          </Text>
+                        </Stack>
+                      </Flex>
+                      <Text fontSize={20} fontWeight={500}>
+                        ₦{item.price?.toLocaleString()}
+                      </Text>
                     </Flex>
-                    <Text fontSize={20} fontWeight={500}>
-                      ₦{item.price?.toLocaleString()}
-                    </Text>
                   </Flex>
                 </Flex>
-              </Flex>
-            ))}
+              ))}
+          </Stack>
           <Flex w="full" justify="space-between" align="center" mt={6}>
             <Text fontSize={15} fontWeight={500}>
               Delivery
@@ -526,7 +599,6 @@ const Checkout = () => {
         </Flex>
       </Flex>
 
-      {/* Add the script tag at the end of the component */}
       <Script src="https://korablobstorage.blob.core.windows.net/modal-bucket/korapay-collections.min.js" />
     </Flex>
   );

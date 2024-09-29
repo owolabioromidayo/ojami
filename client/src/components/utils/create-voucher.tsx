@@ -42,7 +42,7 @@ export const CreateVoucher = ({ onClose, isOpen }: CreateVoucherProps) => {
             initialValues={{ amount: "", currency: "NGN" }}
             onSubmit={async (values, actions) => {
               const response = await fetch(
-                `https://api.ojami.shop/api/payments/vouchers/generate`,
+                `${process.env.NEXT_PUBLIC_OJAMI}/api/payments/vouchers/generate`,
                 {
                   method: "POST",
                   headers: {
