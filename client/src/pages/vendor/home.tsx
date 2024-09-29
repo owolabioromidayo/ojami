@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { ReactElement } from "react";
 import {
   Box,
@@ -9,6 +10,22 @@ import {
   Heading,
   Avatar,
   Badge,
+  Drawer,
+  DrawerBody,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  useDisclosure,
+  Icon,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItemOption,
+  MenuOptionGroup,
+  Input, 
+  InputGroup,
+  InputLeftAddon,
+  useToast,
 } from "@chakra-ui/react";
 import VendorLayout from "@/components/mobile/layout/VendorLayout";
 import type { NextPageWithLayout } from "../_app";
@@ -16,11 +33,31 @@ import Image from "next/image";
 import { useOjaContext } from "@/components/provider";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
+import FancyButton from "@/components/ui/fancy-button";
+import { MdOutlineKeyboardArrowLeft } from "react-icons/md";
+import axios from "axios";
 
 const VendorHome: NextPageWithLayout<{}> = () => {
   const { user } = useOjaContext();
   const router = useRouter();
+  const toast = useToast();
+    const baseUrl = process.env.NEXT_PUBLIC_OJAMI
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const currentDate = format(new Date(), "MMMM yyyy");
+  const [destination, setDestination] = useState({
+    type: "",
+    currency: "NGN",
+    amount: 0,
+    bank_account: {
+      bank: "",
+      account:"",
+    },
+    customer: {
+      email: "",
+    }
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const quickLinks = [
     {
       image: "/images/mobile/vendorHome/create-link.svg",
@@ -89,6 +126,57 @@ const VendorHome: NextPageWithLayout<{}> = () => {
     },
   ];
 
+  const handlePayout = async () => {
+    setIsSubmitting(true);
+    try {
+      const response = await axios.post(
+        `${baseUrl}/api/payments/payout`,
+        {destination},
+        {withCredentials: true}
+      );
+      if (response.status >= 200 && response.status < 300) {
+        toast({
+          title: `Success`,
+          description: "Your payout request was successful, you should receive your funds shortly.",
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+          position: "top",
+          variant: "subtle",
+        });
+        setTimeout(() => {
+          onClose()
+        }, 2000)
+        window.location.reload()
+      } else {
+        toast({
+          title: `Error`,
+          description: "An error occurred while making this request, please wait a while before trying again.",
+          status: "error",
+          duration: 2000,
+          isClosable: true,
+          position: "top",
+          variant: "subtle",
+        });
+      }
+    } catch (err: any) {
+      console.log("error", err);
+      toast({
+        title: `Error`,
+        description: `${err?.response?.data?.errors?.[0]?.message}`,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+        variant: "subtle",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  console.log(destination)
+
   return (
     <Box
       p={"0.2rem"}
@@ -109,14 +197,19 @@ const VendorHome: NextPageWithLayout<{}> = () => {
           pl={"1.5rem"}
         >
           <Flex justifyContent={"space-between"}>
-            <Text
-              fontSize={"xl"}
-              color={"#000000"}
-              fontWeight={"500"}
-              pt={"2rem"}
-            >
-              Welcome to ọjà mi, {user?.firstname}
-            </Text>
+            <Stack lineHeight={"1"}>
+              <Text
+                fontSize={"xl"}
+                color={"#000000"}
+                fontWeight={"500"}
+                pt={"2rem"}
+              >
+                Welcome to ọjà mi,
+              </Text>
+              <Text fontSize={"xl"} color={"#000000"} fontWeight={"500"}>
+                {user?.firstname}
+              </Text>
+            </Stack>
             <Image
               alt="gear"
               src={"/images/mobile/green-gear.svg"}
@@ -289,6 +382,7 @@ const VendorHome: NextPageWithLayout<{}> = () => {
               bg="#ffffff"
               borderBottom={"0px"}
               rounded={"2xl"}
+              onClick={onOpen}
             >
               <Stack
                 alignItems={"center"}
@@ -375,6 +469,232 @@ const VendorHome: NextPageWithLayout<{}> = () => {
           </Stack>
         </Box>
       </Stack>
+
+      <Drawer
+        placement={"bottom"}
+        onClose={onClose}
+        isOpen={isOpen}
+        isFullHeight
+      >
+        <DrawerOverlay />
+        <DrawerContent roundedTop={"xl"}>
+          <Flex px={"0.8rem"} py={"0.5rem"} onClick={onClose}>
+            <Box
+              display={"flex"}
+              alignItems={"center"}
+              justifyContent={"center"}
+              rounded={"full"}
+              backgroundColor={"gray.200"}
+              p={"0.3rem"}
+            >
+              <Icon as={MdOutlineKeyboardArrowLeft} boxSize={4} />
+            </Box>
+          </Flex>
+          <DrawerHeader px={"0.8rem"} py={"0.5rem"}>
+            <Flex alignItems={"center"} gap={1} flexDir={"column"}>
+              <Text fontSize={"xl"} fontWeight={"normal"}>
+                Payout from your wallet to your bank
+              </Text>
+              <Text fontSize={"xs"} fontWeight={"normal"}>
+                A payout is the transfer of funds from your virtual wallet to
+                your bank account
+              </Text>
+            </Flex>
+          </DrawerHeader>
+          <DrawerBody px={"0.8rem"}>
+            <Stack>
+              <Box mt={"0.5rem"}>
+                <Text mb="6px" fontSize={"sm"} fontWeight={"semibold"}>
+                  Destination Account Type
+                </Text>
+                <Menu matchWidth>
+                  <MenuButton
+                    as={Flex}
+                    alignItems={"center"}
+                    height={"50px"}
+                    background={"#FBFBFB"}
+                    _placeholder={{ color: "#B9B9B9" }}
+                    rounded={"lg"}
+                    fontSize={"sm"}
+                    border={"2px solid #000000"}
+                    w={"full"}
+                    textAlign={"start"}
+                    px={"0.8rem"}
+                    _active={{ borderColor: "#2BADE5" }}
+                  >
+                    {!destination.type
+                      ? "Select destination account type"
+                      : destination.type}
+                  </MenuButton>
+
+                  <MenuList minWidth="240px">
+                    <MenuOptionGroup
+                      defaultValue="asc"
+                      title="Destination Type"
+                      type="radio"
+                      value={destination.type}
+                      onChange={(value: any) => {
+                        setDestination((prevData) => ({
+                          ...prevData,
+                          type: value,
+                        }));
+                      }}
+                    >
+                      <MenuItemOption value="bank_account">
+                        Bank Account
+                      </MenuItemOption>
+                    </MenuOptionGroup>
+                  </MenuList>
+                </Menu>
+              </Box>
+
+              <Box mt={"0.5rem"}>
+                <Text mb="6px" fontSize={"sm"} fontWeight={"semibold"}>
+                  Amount
+                </Text>
+                <InputGroup rounded={"lg"} height={"50px"}>
+                  <InputLeftAddon
+                    background={"#FBFBFB"}
+                    height={"50px"}
+                    border={"2px solid #000000"}
+                    borderRightWidth={"0px"}
+                  >
+                    ₦
+                  </InputLeftAddon>
+                  <Input
+                    type={"number"}
+                    size="sm"
+                    height={"50px"}
+                    borderLeftWidth="0px"
+                    border={"2px solid #000000"}
+                    borderRightRadius="lg"
+                    placeholder="Enter amount"
+                    fontSize={"sm"}
+                    background={"#FBFBFB"}
+                    focusBorderColor="#2BADE5"
+                    _focus={{
+                      backgroundColor: "#ffffff",
+                      borderWidth: "1px",
+                    }}
+                    _placeholder={{ color: "#B9B9B9" }}
+                    onChange={(e) =>
+                      setDestination((prevData) => ({
+                        ...prevData,
+                        amount: Number(e.target.value),
+                      }))
+                    }
+                  />
+                </InputGroup>
+              </Box>
+
+              <Box mt={"0.5rem"}>
+                <Text mb="6px" fontSize={"sm"} fontWeight={"semibold"}>
+                  Bank Name
+                </Text>
+                <Input
+                  type={"text"}
+                  size="sm"
+                  placeholder="Access Bank"
+                  fontSize={"sm"}
+                  border={"2px solid #000000"}
+                  rounded={"lg"}
+                  height={"50px"}
+                  background={"#FBFBFB"}
+                  focusBorderColor="#2BADE5"
+                  _focus={{ backgroundColor: "#ffffff", borderWidth: "1px" }}
+                  _placeholder={{ color: "#B9B9B9" }}
+                  onChange={(e) =>
+                    setDestination((prevDestination) => ({
+                      ...prevDestination,
+                      bank_account: {
+                        ...prevDestination.bank_account,
+                        bank: e.target.value,
+                      },
+                    }))
+                  }
+                />
+              </Box>
+
+              <Box mt={"0.5rem"}>
+                <Text mb="6px" fontSize={"sm"} fontWeight={"semibold"}>
+                  Recipient account number
+                </Text>
+                <Input
+                  type="string"
+                  size="sm"
+                  placeholder="2112288337"
+                  fontSize={"sm"}
+                  border={"2px solid #000000"}
+                  rounded={"lg"}
+                  height={"50px"}
+                  background={"#FBFBFB"}
+                  focusBorderColor="#2BADE5"
+                  _focus={{ backgroundColor: "#ffffff", borderWidth: "1px" }}
+                  _placeholder={{ color: "#B9B9B9" }}
+                  onChange={(e) =>
+                    setDestination((prevDestination) => ({
+                      ...prevDestination,
+                      bank_account: {
+                        ...prevDestination.bank_account,
+                        account: e.target.value,
+                      },
+                    }))
+                  }
+                />
+              </Box>
+
+              <Box mt={"0.5rem"}>
+                <Text mb="6px" fontSize={"sm"} fontWeight={"semibold"}>
+                  Email Address
+                </Text>
+                <Input
+                  type={"email"}
+                  size="sm"
+                  placeholder="example@gmail.com"
+                  fontSize={"sm"}
+                  border={"2px solid #000000"}
+                  rounded={"lg"}
+                  height={"50px"}
+                  background={"#FBFBFB"}
+                  focusBorderColor="#2BADE5"
+                  _focus={{ backgroundColor: "#ffffff", borderWidth: "1px" }}
+                  _placeholder={{ color: "#B9B9B9" }}
+                  onChange={(e) =>
+                    setDestination((prevDestination) => ({
+                      ...prevDestination,
+                      customer: {
+                        ...prevDestination.customer,
+                        email: e.target.value,
+                      },
+                    }))
+                  }
+                />
+              </Box>
+            </Stack>
+
+            <Flex justifyContent={"center"}>
+              <FancyButton
+                bg="/assets/buttons/oja-sweet-purple.svg"
+                mt={"1.5rem"}
+                w={200}
+                h={62}
+                onClick={handlePayout}
+                isLoading={isSubmitting}
+                isDisabled={isSubmitting}
+              >
+                <Text
+                  maxW="150px"
+                  whiteSpace="normal"
+                  textAlign="center"
+                  fontSize="sm"
+                >
+                  Redeem Voucher
+                </Text>
+              </FancyButton>
+            </Flex>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </Box>
   );
 };

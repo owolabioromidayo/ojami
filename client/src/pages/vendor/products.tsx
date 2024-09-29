@@ -122,7 +122,7 @@ const Products: NextPageWithLayout<{}> = () => {
         const response = await axios.get(
           `${baseUrl}/api/ecommerce/storefronts/${currentStoreData?.id}/products`
         );
-        if (response.status === 200) {
+        if (response.status == 200) {
           setProducts(response.data.products);
         } else {
           console.error("Failed to fetch products");
@@ -132,7 +132,7 @@ const Products: NextPageWithLayout<{}> = () => {
       }
     };
     getStoreProducts();
-  }, [currentStoreIndex]);
+  }, [user]);
 
   return (
     <Box
@@ -271,14 +271,14 @@ const Products: NextPageWithLayout<{}> = () => {
         ) : (
           <>
             <Grid
-              templateColumns="repeat(2, 1fr)"
+              templateColumns={products.length === 1 ? "1fr" : "repeat(2, 1fr)"}
               gap={2}
               px={"0.8rem"}
               mt={"0.5rem"}
             >
               {products?.map((product, index) => (
                 <GridItem w="100%" bg="#ffffff" rounded={"2xl"} key={index}>
-                  <ProductItem product={product} category="remaining" />
+                  <ProductItem product={product} category="remaining"/>
                 </GridItem>
               ))}
             </Grid>

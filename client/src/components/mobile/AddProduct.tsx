@@ -42,6 +42,7 @@ import * as Yup from "yup";
 import axios from "axios";
 import { useOjaContext } from "../provider";
 import { RiArrowDownSLine } from "react-icons/ri";
+import { useRouter } from "next/navigation";
 
 interface AddProductMobileProps {}
 
@@ -91,6 +92,7 @@ const AddProductMobile: FC<AddProductMobileProps> = ({}) => {
   const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/dat1uvwz1/image/upload`;
   const upload_preset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
   const toast = useToast();
+  const router = useRouter();
   const { isOpen, onToggle, onClose } = useDisclosure();
   const { user } = useOjaContext();
   const [fileNames, setFileNames] = useState([""]);
@@ -229,6 +231,9 @@ const AddProductMobile: FC<AddProductMobileProps> = ({}) => {
           position: "top",
           variant: "subtle",
         });
+        setTimeout(() => {
+          router.push('/vendor/store')
+        }, 2000)
       } else {
         toast({
           title: `Error`,
@@ -472,6 +477,7 @@ const AddProductMobile: FC<AddProductMobileProps> = ({}) => {
                       w={"full"}
                       textAlign={"start"}
                       px={"0.8rem"}
+                      _active={{ borderColor: "#2BADE5" }}
                     >
                       Select Tags
                     </MenuButton>

@@ -23,6 +23,10 @@ const AccountSuccessMobile: FC<AccountSuccessMobileProps> = () => {
 `;
   useViewportHeight();
 
+  setTimeout(() => {
+    window.location.replace("/auth/signin");
+  }, 2000);
+
   return (
     <Box
       backgroundImage={"/images/mobile/bgs/account-success-bg.svg"}

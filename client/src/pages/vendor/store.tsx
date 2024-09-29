@@ -16,7 +16,16 @@ import {
   PopoverBody,
   PopoverCloseButton,
   useDisclosure,
+  Drawer,
+  DrawerBody,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  Heading,
   useToast,
+  Input,
 } from "@chakra-ui/react";
 import { useViewportHeight } from "@/utils/hooks/useViewportHeight";
 import VendorLayout from "@/components/mobile/layout/VendorLayout";
@@ -26,16 +35,21 @@ import { GrCircleInformation } from "react-icons/gr";
 import { useOjaContext } from "@/components/provider";
 import { useRouter } from "next/navigation";
 import { RiArrowDownSLine } from "react-icons/ri";
+import { RiCoupon3Fill } from "react-icons/ri";
 import axios from "axios";
+import FancyButton from "@/components/ui/fancy-button";
 
 const Store: NextPageWithLayout<{}> = () => {
   useViewportHeight();
   const router = useRouter();
   const toast = useToast();
   const { isOpen, onToggle, onClose } = useDisclosure();
+  const { isOpen: isDrawerOpen, onOpen, onClose: onDrawerClose } = useDisclosure();
   const { user } = useOjaContext();
   const baseUrl = process.env.NEXT_PUBLIC_OJAMI;
+  const [voucherCode, setVoucherCode] = useState<string>()
   const storeData = user?.storefronts;
+  const [isSubmittingVoucher, setSubmittingVoucher] = useState(false)
 
   const [currentStoreIndex, setCurrentStoreIndex] = useState<number>(0);
   const [currentStoreData, setCurrentStoreData] = useState(
@@ -64,6 +78,56 @@ const Store: NextPageWithLayout<{}> = () => {
   const setStoreIndex = (index: number) => {
     setCurrentStoreIndex(index);
   };
+
+  
+  const handleRedeemVoucher = async() => {
+    setSubmittingVoucher(true)
+    try{
+      const response = await axios.post(
+        `${baseUrl}/api/payments/vouchers/redeem`,
+        {voucherCode: voucherCode}
+      );
+      if(response.status === 200){
+        toast({
+          title: `Voucher Redeemed🤑🤑`,
+          description:
+            "You have successfully redeemed this voucher",
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+          position: "top",
+          variant: "subtle",
+        });
+        setTimeout(() => {
+          onDrawerClose()
+        }, 2000)
+      } else {
+        toast({
+          title: `Error`,
+          description: "An error occurred while trying to redeem this voucher",
+          status: "error",
+          duration: 2000,
+          isClosable: true,
+          position: "top",
+          variant: "subtle",
+        });
+      }
+    } catch(err: any) {
+      console.log(err)
+      toast({
+        title: `Error`,
+        description: `${err?.response?.data?.errors?.[0]?.message}`,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+        variant: "subtle",
+      });
+    } finally {
+      setSubmittingVoucher(false)
+    }
+  }
+
 
   const handleLogout = async () => {
     try {
@@ -318,6 +382,101 @@ const Store: NextPageWithLayout<{}> = () => {
             {currentStoreData?.description}
           </Text>
         </Stack>
+
+        <Box w={"full"}>
+          <Button
+            backgroundColor={"#000000"}
+            rounded={"md"}
+            mt={"1rem"}
+            leftIcon={<RiCoupon3Fill color={"#EF8421"} size={16} />}
+            w={"full"}
+            fontSize={"xs"}
+            fontWeight={"semibold"}
+            color={"#ffffff"}
+            onClick={onOpen}
+          >
+            Redeem Voucher
+          </Button>
+
+          <Drawer
+            placement={"bottom"}
+            onClose={onDrawerClose}
+            isOpen={isDrawerOpen}
+          >
+            <DrawerOverlay />
+            <DrawerContent
+              height={"50%"}
+              roundedTop={"xl"}
+              backgroundColor={"#FFF4E6"}
+            >
+              <Flex
+                alignItems={"center"}
+                justifyContent={"center"}
+                py={"0.3rem"}
+                onClick={onDrawerClose}
+              >
+                <Box
+                  w={"80px"}
+                  bg={"gray.400"}
+                  height={"5px"}
+                  rounded={"full"}
+                ></Box>
+              </Flex>
+              <DrawerHeader borderBottomWidth="1px" px={"0.8rem"} py={"0.5rem"}>
+                <Flex alignItems={"center"} gap={1}>
+                  <Icon as={RiCoupon3Fill} boxSize={5} color={"#EF8421"} />
+                  <Text
+                    fontSize={"sm"}
+                    fontWeight={"semibold"}
+                    color={"gray.800"}
+                  >
+                    Redeem Voucher
+                  </Text>
+                </Flex>
+              </DrawerHeader>
+              <DrawerBody px={"0.8rem"}>
+                <Box>
+                  <Text mb="6px" fontSize={"sm"} fontWeight={"semibold"}>
+                    Voucher Code
+                  </Text>
+                  <Input
+                    size="sm"
+                    type="text"
+                    border={"2px solid #000000"}
+                    rounded={"lg"}
+                    height={"50px"}
+                    background={"#ECECEC"}
+                    _focus={{ backgroundColor: "#ffffff", borderWidth: "1px" }}
+                    fontSize={"sm"}
+                    focusBorderColor="#EF8421"
+                    onChange={(e) => setVoucherCode(e.target.value)}
+                  />
+                </Box>
+
+                <Flex justifyContent={"center"}>
+                  <FancyButton
+                    bg="/assets/buttons/oja-sweet-purple.svg"
+                    mt={"1.5rem"}
+                    w={200}
+                    h={62}
+                    onClick={handleRedeemVoucher}
+                    isLoading={isSubmittingVoucher}
+                    isDisabled={isSubmittingVoucher}
+                  >
+                    <Text
+                      maxW="150px"
+                      whiteSpace="normal"
+                      textAlign="center"
+                      fontSize="sm"
+                    >
+                      Redeem Voucher
+                    </Text>
+                  </FancyButton>
+                </Flex>
+              </DrawerBody>
+            </DrawerContent>
+          </Drawer>
+        </Box>
       </Box>
     );
   }
