@@ -1,9 +1,6 @@
 import { Entity, PrimaryKey, Property, ManyToOne } from "@mikro-orm/core";
-import { User } from "./User"; 
-import { BankTransferResponse, TransactionStatus, TransactionType } from "../types"; 
-
-//TODO: transaction type, from and to
-
+import { User } from "./User";
+import { BankTransferResponse } from "../types";
 
 @Entity()
 export class Transaction {
@@ -12,7 +9,7 @@ export class Transaction {
   id!: number;
 
   @Property()
-  _type!: TransactionType;
+  _type!: 'bank_transfer' | 'virtual_transaction';
 
   @Property()
   currency!: string;
@@ -39,7 +36,7 @@ export class Transaction {
   paymentReference!: string;
 
   @Property()
-  status!: TransactionStatus;
+  status!: 'pending' | 'processing' | 'completed' | 'failed';
 
   @Property()
   narration!: string;
@@ -68,10 +65,10 @@ export class Transaction {
   @Property()
   customerEmail!: string;
 
-  @ManyToOne(() => User) 
+  @ManyToOne(() => User)
   sendingUser!: User;
 
-  @ManyToOne(() => User) 
+  @ManyToOne(() => User)
   receivingUser?: User;
 
   constructor(response: BankTransferResponse, user: User) {
@@ -83,8 +80,8 @@ export class Transaction {
     this.vat = data.vat;
     this.reference = data.reference;
     this.paymentReference = data.payment_reference;
-    this.status = data.status as TransactionStatus;
-    this._type = TransactionType.BANK_TRANSFER;
+    this.status = data.status as 'pending' | 'processing' | 'completed' | 'failed';
+    this._type = 'bank_transfer';
     this.narration = data.narration;
     this.merchantBearsCost = data.merchant_bears_cost;
 

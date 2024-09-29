@@ -23,7 +23,7 @@ export class PendingBalance {
     amount: number = 0;
 
     @Property()
-    status!: PendingBalanceStatus;
+    status!: 'pending' | 'completed' | 'failed';
 
     @Property()
     currency!: string;
@@ -39,7 +39,7 @@ export class PendingBalance {
         this.amount = amount;
         this.sendingWallet = sendingWallet;
         this.receivingWallet = receivingWallet;
-        this.status = PendingBalanceStatus.PENDING;
+        this.status = 'pending';
         this.createdAt = new Date();
         this.resolvesAt = new Date(this.createdAt.getTime() + RESOLUTION_WAIT_TIME_MILLIS);
 

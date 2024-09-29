@@ -12,24 +12,24 @@ import {
 } from "@chakra-ui/react";
 import { useViewportHeight } from "@/utils/hooks/useViewportHeight";
 import FancyButton from "@/components/ui/fancy-button";
-import {Formik, Field} from 'formik'
-import * as Yup from 'yup'
-import axios from 'axios'
+import { Formik, Field } from "formik";
+import * as Yup from "yup";
+import axios from "axios";
 
 interface SignupMobileProps {}
 
 const SignupMobile: FC<SignupMobileProps> = ({}) => {
+  useViewportHeight();
   const [dateInput, setDateInput] = useState("text");
-  const [birthdate, setBirthdate] = useState("")
   const [role, setRole] = useState<string | null>("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const toast = useToast()
-  const baseUrl = `${process.env.NEXT_PUBLIC_OJAMI}`;
+  const baseUrl = process.env.NEXT_PUBLIC_OJAMI
 
   useEffect(() => {
     let role = localStorage.getItem("role");
-    setRole(role)
-  }, [])
+    setRole(role);
+  }, []);
 
   const schema = Yup.object().shape({
     firstName: Yup.string().required("First name is required"),
@@ -38,10 +38,7 @@ const SignupMobile: FC<SignupMobileProps> = ({}) => {
 
     phoneNumber: Yup.string()
       .required("Phone number is required")
-      .matches(
-        /^(\+\d{1,3}[- ]?)?\d{11}$/,
-        "Phone number is not valid"
-      )
+      .matches(/^(\+\d{1,3}[- ]?)?\d{11}$/, "Phone number is not valid")
       .min(10, "Phone number must be at least 10 digits")
       .max(15, "Phone number can be up to 15 digits"),
 
@@ -61,10 +58,8 @@ const SignupMobile: FC<SignupMobileProps> = ({}) => {
       .matches(/\d/, "Password must contain at least one number"),
   });
 
-  useViewportHeight();
-
-  const handleSubmit = async(values: any) => {
-    setIsSubmitting(true)
+  const handleSubmit = async (values: any) => {
+    setIsSubmitting(true);
     const postData = {
       firstname: values.firstName.trim(),
       lastname: values.lastName.trim(),
@@ -73,18 +68,40 @@ const SignupMobile: FC<SignupMobileProps> = ({}) => {
       email: values.email.trim(),
       password: values.password.trim(),
     };
-    try{
-      const response = await axios.post(`${baseUrl}/api/auth/users/signup`, postData)
-      if(response){
-        window.location.assign('/auth/account-success')
+    try {
+      const response = await axios.post(
+        `${baseUrl}/api/auth/users/signup`,
+        postData
+      );
+      if (response.status >= 200 && response.status < 300) {
+        window.location.assign("/auth/account-success");
+      } else {
+        toast({
+          title: `Error`,
+          description: "An error occurred while signing you up.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+          variant: "subtle",
+        });
       }
-    } catch(err){
-      console.log('error', err)
+    } catch (err: any) {
+      console.log("error", err);
+      toast({
+        title: `Error`,
+        description: `${err?.response?.data?.errors[0]?.message}`,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+        variant: "subtle",
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
-  console.log(birthdate)
+  };
+
   return (
     <Box h="calc(var(--vh, 1vh) * 100)" w={"100vw"} backgroundColor={"#2BADE5"}>
       <Box backgroundColor={"#2BADE5"} h="calc(var(--vh, 1vh) * 7)"></Box>
@@ -121,7 +138,7 @@ const SignupMobile: FC<SignupMobileProps> = ({}) => {
             password: "",
           }}
           onSubmit={(values) => {
-            handleSubmit(values)
+            handleSubmit(values);
           }}
           validationSchema={schema}
         >
@@ -204,9 +221,9 @@ const SignupMobile: FC<SignupMobileProps> = ({}) => {
                     _placeholder={{ color: "#B9B9B9" }}
                     onFocus={() => setDateInput("date")}
                     onBlur={(e: any) => !e.target.value && setDateInput("text")}
-                    />
+                  />
                 </Box>
-                    <FormErrorMessage>{errors.birthDate}</FormErrorMessage>
+                <FormErrorMessage>{errors.birthDate}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={!!errors.email && touched.email}>
@@ -229,9 +246,9 @@ const SignupMobile: FC<SignupMobileProps> = ({}) => {
                     focusBorderColor="#2BADE5"
                     _focus={{ backgroundColor: "#ffffff", borderWidth: "1px" }}
                     _placeholder={{ color: "#B9B9B9" }}
-                    />
+                  />
                 </Box>
-                    <FormErrorMessage>{errors.email}</FormErrorMessage>
+                <FormErrorMessage>{errors.email}</FormErrorMessage>
               </FormControl>
 
               <FormControl
@@ -256,9 +273,9 @@ const SignupMobile: FC<SignupMobileProps> = ({}) => {
                     focusBorderColor="#2BADE5"
                     _focus={{ backgroundColor: "#ffffff", borderWidth: "1px" }}
                     _placeholder={{ color: "#B9B9B9" }}
-                    />
+                  />
                 </Box>
-                    <FormErrorMessage>{errors.phoneNumber}</FormErrorMessage>
+                <FormErrorMessage>{errors.phoneNumber}</FormErrorMessage>
               </FormControl>
 
               <FormControl isInvalid={!!errors.password && touched.password}>
@@ -283,7 +300,7 @@ const SignupMobile: FC<SignupMobileProps> = ({}) => {
                     _placeholder={{ color: "#B9B9B9" }}
                   />
                 </Box>
-                    <FormErrorMessage>{errors.password}</FormErrorMessage>
+                <FormErrorMessage>{errors.password}</FormErrorMessage>
               </FormControl>
 
               <Flex justifyContent={"center"}>
@@ -294,6 +311,7 @@ const SignupMobile: FC<SignupMobileProps> = ({}) => {
                   h={62}
                   type="submit"
                   isLoading={isSubmitting}
+                  isDisabled={isSubmitting}
                 >
                   <Text
                     maxW="150px"

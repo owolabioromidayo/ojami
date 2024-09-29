@@ -1,4 +1,4 @@
-import { FC, ReactNode } from "react";
+import { FC, ReactNode, useEffect } from "react";
 import { Box, Text, Icon, Flex } from "@chakra-ui/react";
 import { IconType } from "react-icons";
 import { usePathname } from "next/navigation";
@@ -64,9 +64,25 @@ const VendorLayout: FC<VendorLayoutProps> = ({ children }) => {
   useViewportHeight();
   const pathName = usePathname();
   const router = useRouter();
+  const baseUrl = process.env.NEXT_PUBLIC_OJAMI;
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const url = `${baseUrl}/api/auth/users/me`;
+      try {
+        const response = await fetch(url, { credentials: "include" });
+        if (!response.ok) {
+          router.push("/auth/signin");
+        }
+      } catch (error: any) {
+        console.log(error);
+      }
+    };
+    fetchUserData();
+  });
 
   return (
-    <Box backgroundColor={'#FFFFFF'}>
+    <Box backgroundColor={"#FFFFFF"}>
       <Box
         height="calc(var(--vh, 1vh) * 100 - 60px)"
         overflowY={"auto"}

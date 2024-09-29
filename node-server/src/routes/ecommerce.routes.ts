@@ -30,6 +30,7 @@ import { Cart } from "../entities/Cart";
 import { CartItem } from "../entities/CartItem";
 import { serialize } from "v8";
 import { isAuth } from "../middleware/isAuth";
+import { Tag } from "../entities/Tag";
 
 const router = express.Router();
 
@@ -37,9 +38,9 @@ const router = express.Router();
 
 // Storefront Routes
 router.post("/storefronts", isAuth,  createStorefront);
-//TODO: do we want storefronts to be indexed by id or name? 
+//TODO: do we want storefronts to be indexed by id or name? => name 
 router.get("/storefronts/:id", getStorefront);
-router.get("/storefronts/str/:storename", getStoreFromName)
+router.get("/storefronts/str/:name", getStorefrontFromName);
 router.get("/storefronts/:id/products", getAllProductsFromStorefront);
 router.get("/storefronts", getAllStorefronts);
 
@@ -52,8 +53,6 @@ router.get("/products/:id", getProduct);
 // Order Routes
 router.post("/orders", isAuth,  createOrder);
 router.get("/orders/me/", isAuth,  getUserOrders);
-router.get("/orders/vendor", isAuth,  getVendorOrders);
-router.get("/orders/me/history", isAuth,  getUserOrderHistory);
 router.get("/orders/:id", isAuth, getOrder);
 
 // Cart Routes
@@ -65,20 +64,29 @@ router.post("/carts/remove", isAuth, removeFromCart);
 
 //dispute order, refund, and the like
 
-//TODO: cart checkout (update product stock count, push to payin/checkout link)
+//TODO: cart checkout (update product stock count, push to payin/checkout links)
 
 //TODO: fix error responses
 
 
 async function createStorefront(req: Request, res: Response) {
-    const { storename,  description , tags } = req.body;
+    const { storename,  description , tags, bannerImageUrl, profileImageUrl } = req.body;
 
     const em = (req as RequestWithContext).em;
 
 
     try {
         const user = await em.fork({}).findOneOrFail(User, { id: req.session.userid  });
-        const storefront = new Storefront(user, storename, description, tags, em);
+        const storefront = new Storefront(user, storename, description, bannerImageUrl, profileImageUrl, tags, em);
+        tags.forEach(async (tagName: string) => {
+          let tag = await em.findOne(Tag, { name: tagName });
+          if (!tag) {
+            tag = new Tag(tagName);
+            await em.persistAndFlush(tag);
+          }
+
+          storefront.tags.add(tag);
+        });
 
         await em.fork({}).persistAndFlush(storefront);
 
@@ -111,17 +119,20 @@ async function getStorefront(req: Request, res: Response) {
     }
 }
 
-async function getStoreFromName(req: Request, res: Response) {
+async function getStorefrontFromName(req: Request, res: Response) {
 
-    const storename  = (req.params.storename);
+    const store  = req.params.name;
+
+    if (!store) {
+        return res.status(400).json({ errors: [{ field: 'id', message: 'Invalid Store Name' }] });
+    }
 
 
     const em = (req as RequestWithContext).em;
 
     try {
-        //TODO : do we want to populate with products in the req?
-
-        const storefront = await em.fork({}).findOneOrFail(Storefront, { storename: storename }, { populate: ["products"]});
+        //TODO : do we want to populate with products in the req? => Yes
+        const storefront = await em.fork({}).findOneOrFail(Storefront, { storename: store }, { populate: ["products"]});
         return res.status(200).json({ storefront });
     } catch (err) {
         return res.status(404).json({ errors: [{ field: 'storefront', message: 'Storefront not found' }] });
@@ -171,7 +182,16 @@ async function createProduct(req: Request, res: Response) {
             return res.status(401).json({ errors: [{ field: 'auth', message: 'Not authenticated' }] });
         }
 
-        const product = new Product(storefront, name, price , images, description, quantity, tags, em);
+        const product = new Product(storefront, name, price , images, description, quantity);
+        tags.forEach(async (tagName: string) => {
+          let tag = await em.findOne(Tag, { name: tagName });
+          if (!tag) {
+            tag = new Tag(tagName);
+            await em.persistAndFlush(tag);
+          }
+
+          product.tags.add(tag);
+        });
         await em.fork({}).persistAndFlush(product);
         return res.status(201).json({ product });
     } catch (err) {
@@ -299,51 +319,7 @@ async function getUserOrders(req: Request, res: Response) {
 
     try {
         // Fetch orders for the user
-        const orders = await em.fork({}).find(Order, { fromUser: Number(req.session.userid), status: { $eq: 'pending'} });
-
-        // Initialize an array to hold products
-        const products = [];
-
-        // Loop through each order to fetch the corresponding product
-        for (const order of orders) {
-            const product = await em.fork({}).findOneOrFail(Product, { id: order.product.id }, { populate: ['storefront'] });
-            products.push(product); // Add the fetched product to the products array
-        } 
-
-        return res.status(200).json({ orders, products }); // Return both orders and products
-    } catch (err) {
-        return res.status(500).json({ errors: [{ field: 'orders', message: 'Could not fetch orders for this user', error: err }] });
-    }
-}
-
-async function getVendorOrders(req: Request, res: Response) {
-    const em = (req as RequestWithContext).em;
-
-    try {
-        // Fetch orders for the user
-        const orders = await em.fork({}).find(Order, { toUser: Number(req.session.userid) });
-
-        // Initialize an array to hold products
-        const products = [];
-
-        // Loop through each order to fetch the corresponding product
-        for (const order of orders) {
-            const product = await em.fork({}).findOneOrFail(Product, { id: order.product.id }, { populate: ['storefront'] });
-            products.push(product); // Add the fetched product to the products array
-        } 
-
-        return res.status(200).json({ orders, products }); // Return both orders and products
-    } catch (err) {
-        return res.status(500).json({ errors: [{ field: 'orders', message: 'Could not fetch orders for this user', error: err }] });
-    }
-}
-
-async function getUserOrderHistory(req: Request, res: Response) {
-    const em = (req as RequestWithContext).em;
-
-    try {
-        // Fetch orders for the user
-        const orders = await em.fork({}).find(Order, { fromUser: Number(req.session.userid) });
+        const orders = await em.fork({}).find(Order, { toUser: Number(req.session.userid), status: { $eq: 'pending'} });
 
         // Initialize an array to hold products
         const products = [];
@@ -377,9 +353,9 @@ async function createCart(req: Request, res: Response) {
         }
 
         return res.status(201).json({ cart });
-    } catch (err) {
+    } catch (err: any) {
         return res.status(500).json({
-            errors: [{ field: "cart", message: "Could not create or retrieve cart", error: err }],
+            errors: [{ field: "cart", message: err.message, error: err }],
         });
     }
 }

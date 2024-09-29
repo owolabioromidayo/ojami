@@ -50,16 +50,6 @@ const OnboardingMobile: FC<OnboardingMobileProps> = () => {
             <Link href={"/auth/signup"}>Sign Up</Link>
           </Text>
         </FancyButton>
-        <FancyButton bg="/assets/buttons/oja-sweet-purple.svg" w={200} h={70}>
-          <Text
-            maxW="150px"
-            whiteSpace="normal"
-            textAlign="center"
-            fontSize="sm"
-          >
-            Sign Up with Phone Number
-          </Text>
-        </FancyButton>
       </Stack>
 
       <Box display="flex" justifyContent="center" mt="2rem">

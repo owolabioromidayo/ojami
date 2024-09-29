@@ -12,7 +12,7 @@ const AccountSuccessMobile: FC<AccountSuccessMobileProps> = () => {
     let role = localStorage.getItem("role");
     setRole(role);
   }, []);
-  
+
   const rotateAnimation = keyframes`
   from {
     transform: rotate(0deg);

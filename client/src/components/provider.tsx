@@ -1,5 +1,5 @@
 import { Cart, Product, Storefront, User, VirtualWallet } from "@/utils/types";
-import React, { createContext, ReactNode, useEffect, useState } from "react";
+import React, { createContext, ReactNode, useEffect, useState, useContext } from "react";
 
 interface OjaProviderProps{
     children: ReactNode;
@@ -104,6 +104,12 @@ export const OjaProvider: React.FC<OjaProviderProps> = ({ children }) => {
             {children}
         </OjaContext.Provider>
     )
-
-
+    
 }
+export const useOjaContext = () => {
+  const context = useContext(OjaContext);
+  if (context === undefined) {
+    throw new Error("useOjaContext must be used within an OjaProvider");
+  }
+  return context;
+};

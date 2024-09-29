@@ -1,10 +1,26 @@
 import type { ReactElement } from "react";
-import { Box, Stack, Flex, Text, Grid, GridItem, Heading, Avatar, Badge } from "@chakra-ui/react";
+import {
+  Box,
+  Stack,
+  Flex,
+  Text,
+  Grid,
+  GridItem,
+  Heading,
+  Avatar,
+  Badge,
+} from "@chakra-ui/react";
 import VendorLayout from "@/components/mobile/layout/VendorLayout";
 import type { NextPageWithLayout } from "../_app";
 import Image from "next/image";
+import { useOjaContext } from "@/components/provider";
+import { format } from "date-fns";
+import { useRouter } from "next/navigation";
 
 const VendorHome: NextPageWithLayout<{}> = () => {
+  const { user } = useOjaContext();
+  const router = useRouter();
+  const currentDate = format(new Date(), "MMMM yyyy");
   const quickLinks = [
     {
       image: "/images/mobile/vendorHome/create-link.svg",
@@ -58,10 +74,7 @@ const VendorHome: NextPageWithLayout<{}> = () => {
       amount: 1102000,
       firstName: "Victoria",
       lastName: "Folarin",
-      items: [
-        "1x Sony XM1000-WH5",
-        "2x Oraimo Freepods 4",
-      ],
+      items: ["1x Sony XM1000-WH5", "2x Oraimo Freepods 4"],
     },
     {
       profileImg: "/images/mobile/profile.svg",
@@ -100,9 +113,9 @@ const VendorHome: NextPageWithLayout<{}> = () => {
               fontSize={"xl"}
               color={"#000000"}
               fontWeight={"500"}
-              pt={"3.2rem"}
+              pt={"2rem"}
             >
-              Welcome to ọjà mi, Semilogo
+              Welcome to ọjà mi, {user?.firstname}
             </Text>
             <Image
               alt="gear"
@@ -112,20 +125,14 @@ const VendorHome: NextPageWithLayout<{}> = () => {
             />
           </Flex>
 
-          <Flex
-            flexDir={"column"}
-            mt={"1.5rem"}
-            lineHeight={"1"}
-            gap={2}
-            pb={"1.5rem"}
-          >
+          <Flex flexDir={"column"} lineHeight={"1"} gap={2} pb={"1.5rem"}>
             <Text fontSize={"xs"} fontWeight={"semibold"}>
-              Revenue • september 2024
+              Revenue • {currentDate}
             </Text>
             <Text fontWeight={"semibold"} fontSize={"sm"}>
-              NGN{" "}
+              {user?.virtualWallet.currency}{" "}
               <span style={{ fontSize: "30px", fontWeight: "600" }}>
-                645,193.54
+                {user?.virtualWallet.balance.toLocaleString()}
               </span>
             </Text>
           </Flex>
@@ -204,6 +211,7 @@ const VendorHome: NextPageWithLayout<{}> = () => {
                 borderTop={"0px"}
                 borderRight={"0px"}
                 h={"full"}
+                onClick={() => router.push("/vendor/add-product")}
               >
                 <Image
                   src={quickLinks[2].image}
@@ -332,12 +340,12 @@ const VendorHome: NextPageWithLayout<{}> = () => {
                   />
                   <Stack gap={0}>
                     <Flex gap={2} alignItems={"center"}>
-                      <Text fontWeight={"bold"} fontSize={"sm"}>
+                      <Text fontWeight={"bold"} fontSize={"xs"}>
                         Andrew Okafor
                       </Text>
                       <Badge
                         fontSize={"3xs"}
-                        py={"0.2rem"}
+                        py={"0.1rem"}
                         px={"0.3rem"}
                         rounded={"2xl"}
                         border={"2px solid #000000"}
@@ -372,11 +380,7 @@ const VendorHome: NextPageWithLayout<{}> = () => {
 };
 
 VendorHome.getLayout = function getLayout(page: ReactElement) {
-  return (
-    <VendorLayout>
-      {page}
-    </VendorLayout>
-  );
+  return <VendorLayout>{page}</VendorLayout>;
 };
 
 export default VendorHome;

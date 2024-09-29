@@ -1,15 +1,326 @@
+import { FC, useEffect, useState } from "react";
 import type { ReactElement } from "react";
-import { Box, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Stack,
+  Avatar,
+  Text,
+  Flex,
+  Image,
+  Icon,
+  Button,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverHeader,
+  PopoverBody,
+  PopoverCloseButton,
+  useDisclosure,
+  useToast,
+} from "@chakra-ui/react";
 import { useViewportHeight } from "@/utils/hooks/useViewportHeight";
 import VendorLayout from "@/components/mobile/layout/VendorLayout";
 import type { NextPageWithLayout } from "../_app";
+import { IoStarSharp, IoExit, IoStorefrontOutline } from "react-icons/io5";
+import { GrCircleInformation } from "react-icons/gr";
+import { useOjaContext } from "@/components/provider";
+import { useRouter } from "next/navigation";
+import { RiArrowDownSLine } from "react-icons/ri";
+import axios from "axios";
 
 const Store: NextPageWithLayout<{}> = () => {
   useViewportHeight();
+  const router = useRouter();
+  const toast = useToast();
+  const { isOpen, onToggle, onClose } = useDisclosure();
+  const { user } = useOjaContext();
+  const baseUrl = process.env.NEXT_PUBLIC_OJAMI;
+  const storeData = user?.storefronts;
 
-  return <Box height="calc(var(--vh, 1vh) * 100)" w="100vw">
-    <Text fontSize={'4xl'}>SAMPLE EKWE!</Text>
-  </Box>;
+  const [currentStoreIndex, setCurrentStoreIndex] = useState<number>(0);
+  const [currentStoreData, setCurrentStoreData] = useState(
+    () => storeData?.[currentStoreIndex]
+  );
+
+  useEffect(() => {
+    const storedIndex = localStorage.getItem("currentStoreIndex");
+    if (storedIndex) {
+      const index = Number(storedIndex);
+      setCurrentStoreIndex(index);
+      setCurrentStoreData(storeData?.[index]);
+    } else {
+      setCurrentStoreData(storeData?.[0]);
+    }
+  }, [storeData]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "currentStoreIndex",
+      JSON.stringify(currentStoreIndex)
+    );
+    setCurrentStoreData(storeData?.[currentStoreIndex]);
+  }, [currentStoreIndex, storeData]);
+
+  const setStoreIndex = (index: number) => {
+    setCurrentStoreIndex(index);
+  };
+
+  const handleLogout = async () => {
+    try {
+      const response = await axios.post(
+        `${baseUrl}/api/auth/users/logout`,
+        {},
+        { withCredentials: true }
+      );
+      if (response.status === 200) {
+        toast({
+          title: `Goodbye ${user?.firstname}😔`,
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+          position: "top",
+          variant: "subtle",
+        });
+        setTimeout(() => {
+          window.location.replace("/auth/signin");
+        }, 2000);
+      } else {
+        toast({
+          title: "Error",
+          description:
+            "An error occurred while logging you out, please try again after a while",
+          status: "error",
+          duration: 1000,
+          isClosable: true,
+          position: "top",
+          variant: "subtle",
+        });
+      }
+    } catch (error: any) {
+      console.log(error);
+      toast({
+        title: "Error",
+        description: `${error?.response?.data?.errors[0]?.message}`,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+        variant: "subtle",
+      });
+    }
+  };
+
+  if (!storeData || storeData.length === 0) {
+    return (
+      <Flex
+        height="calc(var(--vh, 1vh) * 100 - 60px)"
+        pt={"1rem"}
+        flexDir={"column"}
+      >
+        <Flex
+          backgroundColor="#FFF4E6"
+          p="1rem"
+          border="2px solid #B80000"
+          rounded="lg"
+          flexDir="column"
+          justifyContent="center"
+          alignItems="center"
+          textAlign="center"
+          gap={3}
+          maxW="90%"
+          mx="auto"
+        >
+          <Flex alignItems="center" gap={2}>
+            <Icon as={GrCircleInformation} color="#B80000" boxSize={5} />
+            <Text fontSize="sm" fontWeight="500">
+              Storefront Required
+            </Text>
+          </Flex>
+          <Text fontSize="xs" color="#333333">
+            To access this page and manage your products, please register your
+            business. This will enable you to upload and view your products
+            effectively.
+          </Text>
+          <Button
+            size="sm"
+            backgroundColor="#000000"
+            color="#ffffff"
+            w="100%"
+            maxW="200px"
+            py="0.75rem"
+            mt={2}
+            _focus={{ backgroundColor: "#00000070" }}
+            onClick={() => router.push("/auth/register-business")}
+          >
+            Register Business
+          </Button>
+        </Flex>
+      </Flex>
+    );
+  } else {
+    return (
+      <Box
+        height="calc(var(--vh, 1vh) * 100 - 60px)"
+        w="100vw"
+        overflowY={"auto"}
+        px={"0.5rem"}
+        pt={"0.5rem"}
+      >
+        <Flex
+          alignItems={"center"}
+          justifyContent={"space-between"}
+          mb={"1rem"}
+        >
+          <Flex alignItems={"center"}>
+            <Popover isOpen={isOpen} onClose={onClose}>
+              <PopoverTrigger>
+                <Flex
+                  onClick={onToggle}
+                  alignItems="center"
+                  gap={2}
+                  border="1px solid #2BADE5"
+                  p="0.5rem"
+                  bg="white"
+                  _hover={{ bg: "#F0F4F8", borderColor: "#2BADE5" }}
+                  _active={{ bg: "#E2E8F0", borderColor: "#2BADE5" }}
+                  transition="background-color 0.2s, border-color 0.2s"
+                  cursor="pointer"
+                  boxShadow="sm"
+                  w="full"
+                  justifyContent="space-between"
+                  rounded="full"
+                >
+                  <Icon as={IoStorefrontOutline} color="#2BADE5" boxSize={4} />
+                  <Text
+                    maxW="120px"
+                    fontWeight="500"
+                    isTruncated
+                    fontSize="xs"
+                    color="#333"
+                  >
+                    Current Store
+                  </Text>
+                  <Icon as={RiArrowDownSLine} color="#333" boxSize={4} />
+                </Flex>
+              </PopoverTrigger>
+              <PopoverContent
+                w="250px"
+                mx="0.5rem"
+                mt={2}
+                border={"2px solid #000000"}
+                backgroundColor="#FFFFFF"
+              >
+                <PopoverCloseButton />
+                <PopoverHeader fontWeight={"semibold"} fontSize={"sm"}>
+                  Select a Store
+                </PopoverHeader>
+                <PopoverBody>
+                  <Stack>
+                    {storeData?.map((store, index) => (
+                      <Flex
+                        key={index}
+                        p={"0.3rem"}
+                        gap={2}
+                        alignItems={"center"}
+                        border={"2px solid #000000"}
+                        rounded={"10px"}
+                        backgroundColor={"#FFF9E5"}
+                        _active={{ bg: "#E2E8F0", borderColor: "#2BADE5" }}
+                        onClick={() => {
+                          setStoreIndex(index);
+                          onClose();
+                        }}
+                      >
+                        <Avatar
+                          size={"sm"}
+                          src={store.profileImageUrl}
+                          border={"2px solid #000000"}
+                        />
+                        <Text fontSize={"xs"} fontWeight={"500"}>
+                          {store.storename}
+                        </Text>
+                      </Flex>
+                    ))}
+                  </Stack>
+                </PopoverBody>
+              </PopoverContent>
+            </Popover>
+          </Flex>
+
+          <Popover>
+            <PopoverTrigger>
+              <Flex backgroundColor={"gray.200"} p={"0.3rem"} rounded={"full"}>
+                <Avatar size={"xs"} src="/images/mobile/profile-avatar.svg" />
+              </Flex>
+            </PopoverTrigger>
+            <PopoverContent
+              maxW={"250px"}
+              mx="0.5rem"
+              _focus={{ outline: "none" }}
+            >
+              <PopoverBody>
+                <Stack>
+                  <Flex
+                    onClick={handleLogout}
+                    bg={"gray.100"}
+                    rounded={"md"}
+                    px={"1rem"}
+                    py={"0.5rem"}
+                    alignItems={"center"}
+                    gap={2}
+                  >
+                    <Icon as={IoExit} boxSize={4} color={"red"} />
+                    <Text fontWeight={"500"} fontSize={"sm"}>
+                      Logout
+                    </Text>
+                  </Flex>
+                </Stack>
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
+        </Flex>
+
+        <Stack
+          border={"2px solid #000000"}
+          rounded={"xl"}
+          p={"1rem"}
+          alignItems={"center"}
+          lineHeight={"1"}
+          backgroundColor={"#FFF9E5"}
+          gap={2}
+        >
+          <Flex position={"relative"}>
+            <Avatar
+              src={currentStoreData?.profileImageUrl}
+              size={"lg"}
+              border={"2px solid #000000"}
+            />
+            <Flex position={"absolute"} left={"10"}>
+              <Image
+                src="/images/mobile/store-profile-image-tag.svg"
+                alt="store-tag"
+                height={"18px"}
+                w={"19px"}
+              />
+            </Flex>
+          </Flex>
+
+          <Text fontWeight={"semibold"} fontSize={"xl"} textAlign={"center"}>
+            {currentStoreData?.storename}
+          </Text>
+          <Flex alignItems={"center"} gap={1}>
+            <Icon as={IoStarSharp} />
+            <Text fontSize={"xs"} fontWeight={"500"}>
+              4.5 (2k)
+            </Text>
+          </Flex>
+          <Text fontSize={"xs"} textAlign={"center"}>
+            {currentStoreData?.description}
+          </Text>
+        </Stack>
+      </Box>
+    );
+  }
 };
 
 Store.getLayout = function getLayout(page: ReactElement) {

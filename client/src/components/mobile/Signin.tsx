@@ -1,13 +1,28 @@
-import { FC } from "react";
-import { Box, Text, Input, Stack, Flex, keyframes } from "@chakra-ui/react";
+import { FC, useState } from "react";
+import {
+  Box,
+  Text,
+  Input,
+  Stack,
+  Flex,
+  keyframes,
+  useToast,
+} from "@chakra-ui/react";
 import FancyButton from "@/components/ui/fancy-button";
-import Link from "next/link";
 import Image from "next/image";
 import { useViewportHeight } from "@/utils/hooks/useViewportHeight";
+import axios from "axios";
 
 interface SigninMobileProps {}
 
 const SigninMobile: FC<SigninMobileProps> = ({}) => {
+  const baseUrl = process.env.NEXT_PUBLIC_OJAMI;
+  const toast = useToast();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useViewportHeight();
   const rotateAnimation = keyframes`
   from {
     transform: rotate(0deg);
@@ -16,7 +31,56 @@ const SigninMobile: FC<SigninMobileProps> = ({}) => {
     transform: rotate(360deg);
   }
 `;
-  useViewportHeight();
+
+  const handleSignin = async () => {
+    setIsSubmitting(true);
+    const formData = { phoneOrEmail: email.trim(), password: password.trim() };
+    try {
+      const response = await axios.post(
+        `${baseUrl}/api/auth/users/login`,
+        formData,
+        { withCredentials: true }
+      );
+      const user = response.data.user;
+      if (response.status >= 200 && response.status < 300) {
+        toast({
+          title: `Welcome back ${user.firstname}😎`,
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+          position: "top",
+          variant: "subtle",
+        });
+        setTimeout(() => {
+          window.location.assign("/vendor/home");
+        }, 2000);
+      } else {
+        toast({
+          title: `Error`,
+          description:
+            "An error occurred while signing you in, please wait a bit and try again",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+          variant: "subtle",
+        });
+      }
+    } catch (error: any) {
+      console.log("error", error);
+      toast({
+        title: `Error`,
+        description: `${error?.response?.data?.errors[0]?.message}`,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+        variant: "subtle",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <Box
       backgroundImage={"/images/mobile/bgs/sign-in-bg.svg"}
@@ -53,14 +117,15 @@ const SigninMobile: FC<SigninMobileProps> = ({}) => {
           </Text>
           <Input
             size="sm"
-            type="email"
+            type="text"
             border={"2px solid #000000"}
             rounded={"lg"}
             height={"50px"}
             background={"#ECECEC"}
             _focus={{ backgroundColor: "#ffffff", borderWidth: "1px" }}
-            fontSize={"2xl"}
+            fontSize={"sm"}
             focusBorderColor="#EF8421"
+            onChange={(e) => setEmail(e.target.value)}
           />
         </Box>
 
@@ -76,14 +141,22 @@ const SigninMobile: FC<SigninMobileProps> = ({}) => {
             height={"50px"}
             background={"#ECECEC"}
             _focus={{ backgroundColor: "#ffffff", borderWidth: "1px" }}
-            fontSize={"2xl"}
+            fontSize={"sm"}
             focusBorderColor="#EF8421"
+            onChange={(e) => setPassword(e.target.value)}
           />
         </Box>
       </Stack>
 
       <Flex justifyContent={"center"} mt={"2rem"}>
-        <FancyButton bg="/assets/buttons/oja-cloud-orange.svg" w={250} h={70}>
+        <FancyButton
+          bg="/assets/buttons/oja-cloud-orange.svg"
+          w={250}
+          h={70}
+          onClick={handleSignin}
+          isLoading={isSubmitting}
+          isDisabled={isSubmitting}
+        >
           <Text
             maxW="150px"
             whiteSpace="normal"
@@ -93,12 +166,6 @@ const SigninMobile: FC<SigninMobileProps> = ({}) => {
             Sign in
           </Text>
         </FancyButton>
-      </Flex>
-
-      <Flex justifyContent={"center"} mt={"1.5rem"}>
-        <Link href={"#"} style={{ fontSize: "14px", fontWeight: "600" }}>
-          Sign in with passkey
-        </Link>
       </Flex>
     </Box>
   );
