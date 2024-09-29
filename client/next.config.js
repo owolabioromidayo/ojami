@@ -1,31 +1,32 @@
 const withPWA = require("next-pwa")({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
-  cacheOnFrontEndNav: true,
   register: true,
+  skipWaiting: true,
   scope: "/",
-  sw: "/service-worker.js",
+  sw: "service-worker.js",
+  runtimeCaching: [
+    {
+      urlPattern: /^https?.*/,
+      handler: "NetworkFirst",
+      options: {
+        cacheName: "offlineCache",
+        expiration: {
+          maxEntries: 200,
+          maxAgeSeconds: 24 * 60 * 60, // 24 hours
+        },
+      },
+    },
+  ],
   fallbacks: {
-    // Failed page requests fallback to this.
-    document: "/pages/_offline.tsx",
-    // This is for /_next/.../.json files.
-    data: "/fallback.json",
+    document: "/offline",
   },
 });
+
 /** @type {import('next').NextConfig} */
-const nextConfig = { reactStrictMode: true, images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-        pathname: '/**',
-      },
-      {
-        protocol: 'http',
-        hostname: '**',
-        pathname: '/**',
-      },
-    ],
-  },};
+const nextConfig = {
+  reactStrictMode: true,
+  // ... rest of your nextConfig
+};
 
 module.exports = withPWA(nextConfig);

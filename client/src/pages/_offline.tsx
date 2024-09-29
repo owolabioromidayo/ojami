@@ -5,7 +5,6 @@ const Offline = () => {
     return (
         <MarketLayout>
             <Text> You are offline!!! </Text>
-
         </MarketLayout>
     )
 }
