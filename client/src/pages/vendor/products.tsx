@@ -96,7 +96,7 @@ const ProductItem: React.FC<ProductItemProps> = ({
 
 const Products: NextPageWithLayout<{}> = () => {
   useViewportHeight();
-  const baseUrl = "https://api.ojami.shop";
+  const baseUrl = process.env.NEXT_PUBLIC_OJAMI;
   const { user } = useOjaContext();
   const [currentStoreIndex, setCurrentStoreIndex] = useState<number>(0);
   const [currentStoreData, setCurrentStoreData] = useState(

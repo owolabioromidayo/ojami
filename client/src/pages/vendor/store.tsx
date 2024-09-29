@@ -34,7 +34,7 @@ const Store: NextPageWithLayout<{}> = () => {
   const toast = useToast();
   const { isOpen, onToggle, onClose } = useDisclosure();
   const { user } = useOjaContext();
-  const baseUrl = "https://api.ojami.shop";
+  const baseUrl = process.env.NEXT_PUBLIC_OJAMI;
   const storeData = user?.storefronts;
 
   const [currentStoreIndex, setCurrentStoreIndex] = useState<number>(0);

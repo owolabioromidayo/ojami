@@ -64,7 +64,7 @@ const VendorLayout: FC<VendorLayoutProps> = ({ children }) => {
   useViewportHeight();
   const pathName = usePathname();
   const router = useRouter();
-  const baseUrl = "https://api.ojami.shop";
+  const baseUrl = process.env.NEXT_PUBLIC_OJAMI;
 
   useEffect(() => {
     const fetchUserData = async () => {

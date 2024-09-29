@@ -81,7 +81,7 @@ const RegisterBusinessMobile: FC<RegisterBusinessMobileProps> = ({}) => {
   const [bannerImageUrl, setBannerImageUrl] = useState("");
   const [tags, setTags] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const baseUrl = "https://api.ojami.shop";
+  const baseUrl = process.env.NEXT_PUBLIC_OJAMI;
 
   const profileInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);

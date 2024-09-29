@@ -21,11 +21,10 @@ interface SignupMobileProps {}
 const SignupMobile: FC<SignupMobileProps> = ({}) => {
   useViewportHeight();
   const [dateInput, setDateInput] = useState("text");
-  const [birthdate, setBirthdate] = useState("")
   const [role, setRole] = useState<string | null>("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const toast = useToast()
-  const baseUrl = `${process.env.NEXT_PUBLIC_OJAMI}`;
+  const baseUrl = process.env.NEXT_PUBLIC_OJAMI
 
   useEffect(() => {
     let role = localStorage.getItem("role");

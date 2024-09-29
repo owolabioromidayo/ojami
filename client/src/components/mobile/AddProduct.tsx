@@ -97,7 +97,7 @@ const AddProductMobile: FC<AddProductMobileProps> = ({}) => {
   const [imageUrls, setImageUrls] = useState<string[]>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tags, setTags] = useState([]);
-  const baseUrl = "https://api.ojami.shop";
+  const baseUrl = process.env.NEXT_PUBLIC_OJAMI;
   const [currentStoreIndex, setCurrentStoreIndex] = useState<number>(0);
 
   const inputRef = useRef<HTMLInputElement>(null);

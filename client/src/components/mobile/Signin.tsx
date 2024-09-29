@@ -16,7 +16,7 @@ import axios from "axios";
 interface SigninMobileProps {}
 
 const SigninMobile: FC<SigninMobileProps> = ({}) => {
-  const baseUrl = "https://api.ojami.shop";
+  const baseUrl = process.env.NEXT_PUBLIC_OJAMI;
   const toast = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
