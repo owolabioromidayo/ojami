@@ -47,7 +47,7 @@ const StorePage = () => {
 
   const fetchStoreData = async () => {
     if (!storename) return;
-    const url = `http://localhost:4000/api/ecommerce/storefronts/str/${storename}`;
+    const url = `https://api.ojami.shop/api/ecommerce/storefronts/str/${storename}`;
 
     try {
       const response = await fetch(url, { credentials: "include" });

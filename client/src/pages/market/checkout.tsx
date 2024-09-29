@@ -18,8 +18,14 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useState, useEffect, useContext } from "react";
-import { IoFileTrayOutline, IoPersonOutline, IoTicketOutline, IoTrashOutline } from "react-icons/io5";
-import Script from 'next/script';
+import {
+  IoFileTrayOutline,
+  IoInformationCircleOutline,
+  IoPersonOutline,
+  IoTicketOutline,
+  IoTrashOutline,
+} from "react-icons/io5";
+import Script from "next/script";
 
 const Checkout = () => {
   const [orders, setOrders] = useState<Array<Order> | null>(null);
@@ -29,7 +35,7 @@ const Checkout = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const fetchOrders = async () => {
-    const url = `http://localhost:4000/api/ecommerce/orders/me`;
+    const url = `https://api.ojami.shop/api/ecommerce/orders/me`;
 
     try {
       const response = await fetch(url, { credentials: "include" });
@@ -39,7 +45,6 @@ const Checkout = () => {
       const storeData = await response.json(); // Parse the JSON from the response
       setOrders(storeData.orders); // Update the products state with fetched data
       setProducts(storeData.products);
-      console.log(storeData);
     } catch (error: any) {
       setError(error.message); // Update error state if there's an error
     } finally {
@@ -52,12 +57,16 @@ const Checkout = () => {
     }
   }, [orders]);
 
-  const calculateTotalPrice = (products: Product[] | null, orders: Order[] | null) => {
-    if (!products || products.length === 0 || !orders || orders.length === 0) return 0;
+  const calculateTotalPrice = (
+    products: Product[] | null,
+    orders: Order[] | null
+  ) => {
+    if (!products || products.length === 0 || !orders || orders.length === 0)
+      return 0;
     return orders.reduce((total, order) => {
-      const product = products.find(p => p.id === order.product);
+      const product = products.find((p) => p.id === order.product);
       if (!product) return total;
-      return total + (product.price * order.count);
+      return total + product.price * order.count;
     }, 0);
   };
 
@@ -66,19 +75,26 @@ const Checkout = () => {
 
   const { isOpen: isAOpen, onToggle: onAToggle } = useDisclosure();
 
-  const handleSendMoney = async() => {
+  const handleSendMoney = async () => {
     for (const order of orders!) {
-      const response = await fetch("http://localhost:4000/api/payments/make_virtual_payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          receivingUserId: order.toUser,
-          orderId: order.id,
-          isInstantPurchase: false,
-          amount: (products?.find(p => p.id === order.product)?.price!) * order.count + 2500 + (products?.find(p => p.id === order.product)?.price! * 0.05)
-        })
-      });
+      const response = await fetch(
+        "https://api.ojami.shop/api/payments/make_virtual_payment",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            receivingUserId: order.toUser,
+            orderId: order.id,
+            isInstantPurchase: false,
+            amount:
+              products?.find((p) => p.id === order.product)?.price! *
+                order.count +
+              2500 +
+              products?.find((p) => p.id === order.product)?.price! * 0.05,
+          }),
+        }
+      );
       const data = await response.json();
       if (!response.ok) {
         toast({
@@ -87,7 +103,7 @@ const Checkout = () => {
           status: "error",
           duration: 5000,
           position: "top",
-          containerStyle: { border: "2px solid #000", rounded: "md" },
+          containerStyle: { border: "2px solid #000", rounded: "10px" },
         });
       } else {
         toast({
@@ -96,71 +112,81 @@ const Checkout = () => {
           status: "success",
           duration: 5000,
           position: "top",
-          containerStyle: { border: "2px solid #000", rounded: "md" },
+          containerStyle: { border: "2px solid #000", rounded: "10px" },
         });
       }
     }
     // Redirect after all payments are processed
-    // window.location.assign("/market");
+    setTimeout(() => {
+      window.location.assign("/market");
+    }, 3000);
   };
 
   const [koraData, setKoraData] = useState<any>(null);
 
-  const handlePayWithKora = async() => {
-      const response = await fetch("http://localhost:4000/api/payments/pay_in/checkout_standard", {
+  const handlePayWithKora = async () => {
+    for (const order of orders!) {
+    const response = await fetch(
+      "https://api.ojami.shop/api/payments/pay_in/checkout_standard",
+      {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
           currency: "NGN",
-        //   amount: (products?.find(p => p.id === order.product)?.price!) * order.count + 2500 + (products?.find(p => p.id === order.product)?.price! * 0.05)
-        amount: 2500
-        })
-      });
+          orderId: order.id,
+          amount:
+            products?.find((p) => p.id === order.product)?.price! *
+              order.count +
+            2500 +
+            products?.find((p) => p.id === order.product)?.price! * 0.05,
+          redirect_url: "https://www.ojami.shop/market",
+        }),
+      }
+    );
       const data = await response.json();
       setKoraData(data.data);
-      if (!response.ok) {
-        toast({
-          title: "Checkout Error",
-          description: `Failed to initiate payment`,
-          status: "error",
-          duration: 5000,
-          position: "top",
-          containerStyle: { border: "2px solid #000", rounded: "md" },
+    
+    if (!response.ok) {
+      toast({
+        title: "Checkout Error",
+        description: `Failed to initiate payment`,
+        status: "error",
+        duration: 5000,
+        position: "top",
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
+      });
+    } else {
+      toast({
+        title: "Checkout Initiated",
+        description: `Payment with Kora`,
+        status: "info",
+        duration: 5000,
+        position: "top",
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
+      });
+      setTimeout(() => {
+        window.Korapay.initialize({
+          key: process.env.NEXT_PUBLIC_PUB!,
+          reference: data.data.reference,
+          narration: "Payment for product Y",
+          amount: data.data.amount,
+          currency: "NGN",
+          customer: {
+            name: user?.firstname + " " + user?.lastname,
+            email: user?.email,
+          },
+          notification_url:
+            "https://api.ojami.shop/api/payments/korapay_webhook",
         });
-      } else {
-        toast({
-          title: "Checkout Initiated",
-          description: `Payment with Kora`,
-          status: "info",
-          duration: 5000,
-          position: "top",
-          containerStyle: { border: "2px solid #000", rounded: "md" },
-        });
-        setTimeout(() => {
-            window.Korapay.initialize({
-                key: process.env.NEXT_PUBLIC_PUB,
-                reference: data.data.reference,
-                narration: "Payment for product Y",
-                amount: data.data.amount, 
-                currency: "NGN",
-                customer: {
-                  name: user?.firstname + " " + user?.lastname,
-                  email: user?.email
-                },
-                notification_url: "http://localhost:4000/api/payments/korapay_webhook"
-            });
-        }, 700)
-      }
-    // for (const order of orders!) {
-    // }
+      }, 700);
+    }
+    }
     // Redirect after all payments are processed
     // window.location.assign("/market");
   };
 
-  function payKorapay() {
-    
-}
+  function payKorapay() {}
 
   return (
     <Flex direction="column" h="100vh" align="center">
@@ -195,8 +221,22 @@ const Checkout = () => {
           </Flex>
         </Flex>
       </Flex>
-      <Flex mt="100px" h="full" w="full" maxW="1650px" justify="space-between">
-        <Flex borderRight="2px solid #000" w="full" h="full" py={6} pl={{ base: 6, lg: 0 }} pr={6}>
+      <Flex
+        mt="100px"
+        h="full"
+        w="full"
+        direction={{ base: "column", md: "row" }}
+        maxW="1650px"
+        justify="space-between"
+      >
+        <Flex
+          borderRight="2px solid #000"
+          w="full"
+          h={{ md: "full" }}
+          py={6}
+          pl={{ base: 6, lg: 0 }}
+          pr={6}
+        >
           <Stack w="full">
             <Text fontSize="22px" fontWeight="600">
               Your details
@@ -274,6 +314,27 @@ const Checkout = () => {
               />
             </Flex>
 
+            <Flex
+              w="full"
+              h="70px"
+              bg="green.100"
+              border="2px solid #000"
+              rounded="10px"
+              px={3}
+              gap={2}
+              align="center"
+            >
+              <Icon as={IoInformationCircleOutline} fontSize="24px" />
+              <Stack spacing={0}>
+                <Text fontSize={{ base: "12px", md: "16px" }} fontWeight="600">
+                  Delivery includes a PIN confirmation
+                </Text>
+                <Text fontSize={{ base: "10px", md: "14px" }} fontWeight="400">
+                  This helps ensure that your order is given to the right person
+                </Text>
+              </Stack>
+            </Flex>
+
             {/** Shipping Method */}
             <Text mt={2} fontSize="22px" fontWeight="600">
               Payment method
@@ -283,16 +344,28 @@ const Checkout = () => {
             </Text>
 
             <Flex w="full" gap={4} my={4}>
-              <FancyButton w="180px" bg="/assets/buttons/oja-sweet-orange.svg" h="80px" onClick={onAToggle}>
+              <FancyButton
+                w="180px"
+                bg="/assets/buttons/oja-sweet-orange.svg"
+                h="80px"
+                onClick={onAToggle}
+                fontSize={{ base: "12px", md: "16px" }}
+              >
                 Pay with Oja Wallet
               </FancyButton>
-              <FancyButton w="180px" bg="/assets/buttons/oja-sweet-purple.svg" h="80px" onClick={handlePayWithKora}>
+              <FancyButton
+                w="180px"
+                bg="/assets/buttons/oja-sweet-purple.svg"
+                h="80px"
+                onClick={handlePayWithKora}
+                fontSize={{ base: "12px", md: "16px" }}
+              >
                 Pay with Kora
               </FancyButton>
             </Flex>
             <Collapse in={isAOpen} animateOpacity>
               <Box
-                w="400px"
+                w={{ md: "400px" }}
                 p="20px"
                 mt="4"
                 bg="white"
@@ -315,90 +388,140 @@ const Checkout = () => {
                     NGN {user?.virtualWallet?.balance?.toLocaleString()}
                   </Text>
                 </Box>
-                <Text mt={5} fontSize={18} fontWeight={500}>Pay ₦{(totalPrice + 2500 + (totalPrice * 0.05)).toLocaleString()} from your wallet</Text>
+                <Text mt={5} fontSize={18} fontWeight={500}>
+                  Pay ₦
+                  {(totalPrice + 2500 + totalPrice * 0.05).toLocaleString()}{" "}
+                  from your wallet
+                </Text>
                 <Flex mt={5} gap={4} w="full" justify="space-between">
-                    <Button w="full" bg="#000" color="#fff" _hover={{ bg: "orange.500" }} _active={{ transform: "scale(0.95)" }} transition="all 0.3s ease" onClick={handleSendMoney}>Send Money</Button>
-                    <Button w="full" bg="#fff" color="#000" _hover={{ bg: "#f0f0f0" }} _active={{ transform: "scale(0.95)" }} onClick={onAToggle}>Cancel</Button>
+                  <Button
+                    w="full"
+                    bg="#000"
+                    color="#fff"
+                    _hover={{ bg: "orange.500" }}
+                    _active={{ transform: "scale(0.95)" }}
+                    transition="all 0.3s ease"
+                    onClick={handleSendMoney}
+                  >
+                    Send Money
+                  </Button>
+                  <Button
+                    w="full"
+                    bg="#fff"
+                    color="#000"
+                    _hover={{ bg: "#f0f0f0" }}
+                    _active={{ transform: "scale(0.95)" }}
+                    onClick={onAToggle}
+                  >
+                    Cancel
+                  </Button>
                 </Flex>
               </Box>
             </Collapse>
           </Stack>
         </Flex>
         <Flex w="full" h="full" pos="sticky" top="0" p={6} direction="column">
-          {orders && products?.map((item, index) => (
-            <Flex
-              direction="column"
-              gap={3}
-              borderBottom="2px solid #000"
-              py={3}
-              px={1}
-              key={item.id}
-            >
+          {orders &&
+            products?.map((item, index) => (
               <Flex
+                direction="column"
                 gap={3}
-                w="full"
-                alignItems="center"
-                justify="space-between"
+                borderBottom="2px solid #000"
+                py={3}
+                px={1}
+                key={item.id}
               >
                 <Flex
-                  cursor="pointer"
                   gap={3}
                   w="full"
-                  py={3}
-                  px={1}
-                  key={item.id}
                   alignItems="center"
                   justify="space-between"
                 >
-                  <Flex gap={2} align="center" pos="relative">
-                    <Image
-                      border="2px solid #000"
-                      rounded="md"
-                      src={item?.images[0]}
-                      w="80px"
-                      h="80px"
-                      objectFit="cover"
-                      alt={item.name}
-                    />
-                    <Flex pos="absolute" top="-2" left="-2" p={3} w="20px" h="20px" bg="#000" rounded="full" align="center" justify="center" fontSize="20px" fontWeight="600" color="#fff">
-                      {orders[index].count}
-                    </Flex>
-                    <Stack>
-                      <Flex align="center" gap={2}>
-                        <Image
-                          src={item.storefront?.profileImageUrl!}
-                          w="30px"
-                          h="30px"
-                          alt={item.storefront?.storename}
-                          rounded="10px"
-                        />
-                        <Text fontSize={15} fontWeight={500}>
-                          {item.storefront?.storename}
-                        </Text>
+                  <Flex
+                    cursor="pointer"
+                    gap={3}
+                    w="full"
+                    py={3}
+                    px={1}
+                    key={item.id}
+                    alignItems="center"
+                    justify="space-between"
+                  >
+                    <Flex gap={2} align="center" pos="relative">
+                      <Image
+                        border="2px solid #000"
+                        rounded="md"
+                        src={item?.images[0]}
+                        w="80px"
+                        h="80px"
+                        objectFit="cover"
+                        alt={item.name}
+                      />
+                      <Flex
+                        pos="absolute"
+                        top="-2"
+                        left="-2"
+                        p={3}
+                        w="20px"
+                        h="20px"
+                        bg="#000"
+                        rounded="full"
+                        align="center"
+                        justify="center"
+                        fontSize="20px"
+                        fontWeight="600"
+                        color="#fff"
+                      >
+                        {orders[index].count}
                       </Flex>
-                      <Text fontSize={20} fontWeight={500} w="400px">
-                        {item.name}
-                      </Text>
-                    </Stack>
+                      <Stack>
+                        <Flex align="center" gap={2}>
+                          <Image
+                            src={item.storefront?.profileImageUrl!}
+                            w="30px"
+                            h="30px"
+                            alt={item.storefront?.storename}
+                            rounded="10px"
+                          />
+                          <Text fontSize={15} fontWeight={500}>
+                            {item.storefront?.storename}
+                          </Text>
+                        </Flex>
+                        <Text fontSize={20} fontWeight={500} w="400px">
+                          {item.name}
+                        </Text>
+                      </Stack>
+                    </Flex>
+                    <Text fontSize={20} fontWeight={500}>
+                      ₦{item.price?.toLocaleString()}
+                    </Text>
                   </Flex>
-                  <Text fontSize={20} fontWeight={500}>
-                    ₦{item.price?.toLocaleString()}
-                  </Text>
                 </Flex>
               </Flex>
-            </Flex>
-          ))}
+            ))}
           <Flex w="full" justify="space-between" align="center" mt={6}>
-            <Text fontSize={15} fontWeight={500}>Delivery</Text>
-            <Text fontSize={15} fontWeight={500}>₦2,500</Text>
+            <Text fontSize={15} fontWeight={500}>
+              Delivery
+            </Text>
+            <Text fontSize={15} fontWeight={500}>
+              ₦2,500
+            </Text>
           </Flex>
           <Flex w="full" justify="space-between" align="center" mt={6}>
-            <Text fontSize={15} fontWeight={500}>Service Fee</Text>
-            <Text fontSize={15} fontWeight={500}>₦{(totalPrice * 0.05).toLocaleString()}</Text>
+            <Text fontSize={15} fontWeight={500}>
+              Service Fee
+            </Text>
+            <Text fontSize={15} fontWeight={500}>
+              ₦{(totalPrice * 0.05).toLocaleString()}
+            </Text>
           </Flex>
           <Flex w="full" justify="space-between" align="center" mt={6}>
-            <Text fontSize={22} fontWeight={500}>Total</Text>
-            <Text fontSize={22} fontWeight={500}>₦{(totalPrice + 2500 + (totalPrice * 0.05)).toLocaleString()}</Text>
+            <Text fontSize={22} fontWeight={500}>
+              Total
+            </Text>
+            <Text fontSize={22} fontWeight={500}>
+              ₦{(totalPrice + 2500 + totalPrice * 0.05).toLocaleString()}
+            </Text>
           </Flex>
         </Flex>
       </Flex>

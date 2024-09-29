@@ -17,6 +17,7 @@ import authRoutes from './routes/auth.routes';
 import identityRoutes from './routes/identity.routes';
 import paymentRoutes from './routes/payment.routes';
 import ecommerceRoutes from './routes/ecommerce.routes';
+import aiRoutes from './routes/ai.routes';
 import webhookRoutes from './routes/webhook.routes';
 import { isAuth } from './middleware/isAuth';
 import { ProductLink } from "./entities/ProductLink";
@@ -66,7 +67,7 @@ export const createApp = async () => {
   app.set("trust proxy", 1);
   app.use(cors({
     credentials: true,
-    origin: [`http://localhost:${process.env.PORT || 3000}`]
+    origin: [`http://localhost:${process.env.PORT || 3000}`, 'https://ojami.shop']
   }));
 
   app.use(helmet());
@@ -99,6 +100,7 @@ export const createApp = async () => {
   app.use('/api/ecommerce', ecommerceRoutes);
   app.use('/api/payments', paymentRoutes);
   app.use('/api/webhooks', webhookRoutes);
+  app.use('/api/ai', aiRoutes);
   app.get('/p/:id', isAuth, resolvePaymentLink);
 
 

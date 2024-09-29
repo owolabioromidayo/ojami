@@ -101,6 +101,25 @@ export interface Product {
     tags: Array<Tag>; // ManyToMany relation with Tag as an array
 }
 
+export enum VoucherStatus {
+  ACTIVE = 'active',
+  REDEEMED = 'redeemed',
+  EXPIRED = 'expired',
+}
+
+export interface Voucher {
+  id: number;
+  voucherId: string;     // Unique identifier for the voucher
+  currency: string;      // Currency type (e.g., USD, NGN)
+  amount: number;        // Amount associated with the voucher
+  status: VoucherStatus; // Status of the voucher (active, redeemed, etc.)
+  createdAt: Date;       // Date when the voucher was created
+  owner: User;           // User who owns the voucher
+  redeemer?: User;       // User who redeemed the voucher (optional)
+  publicKey: string;     // Public key associated with the voucher
+  signature: string;     // Signature for verification purposes
+}
+
 
 export interface User {
     id: number;

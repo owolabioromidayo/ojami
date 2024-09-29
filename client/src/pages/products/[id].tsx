@@ -46,7 +46,7 @@ const ProductsPage = () => {
 
   const fetchproductData = async () => {
     if (!productId) return;
-    const url = `http://localhost:4000/api/ecommerce/products/${productId}`;
+    const url = `https://api.ojami.shop/api/ecommerce/products/${productId}`;
 
     try {
       const response = await fetch(url, { credentials: "include" });
@@ -102,7 +102,7 @@ const ProductsPage = () => {
   const { cart, setCart } = useContext(OjaContext);
 
   const addToCart = async () => {
-    const response = await fetch("http://localhost:4000/api/ecommerce/carts/add", {
+    const response = await fetch("https://api.ojami.shop/api/ecommerce/carts/add", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -119,7 +119,7 @@ const ProductsPage = () => {
         status: "error",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
     } else {
       // Update the cart state
@@ -148,7 +148,7 @@ const ProductsPage = () => {
         status: "info",
         duration: 5000,
         position: "top",
-        containerStyle: { border: "2px solid #000", rounded: "md" },
+        containerStyle: { border: "2px solid #000", rounded: "10px" },
       });
     }
   };
