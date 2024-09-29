@@ -224,7 +224,7 @@ const Store: NextPageWithLayout<{}> = () => {
             py="0.75rem"
             mt={2}
             _focus={{ backgroundColor: "#00000070" }}
-            onClick={() => router.push("/auth/register-business")}
+            onClick={() => router.push("/vendor/register-business")}
           >
             Register Business
           </Button>

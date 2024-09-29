@@ -5,7 +5,7 @@ const uploadImage = async (
   toast: any,
   callback: (imageName: string, imageUrl: string) => void
 ) => {
-  const upload_preset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+  const upload_preset = "f7jnwshb";
   const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/dat1uvwz1/image/upload`;
   let imageUrl = "";
   let imageName = "";
