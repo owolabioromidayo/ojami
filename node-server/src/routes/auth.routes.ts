@@ -10,6 +10,7 @@ const router = express.Router();
 
 router.post("/users/signup", registerUser);
 router.post("/users/login", loginUser);
+router.post("/users/logout", logoutUser);
 router.post("/users/change_password", changePassword);
 router.post("/users/forgot_password", forgotPassword);
 router.get("/users/me", getCurrentUser);
@@ -171,6 +172,22 @@ async function getUser(req: Request, res: Response) {
     }
 }
 
+async function logoutUser(req: Request, res: Response) {
+    if (req.session) {
+        req.session.destroy((err) => {
+            if (err) {
+                return res.status(500).json({
+                    errors: [{ field: 'Could not log out', message: 'An error occurred while logging user out, please try again' }]
+                });
+            }
+            res.clearCookie(`${cookieName}`, { path: '/' });
+            return res.status(200).json({ message: 'Logged out successfully' });
+        });
+    } else {
+        return res.status(401).json({ message: 'User not authenticated.' });
+    }
+}
+
 async function getCurrentUser(req: Request, res: Response) {
     if (!req.session.userid) {
         return res.status(401).json({
@@ -187,7 +204,7 @@ async function getCurrentUser(req: Request, res: Response) {
     const em = (req as RequestWithContext).em;
 
     try {
-        const user = await em.fork({}).findOneOrFail(User, { id: req.session.userid }, { populate: ["virtualWallet"]});
+        const user = await em.fork({}).findOneOrFail(User, { id: req.session.userid }, { populate: ["virtualWallet", "storefronts"]});
         return res.status(200).json({ user });
     } catch (err) {
         return res.status(500).json({ errors: [{ field: 'Could not fetch user', message: err }] });
