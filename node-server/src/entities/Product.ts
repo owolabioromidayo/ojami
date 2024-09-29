@@ -10,7 +10,7 @@ export class Product {
   @PrimaryKey()
   id!: number;
 
-  @Property({ length: 1000 })
+  @Property({ length: 10485760 })
   name!: string;
 
   @Property({ type: 'json' })
@@ -22,7 +22,7 @@ export class Product {
   @Property({ type: 'blob' })
   threeDModel?: Buffer;
 
-  @Property({ length: 10000 })
+  @Property({ length: 10485760 })
   description!: string;
 
   @Property()

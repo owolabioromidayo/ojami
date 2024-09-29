@@ -7,10 +7,12 @@ import { fakeStores, images } from "../../fakedata";
 import { SearchModal } from "@/components/utils/search-modal";
 import React, { useContext } from "react";
 import { OjaContext } from "@/components/provider";
+import { useRouter } from "next/router";
 
 export default function Home() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { stores } = useContext(OjaContext)
+  const router = useRouter()
 
   return (
     <LandingLayout>
@@ -44,7 +46,7 @@ export default function Home() {
             w="200px"
             minH="100px"
             transform="rotate(10deg)"
-            onClick={onOpen}
+            onClick={() => router.push('/market')}
           >
             shop now
           </FancyButton>

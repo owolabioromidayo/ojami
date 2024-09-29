@@ -39,6 +39,13 @@ interface GenjitsuProps{
     vendor: string;
 }
 
+// Add this function at the top of the file, outside of the component
+const isMobileDevice = () => {
+  const userAgent = typeof window.navigator === "undefined" ? "" : navigator.userAgent;
+  const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+  return mobileRegex.test(userAgent);
+};
+
 export const Genjitsu: React.FC<GenjitsuProps> = ({model, avatar, review, ratings, caption, price, vendor}) => {
   const [store, setStore] = useState<XRStore | null>(null);
   const [scale, setScale] = useState(0.7); // State for model scale
@@ -47,16 +54,22 @@ export const Genjitsu: React.FC<GenjitsuProps> = ({model, avatar, review, rating
   const { isOpen: isAOpen, onOpen: onAOpen, onClose: onAClose } = useDisclosure()
   const cancelRef = React.useRef(null)
   const [mobile] = useMediaQuery('(max-width: 600px)')
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     // Create the XR store only in the client
     const xrStore = createXRStore({ depthSensing: true, hand: false });
     setStore(xrStore);
+
+    // Check if the device is mobile
+    setIsMobile(isMobileDevice());
   }, []);
 
   if (!store) {
     return <div>Loading...</div>; // show a loading state while the store is being created
   }
+
+
 
   return (
     <Flex
@@ -127,7 +140,7 @@ export const Genjitsu: React.FC<GenjitsuProps> = ({model, avatar, review, rating
         bottom="-40px"
         right={"-35px"}
         pos="absolute"
-        onClick={() => store.enterAR()}
+        onClick={() => {isMobile ? store.enterAR() : onAOpen()}}
       >
         <Flex gap={2} align="center">
           <Icon as={TbCube3dSphere} />
@@ -232,22 +245,19 @@ export const Genjitsu: React.FC<GenjitsuProps> = ({model, avatar, review, rating
         onClose={onAClose}
         isOpen={isAOpen}
         isCentered
+        closeOnOverlayClick={false}
       >
         <AlertDialogOverlay />
 
         <AlertDialogContent>
-          <AlertDialogHeader>Discard Changes?</AlertDialogHeader>
+          <AlertDialogHeader>View AR Product</AlertDialogHeader>
           <AlertDialogCloseButton />
           <AlertDialogBody>
-            Are you sure you want to discard all of your notes? 44 words will be
-            deleted.
+            Your device does not support AR. Please use a device with AR capabilities to view this product. 
           </AlertDialogBody>
           <AlertDialogFooter>
-            <Button ref={cancelRef} onClick={onClose}>
-              No
-            </Button>
-            <Button colorScheme='red' ml={3}>
-              Yes
+            <Button ref={cancelRef} onClick={onAClose}>
+              Close
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
