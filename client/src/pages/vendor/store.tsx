@@ -260,7 +260,7 @@ const Store: NextPageWithLayout<{}> = () => {
                   _active={{ bg: "#E2E8F0", borderColor: "#2BADE5" }}
                   transition="background-color 0.2s, border-color 0.2s"
                   cursor="pointer"
-                  boxShadow="sm"
+                  shadow={'md'}
                   w="full"
                   justifyContent="space-between"
                   rounded="full"
@@ -310,6 +310,7 @@ const Store: NextPageWithLayout<{}> = () => {
                           size={"sm"}
                           src={store.profileImageUrl}
                           border={"2px solid #000000"}
+                          name={store.storename}
                         />
                         <Text fontSize={"xs"} fontWeight={"500"}>
                           {store.storename}

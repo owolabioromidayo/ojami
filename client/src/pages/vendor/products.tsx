@@ -132,7 +132,7 @@ const Products: NextPageWithLayout<{}> = () => {
       }
     };
     getStoreProducts();
-  }, [user]);
+  }, [user, currentStoreIndex]);
 
   return (
     <Box

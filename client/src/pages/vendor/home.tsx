@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ReactElement } from "react";
 import {
   Box,
@@ -35,13 +35,20 @@ import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import FancyButton from "@/components/ui/fancy-button";
 import { MdOutlineKeyboardArrowLeft } from "react-icons/md";
+import { Product } from "@/utils/types";
+import { Order } from "@/utils/types";
 import axios from "axios";
+
+export interface vendorOrders {
+  products: Product[];
+  orders: Order[];
+}
 
 const VendorHome: NextPageWithLayout<{}> = () => {
   const { user } = useOjaContext();
   const router = useRouter();
   const toast = useToast();
-    const baseUrl = process.env.NEXT_PUBLIC_OJAMI
+  const baseUrl = process.env.NEXT_PUBLIC_OJAMI
   const { isOpen, onOpen, onClose } = useDisclosure();
   const currentDate = format(new Date(), "MMMM yyyy");
   const [destination, setDestination] = useState({
@@ -56,7 +63,17 @@ const VendorHome: NextPageWithLayout<{}> = () => {
       email: "",
     }
   })
+
+  const [vendorOrders, setVendorOrders] = useState<vendorOrders>()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  const orders = vendorOrders?.orders?.map((order, index) => {
+    const product = vendorOrders.products[index] || {};
+    return {
+      ...order,
+      ...product,
+    };
+  });
 
   const quickLinks = [
     {
@@ -82,47 +99,6 @@ const VendorHome: NextPageWithLayout<{}> = () => {
     {
       image: "/images/mobile/vendorHome/request-payout.svg",
       title: "Request Payout",
-    },
-  ];
-
-  const orderHistory = [
-    {
-      profileImg: "/images/mobile/profile.svg",
-      status: "completed",
-      amount: 1102000,
-      firstName: "Andrew",
-      lastName: "Okafor",
-      items: [
-        "1x PlayStation 5 Slim 1TB 1x",
-        "EA FC25 Standard Version 1x PS5 Dualshock Controller x2",
-      ],
-    },
-    {
-      profileImg: "/images/mobile/profile.svg",
-      status: "cancelled",
-      amount: -355000,
-      firstName: "Sarah",
-      lastName: "Benibo",
-      items: ["1x iPhone 13 Pro 256GB SSD"],
-    },
-    {
-      profileImg: "/images/mobile/profile.svg",
-      status: "delivering",
-      amount: 1102000,
-      firstName: "Victoria",
-      lastName: "Folarin",
-      items: ["1x Sony XM1000-WH5", "2x Oraimo Freepods 4"],
-    },
-    {
-      profileImg: "/images/mobile/profile.svg",
-      status: "cancelled",
-      amount: 0,
-      firstName: "Joshua",
-      lastName: "Danjuma",
-      items: [
-        "1x PlayStation 5 Slim 1TB 1x",
-        "EA FC25 Standard Version 1x PS5 Dualshock Controller x2",
-      ],
     },
   ];
 
@@ -174,6 +150,26 @@ const VendorHome: NextPageWithLayout<{}> = () => {
       setIsSubmitting(false);
     }
   };
+
+
+  useEffect(() => {
+    const getVendorOrders = async () => {
+      try {
+        const response = await axios.get(
+          `${baseUrl}/api/ecommerce/orders/vendor`,
+          { withCredentials: true }
+        );
+        if(response.status === 200) {
+          setVendorOrders(response.data)
+        } else {
+          console.error("Failed to fetch vendor orders");
+        }
+      } catch (err: any) {
+        console.log("error", err);
+      }
+    };
+    getVendorOrders()
+  }, [user, baseUrl])
 
   return (
     <Box
@@ -419,21 +415,32 @@ const VendorHome: NextPageWithLayout<{}> = () => {
           </Heading>
 
           <Stack mt={"1rem"}>
-            {orderHistory.map((item, index) => (
+            {orders?.map((item, index) => (
               <Flex
                 justifyContent={"space-between"}
                 alignItems={"center"}
                 key={index}
+                bg={'gray.200'}
+                p={'0.5rem'}
+                rounded={'lg'}
+                border={'2px solid #000000'}
               >
-                <Flex gap={2}>
+                <Flex gap={2} alignItems={'center'}>
                   <Avatar
-                    src="/images/mobile/profile.svg"
+                    src={item.images[0]}
                     border={"2px solid #000000"}
+                    name={item.name}
+                    size={'sm'}
                   />
                   <Stack gap={0}>
                     <Flex gap={2} alignItems={"center"}>
-                      <Text fontWeight={"bold"} fontSize={"xs"}>
-                        Andrew Okafor
+                      <Text
+                        fontWeight={"bold"}
+                        fontSize={"xs"}
+                        maxW={"100px"}
+                        isTruncated
+                      >
+                        {item.storefront.storename}
                       </Text>
                       <Badge
                         fontSize={"3xs"}
@@ -442,25 +449,44 @@ const VendorHome: NextPageWithLayout<{}> = () => {
                         rounded={"2xl"}
                         border={"2px solid #000000"}
                         h={"fit-content"}
-                        backgroundColor={"#00E440"}
+                        backgroundColor={
+                          item.status == "completed"
+                            ? "#00E440"
+                            : item.status == "failed"
+                              ? "#FF0000"
+                              : item.status ==
+                                  "processing"
+                                ? "#5B99C2"
+                                : item.status ==
+                                    "pending"
+                                  ? "#FFC100"
+                                  : "#000000"
+                        }
                         textTransform={"none"}
                       >
-                        completed
+                        {item.status}
                       </Badge>
                     </Flex>
                     <Stack gap={0} lineHeight={"1"} mt={"0.2rem"}>
-                      <Text fontSize={"2xs"} isTruncated>
-                        1x PlayStation 5 Slim 1TB 1x
-                      </Text>
                       <Text fontSize={"2xs"} isTruncated maxW={"130px"}>
-                        EA FC25 Standard Version 1x PS5 Dualshock Controller x2
+                        {item.count}x {item.name}
                       </Text>
                     </Stack>
                   </Stack>
                 </Flex>
 
-                <Text color={"#299517"} fontWeight={"semibold"} fontSize={"xs"}>
-                  + NGN1,102,000
+                <Text
+                  color={
+                    item.status == "failed"
+                      ? "#FF0000"
+                      : "#299517"
+                  }
+                  fontWeight={"semibold"}
+                  fontSize={"xs"}
+                >
+                  {item.status == "failed"
+                    ? `- NGN${item.price.toLocaleString()}`
+                    : `+ NGN${item.price.toLocaleString()}`}
                 </Text>
               </Flex>
             ))}
@@ -468,6 +494,7 @@ const VendorHome: NextPageWithLayout<{}> = () => {
         </Box>
       </Stack>
 
+      {/* Request Payout Drawer */}
       <Drawer
         placement={"bottom"}
         onClose={onClose}
@@ -476,7 +503,8 @@ const VendorHome: NextPageWithLayout<{}> = () => {
       >
         <DrawerOverlay />
         <DrawerContent roundedTop={"xl"}>
-          <Flex px={"0.8rem"} py={"0.5rem"} onClick={onClose}>
+          <DrawerBody px={"0.8rem"}>
+          <Flex py={"0.5rem"} onClick={onClose}>
             <Box
               display={"flex"}
               alignItems={"center"}
@@ -488,18 +516,15 @@ const VendorHome: NextPageWithLayout<{}> = () => {
               <Icon as={MdOutlineKeyboardArrowLeft} boxSize={4} />
             </Box>
           </Flex>
-          <DrawerHeader px={"0.8rem"} py={"0.5rem"}>
-            <Flex alignItems={"center"} gap={1} flexDir={"column"}>
+            <Flex alignItems={"center"} gap={1} flexDir={"column"} mb={'1rem'}>
               <Text fontSize={"xl"} fontWeight={"normal"}>
                 Payout from your wallet to your bank
               </Text>
-              <Text fontSize={"xs"} fontWeight={"normal"}>
+              <Text fontSize={"xs"} fontWeight={"normal"} color={'gray.600'}>
                 A payout is the transfer of funds from your virtual wallet to
                 your bank account
               </Text>
             </Flex>
-          </DrawerHeader>
-          <DrawerBody px={"0.8rem"}>
             <Stack>
               <Box mt={"0.5rem"}>
                 <Text mb="6px" fontSize={"sm"} fontWeight={"semibold"}>
