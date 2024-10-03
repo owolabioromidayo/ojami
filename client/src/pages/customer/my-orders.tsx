@@ -1,7 +1,8 @@
 import { MarketLayout } from "@/components/market/layout";
 import { OjaContext } from "@/components/provider";
+import { TrackOrder } from "@/components/utils/track-order";
 import { Order, Product } from "@/utils/types";
-import { Flex, useToast, Text, Image, Stack, Badge } from "@chakra-ui/react";
+import { Flex, useToast, Text, Image, Stack, Badge, useDisclosure } from "@chakra-ui/react";
 import { useState, useContext, useEffect } from "react";
 
 const MyOrders = () => {
@@ -11,6 +12,9 @@ const MyOrders = () => {
   const toast = useToast();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { isOpen, onOpen, onClose } = useDisclosure();  
+  const [order, setOrder] = useState<Order | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const fetchOrders = async () => {
     const url = `${process.env.NEXT_PUBLIC_OJAMI}/api/ecommerce/orders/me/history`;
 
@@ -22,7 +26,6 @@ const MyOrders = () => {
       const storeData = await response.json(); // Parse the JSON from the response
       setOrders(storeData.orders); // Update the products state with fetched data
       setProducts(storeData.products);
-      console.log(storeData);
     } catch (error: any) {
       setError(error.message); // Update error state if there's an error
     } finally {
@@ -54,6 +57,11 @@ const MyOrders = () => {
                 w="full"
                 alignItems="center"
                 justify="space-between"
+                onClick={() => {
+                  setOrder(orders[index]);
+                  setProduct(products[index]);
+                  onOpen();
+                }}
               >
                 <Flex
                   direction={{ base: "column", md: "row" }}
@@ -133,6 +141,7 @@ const MyOrders = () => {
             </Flex>
           ))}
       </Flex>
+      <TrackOrder isOpen={isOpen} onClose={onClose} order={order!} product={product!} />
     </MarketLayout>
   );
 };

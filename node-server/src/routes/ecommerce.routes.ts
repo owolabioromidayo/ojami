@@ -53,8 +53,11 @@ router.get("/products/:id", getProduct);
 
 // Order Routes
 router.post("/orders", isAuth,  createOrder);
+router.get("/orders/me/history", isAuth,  getUserOrderHistory);
 router.get("/orders/me/", isAuth,  getUserOrders);
 router.get("/orders/:id", isAuth, getOrder);
+router.delete("/orders/:id", isAuth, deleteOrder);
+router.post("/orders/:id/cancel", isAuth, cancelOrder);
 
 // Cart Routes
 router.post("/carts", isAuth, createCart);
@@ -339,12 +342,118 @@ async function getOrder(req: Request, res: Response) {
     }
 }
 
+async function cancelOrder(req: Request, res: Response) {
+    const id = Number(req.params.id);
+
+    if (isNaN(id)) {
+        return res.status(400).json({ errors: [{ field: 'id', message: 'Invalid ID' }] });
+    }
+
+    const em = (req as RequestWithContext).em;
+
+    try {
+        const order = await em.fork({}).findOneOrFail(Order, { id: Number(id) }, { populate: ["fromUser", "product"] });
+        const user = await em.fork({}).findOneOrFail(User, { id: Number(req.session.userid) }, { populate: ["virtualWallet"]});
+
+        // Check if the user is authorized to cancel this order
+        if (order.fromUser.id !== Number(req.session.userid)) {
+            return res.status(401).json({ errors: [{ field: 'auth', message: 'Not authorized to cancel this order' }] });
+        }
+
+        // Check if the order status allows cancellation (only 'processing' orders can be cancelled)
+        if (order.status !== 'processing') {
+            return res.status(400).json({ errors: [{ field: 'status', message: 'Only processing orders can be cancelled' }] });
+        }
+
+        // Change the order status to 'canceled'
+        order.status = 'canceled';
+
+        // refund user
+        user.virtualWallet.balance += (order.product.price * order.count) - 1000;
+
+        // Restore the product quantity
+        const product = order.product;
+        product.quantity += order.count;
+
+        // Update the order and product
+        await em.fork({}).persistAndFlush([order, product, user]);
+
+        return res.status(200).json({ message: 'Order cancelled successfully', order });
+    } catch (err) {
+        return res.status(500).json({ errors: [{ field: 'order', message: 'Could not cancel order', error: err }] });
+    }
+}
+
+
+async function deleteOrder(req: Request, res: Response) {
+    const id = Number(req.params.id);
+
+    if (isNaN(id)) {
+        return res.status(400).json({ errors: [{ field: 'id', message: 'Invalid ID' }] });
+    }
+
+    const em = (req as RequestWithContext).em;
+
+    try {
+        const order = await em.fork({}).findOneOrFail(Order, { id: Number(id) }, { populate: ["fromUser", "product"] });
+
+        // Check if the user is authorized to delete this order
+        if (order.fromUser.id !== Number(req.session.userid)) {
+            return res.status(401).json({ errors: [{ field: 'auth', message: 'Not authorized to delete this order' }] });
+        }
+
+        // Check if the order status allows deletion (e.g., only 'pending' orders can be deleted)
+        if (order.status !== 'pending') {
+            return res.status(400).json({ errors: [{ field: 'status', message: 'Only pending orders can be deleted' }] });
+        }
+
+        // Restore the product quantity
+        const product = order.product;
+        product.quantity += order.count;
+
+        // Remove the order
+        await em.fork({}).removeAndFlush(order);
+
+        // Update the product quantity
+        await em.fork({}).persistAndFlush(product);
+
+        return res.status(200).json({ message: 'Order deleted successfully' });
+    } catch (err) {
+        return res.status(500).json({ errors: [{ field: 'order', message: 'Could not delete order', error: err }] });
+    }
+}
+
+
+
+
 async function getUserOrders(req: Request, res: Response) {
     const em = (req as RequestWithContext).em;
 
     try {
         // Fetch orders for the user
         const orders = await em.fork({}).find(Order, { toUser: Number(req.session.userid), status: { $eq: 'pending'} });
+
+        // Initialize an array to hold products
+        const products = [];
+
+        // Loop through each order to fetch the corresponding product
+        for (const order of orders) {
+            const product = await em.fork({}).findOneOrFail(Product, { id: order.product.id }, { populate: ['storefront'] });
+            products.push(product); // Add the fetched product to the products array
+        }
+
+        return res.status(200).json({ orders, products }); // Return both orders and products
+    } catch (err) {
+        return res.status(500).json({ errors: [{ field: 'orders', message: 'Could not fetch orders for this user', error: err }] });
+    }
+}
+
+async function getUserOrderHistory(req: Request, res: Response) {
+    const em = (req as RequestWithContext).em;
+
+    try {
+        // Fetch orders for the user
+        const orders = await em.fork({}).find(Order, { fromUser: Number(req.session.userid) });
 
         // Initialize an array to hold products
         const products = [];

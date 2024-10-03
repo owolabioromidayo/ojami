@@ -244,6 +244,7 @@ export interface CreateVirtualAccountResponse {
     PROCESSING = 'processing',
     COMPLETED = 'completed',
     FAILED = 'failed',
+    CANCELLED = 'canceled',
   }
   //TODO: alter this
   export enum VirtualTransactionStatus {
