@@ -95,7 +95,7 @@ const Store: NextPageWithLayout<{}> = () => {
     try{
       const response = await axios.post(
         `${baseUrl}/api/payments/vouchers/redeem`,
-        {voucherCode: voucherCode},
+        {voucherId: voucherCode},
         {withCredentials: true}
       );
       if(response.status === 200){
